@@ -1,39 +1,145 @@
-# 🚀 Rust + Svelte 5 + Internet Computer Template
+# 🏦 Treasury Tokenizer - Democratizing US Treasury Bills
 
-A modern, production-ready template for building full-stack decentralized applications on the Internet Computer with Rust backend and Svelte 5 frontend.
+A decentralized platform for fractional ownership of US Treasury Bills on Internet Computer Protocol. Breaking the $1000 minimum barrier, enabling global access to government bonds starting from just $1!
 
-## ✨ Features
+## 🎯 Project Purpose
 
-- **🦀 Rust Backend**: Type-safe canister development with latest Rust features
-- **⚡ Svelte 5**: Latest Svelte with runes, improved reactivity, and performance
-- **🌐 Internet Computer**: Decentralized hosting and computation
-- **🔑 Internet Identity**: Built-in authentication system
-- **📦 Modern Tooling**: Vite 6, TypeScript, SCSS support
-- **🧪 Testing**: Vitest + Testing Library setup
-- **🎨 UI Components**: Custom components with modern styling
-- **📱 Responsive Design**: Mobile-first approach
+### **The Problem:**
+- **T-Bills minimum $1000** investment requirement (₹83,000)
+- **Common people** cannot afford the high entry barrier
+- **Global access** is restricted (US citizens only)
+- **Liquidity** problem - difficult to sell before maturity
+- **Complex process** - requires brokerage accounts and paperwork
 
-## 🛠️ Tech Stack
+### **Our Solution:**
+**Tokenize US Treasury Bills to make them globally accessible!**
+
+---
+
+## 🚀 Repository Purpose - Step by Step
+
+### **1. Tokenization System** 🪙
+```
+Real T-Bill ($1000) → 1000 tokens ($1 each)
+Now invest starting from just $100!
+```
+
+### **2. Fractional Ownership** 🍰
+```
+Before: Must buy entire T-Bill ($1000)
+After: Start with just 10 tokens ($10)
+```
+
+### **3. Global Access** 🌍
+```
+Before: US citizens only
+After: Anyone can invest (powered by ICP blockchain)
+```
+
+### **4. Instant Liquidity** ⚡
+```
+Before: Wait 3 months for maturity
+After: Sell anytime on secondary market
+```
+
+### **5. Transparency** 👁️
+```
+Before: Bank statements, broker reports
+After: Everything visible on blockchain - real-time tracking
+```
+
+---
+
+## 🛠️ Technical Architecture - What We're Building
+
+### **Core Components:**
+1. **Smart Contracts** - Convert T-Bills into tokens
+2. **Marketplace** - Buy/sell platform
+3. **Custody System** - Safely store T-Bills
+4. **Yield Distribution** - Automatically distribute interest
+5. **Portfolio Dashboard** - Real-time tracking
+
+### **User Journey:**
+```
+User Registration → KYC → Deposit Money → Buy T-Bill Tokens → 
+Earn Interest → Sell Anytime → Withdraw Profits
+```
+
+---
+
+## 🌟 Real-World Impact
+
+### **Financial Inclusion** 💰
+- **Students**: Invest in government bonds starting from $500
+- **Small investors**: Diversification opportunity
+- **Global users**: US Treasury security worldwide
+
+### **DeFi Innovation** 🚀
+- **Yield farming**: Stake T-Bill tokens for additional rewards
+- **Collateral**: Use as collateral for loans
+- **Composability**: Integrate with other DeFi protocols
+
+### **Traditional Finance Bridge** 🌉
+- **TradFi + DeFi**: Best of both worlds
+- **Regulatory compliance**: Government securities backed
+- **Institutional adoption**: Banks can also participate
+
+---
+
+## 🎪 What We'll Demonstrate
+
+### **Innovation** 💡
+- **First time**: T-Bills tokenized on blockchain
+- **ICP advantage**: Bitcoin integration, low fees
+- **Mass adoption**: Access for retail investors
+
+### **Market Opportunity** 📈
+- **$5 trillion**: T-Bills outstanding market
+- **Global demand**: Safe haven asset
+- **Underserved market**: Small investors
+
+### **Technical Excellence** 🛠️
+- **Scalable architecture**: ICP canisters
+- **Security**: Government-grade compliance
+- **User experience**: Simple mobile app
+
+---
+
+## 🗺️ Future Vision
+
+### **Phase 1**: T-Bills tokenization
+### **Phase 2**: All government bonds
+### **Phase 3**: Corporate bonds
+### **Phase 4**: Global bond market
+
+---
+
+## 💡 One-Liner Purpose
+**"Democratizing access to US Treasury Bills through blockchain tokenization, making government bonds accessible to everyone starting from just $1!"**
+
+---
+
+## 🚀 Tech Stack
 
 ### Frontend
 - **Svelte**: `5.35.5` - Latest stable with runes and modern features
 - **SvelteKit**: `2.21.0` - Full-stack framework with SSR
 - **Vite**: `6.0.1` - Next-generation build tool
 - **TypeScript**: `5.6.3` - Type safety and modern JS features
-- **Vitest**: `2.1.1` - Fast unit testing
 - **SCSS**: Built-in styling with autoprefixer
 
 ### Backend
 - **Rust**: Latest stable with IC CDK
 - **IC CDK**: Internet Computer development kit
 - **Candid**: Interface description language
+- **ICRC-1**: Token standard implementation
 
 ### Development
 - **DFX**: `0.24.2+` - Internet Computer SDK
 - **Node.js**: `18+` - JavaScript runtime
 - **npm**: `9+` - Package manager
 
-## 🚀 Quick Start
+## 🏗️ Quick Start
 
 ### Prerequisites
 
@@ -57,10 +163,10 @@ A modern, production-ready template for building full-stack decentralized applic
 
 ### Installation
 
-1. **Clone this template**
+1. **Clone this repository**
    ```bash
-   git clone <your-repo-url> my-ic-app
-   cd my-ic-app
+   git clone https://github.com/your-username/treasury-tokenizer.git
+   cd treasury-tokenizer
    ```
 
 2. **Install dependencies**
@@ -88,33 +194,30 @@ Your app will be available at `http://localhost:5173`
 ## 📁 Project Structure
 
 ```
+treasury-tokenizer/
 ├── src/
 │   ├── backend/                 # Rust backend canister
 │   │   ├── src/
-│   │   │   └── lib.rs          # Main canister logic
+│   │   │   ├── lib.rs          # Main canister logic
+│   │   │   ├── models.rs       # Data structures
+│   │   │   ├── token.rs        # Token implementation
+│   │   │   └── treasury.rs     # T-Bill logic
 │   │   └── Cargo.toml          # Rust dependencies
 │   └── frontend/               # Svelte 5 frontend
 │       ├── src/
 │       │   ├── lib/
 │       │   │   ├── components/ # Reusable UI components
-│       │   │   │   └── ui/     # Base UI components
-│       │   │   ├── types/      # TypeScript type definitions
-│       │   │   ├── agent.ts    # IC agent setup
+│       │   │   ├── types/      # TypeScript definitions
 │       │   │   ├── api.ts      # Backend API calls
-│       │   │   └── const.ts    # Environment constants
+│       │   │   └── stores/     # Svelte stores
 │       │   ├── routes/         # SvelteKit routes
 │       │   └── app.html        # HTML template
-│       ├── static/             # Static assets
-│       └── package.json        # Frontend dependencies
+│       └── static/             # Static assets
 ├── dfx.json                    # IC project configuration
-├── canister_ids.json          # Local canister IDs
-├── vite.config.ts             # Vite configuration
-└── svelte.config.js           # Svelte configuration
+└── README.md                   # This file
 ```
 
-## 🔧 Development
-
-### Available Scripts
+## 🔧 Development Scripts
 
 ```bash
 # Development
@@ -123,107 +226,14 @@ npm run build           # Build for production
 npm run preview         # Preview production build
 
 # Code Quality
-npm run check           # Type checking with svelte-check
-npm run check:watch     # Type checking in watch mode
-npm test               # Run unit tests
-npm test:watch         # Run tests in watch mode
+npm run check           # Type checking
+npm run test            # Run tests
 
 # IC Development
 dfx start              # Start local IC replica
 dfx deploy             # Deploy all canisters
 dfx deploy backend     # Deploy only backend
 dfx deploy frontend    # Deploy only frontend
-dfx stop               # Stop local IC replica
-```
-
-### Environment Variables
-
-The project uses Vite's environment variable system. Create a `.env` file:
-
-```bash
-# Auto-generated by dfx
-VITE_CANISTER_ID_BACKEND=your-backend-canister-id
-VITE_CANISTER_ID_II=your-internet-identity-canister-id
-VITE_DFX_NETWORK=local
-```
-
-## 🏗️ Backend Development
-
-The Rust backend is located in `src/backend/`. Key files:
-
-- `src/lib.rs` - Main canister implementation
-- `Cargo.toml` - Dependencies and metadata
-- `backend.did` - Candid interface (auto-generated)
-
-Example backend function:
-```rust
-#[ic_cdk::update]
-fn set_principal_data(value: String) {
-    // Your implementation
-}
-
-#[ic_cdk::query]
-fn get_principal_data() -> Result<String, String> {
-    // Your implementation
-}
-```
-
-## 🎨 Frontend Development
-
-The Svelte 5 frontend uses modern features:
-
-### Runes (Svelte 5)
-```svelte
-<script>
-  let count = $state(0);
-  let doubled = $derived(count * 2);
-  
-  function increment() {
-    count++;
-  }
-</script>
-
-<button onclick={increment}>
-  Count: {count} (doubled: {doubled})
-</button>
-```
-
-### Custom Components
-Pre-built UI components in `src/frontend/src/lib/components/ui/`:
-- `Card.svelte` - Container component
-- `Input.svelte` - Form input with validation
-- `Tag.svelte` - Status and label tags
-- `IconCheck.svelte` - SVG icons
-
-### API Integration
-```typescript
-import { get, set } from '$lib/api';
-
-// Call backend functions
-const data = await get();
-await set("new value");
-```
-
-## 🧪 Testing
-
-The template includes a complete testing setup:
-
-```typescript
-// Component test example
-import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
-import Card from '$lib/components/Card.svelte';
-
-test('renders card with content', () => {
-  render(Card, { 
-    props: { 
-      principal: 'test-principal',
-      string: 'test content' 
-    }
-  });
-  
-  expect(screen.getByText('test content')).toBeInTheDocument();
-});
 ```
 
 ## 🚀 Deployment
@@ -250,23 +260,20 @@ dfx deploy --network ic
 
 - [Internet Computer Documentation](https://internetcomputer.org/docs)
 - [Svelte 5 Documentation](https://svelte.dev/docs)
-- [SvelteKit Documentation](https://kit.svelte.dev/docs)
-- [Rust IC CDK](https://docs.rs/ic-cdk)
-- [DFX CLI Reference](https://internetcomputer.org/docs/current/references/cli-reference/dfx-parent)
+- [US Treasury Bills Info](https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=billrates)
+- [ICRC-1 Token Standard](https://github.com/dfinity/ICRC-1)
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+---
 
-- [DFINITY Foundation](https://dfinity.org/) for the Internet Computer
-- [Svelte Team](https://svelte.dev/) for the amazing framework
-- [Rust Community](https://www.rust-lang.org/) for the robust language
+**Bottom line**: Making traditional finance accessible through blockchain innovation! 🔥
+
+**Ready to revolutionize government bond investment? Let's start coding!** 💻🚀
 
 ---
 
-**Happy building! 🚀**
-
-*Made with ❤️ for the decentralized web*
+*Made with ❤️ for democratizing finance on the Internet Computer*
 
