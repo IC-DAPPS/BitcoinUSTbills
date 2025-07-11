@@ -1,0 +1,13 @@
+type GetUserDataError = variant {
+  FailedToAddToList;
+  DidntFindUserData;
+  AnonymousCaller;
+};
+type Result = variant { Ok : text; Err : GetUserDataError };
+type Result_1 = variant { Ok; Err : GetUserDataError };
+service : {
+  add_to_list : (principal) -> ();
+  get_principal_data : () -> (Result) query;
+  set_principal_data : (text) -> (Result_1);
+  test_func : () -> (text);
+}
