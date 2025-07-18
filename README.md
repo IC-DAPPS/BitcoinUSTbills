@@ -1,4 +1,4 @@
-# 🏦 Treasury Tokenizer - Democratizing US Treasury Bills
+# 🏦 BitcoinUSTbills - Democratizing US Treasury Bills
 
 A decentralized platform for fractional ownership of US Treasury Bills on Internet Computer Protocol. Breaking the $1000 minimum barrier, enabling global access to government bonds starting from just $1!
 
@@ -165,8 +165,8 @@ Earn Interest → Sell Anytime → Withdraw Profits
 
 1. **Clone this repository**
    ```bash
-   git clone https://github.com/your-username/treasury-tokenizer.git
-   cd treasury-tokenizer
+   git clone https://github.com/IC-DAPPS/BitcoinUSTbills.git
+   cd BitcoinUSTbills
    ```
 
 2. **Install dependencies**
@@ -194,7 +194,7 @@ Your app will be available at `http://localhost:5173`
 ## 📁 Project Structure
 
 ```
-treasury-tokenizer/
+BitcoinUSTbills/
 ├── src/
 │   ├── backend/                 # Rust backend canister
 │   │   ├── src/
