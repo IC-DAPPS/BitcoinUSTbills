@@ -53,7 +53,7 @@ thread_local! {
         Cell::init(
             MEMORY_MANAGER.with(|m| m.borrow().get(PLATFORM_CONFIG_MEMORY_ID)),
             PlatformConfig::default()
-        ).expect("Failed to initialize platform config")
+        )
     );
 
     static TREASURY_RATES: RefCell<StableBTreeMap<String, TreasuryRate, Memory>> = RefCell::new(
@@ -73,7 +73,7 @@ thread_local! {
                 lowest_price: 0,
                 last_updated: 0,
             }
-        ).expect("Failed to initialize trading metrics")
+        )
     );
 }
 
@@ -87,11 +87,12 @@ impl Storable for USTBill {
         candid::decode_one(&bytes).unwrap()
     }
 
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(self).unwrap()
+    }
+
     const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Bounded {
-            max_size: 1024,
-            is_fixed_size: false,
-        };
+        ic_stable_structures::storable::Bound::Unbounded;
 }
 
 impl Storable for User {
@@ -103,11 +104,12 @@ impl Storable for User {
         candid::decode_one(&bytes).unwrap()
     }
 
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(self).unwrap()
+    }
+
     const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Bounded {
-            max_size: 512,
-            is_fixed_size: false,
-        };
+        ic_stable_structures::storable::Bound::Unbounded;
 }
 
 impl Storable for TokenHolding {
@@ -119,11 +121,12 @@ impl Storable for TokenHolding {
         candid::decode_one(&bytes).unwrap()
     }
 
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(self).unwrap()
+    }
+
     const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Bounded {
-            max_size: 512,
-            is_fixed_size: false,
-        };
+        ic_stable_structures::storable::Bound::Unbounded;
 }
 
 impl Storable for Transaction {
@@ -135,11 +138,12 @@ impl Storable for Transaction {
         candid::decode_one(&bytes).unwrap()
     }
 
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(self).unwrap()
+    }
+
     const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Bounded {
-            max_size: 512,
-            is_fixed_size: false,
-        };
+        ic_stable_structures::storable::Bound::Unbounded;
 }
 
 impl Storable for PlatformConfig {
@@ -151,11 +155,12 @@ impl Storable for PlatformConfig {
         candid::decode_one(&bytes).unwrap()
     }
 
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(self).unwrap()
+    }
+
     const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Bounded {
-            max_size: 256,
-            is_fixed_size: false,
-        };
+        ic_stable_structures::storable::Bound::Unbounded;
 }
 
 impl Storable for TreasuryRate {
@@ -167,11 +172,12 @@ impl Storable for TreasuryRate {
         candid::decode_one(&bytes).unwrap()
     }
 
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(self).unwrap()
+    }
+
     const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Bounded {
-            max_size: 512,
-            is_fixed_size: false,
-        };
+        ic_stable_structures::storable::Bound::Unbounded;
 }
 
 impl Storable for TradingMetrics {
@@ -183,11 +189,12 @@ impl Storable for TradingMetrics {
         candid::decode_one(&bytes).unwrap()
     }
 
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(self).unwrap()
+    }
+
     const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Bounded {
-            max_size: 256,
-            is_fixed_size: false,
-        };
+        ic_stable_structures::storable::Bound::Unbounded;
 }
 
 // Storage interface for USTBills
@@ -236,7 +243,7 @@ impl USTBillStorage {
             ustbills
                 .borrow()
                 .iter()
-                .map(|(_, ustbill)| ustbill)
+                .map(|entry| entry.value().clone())
                 .collect()
         })
     }
@@ -246,8 +253,8 @@ impl USTBillStorage {
             ustbills
                 .borrow()
                 .iter()
-                .filter(|(_, ustbill)| ustbill.status == USTBillStatus::Active)
-                .map(|(_, ustbill)| ustbill)
+                .filter(|entry| entry.value().status == USTBillStatus::Active)
+                .map(|entry| entry.value().clone())
                 .collect()
         })
     }
@@ -302,8 +309,8 @@ impl UserStorage {
         })
     }
 
-    pub fn get_all() -> Vec<User> {
-        USERS.with(|users| users.borrow().iter().map(|(_, user)| user).collect())
+        pub fn get_all() -> Vec<User> {
+                        USERS.with(|users| users.borrow().iter().map(|entry| entry.value().clone()).collect())
     }
 
     pub fn count() -> u64 {
@@ -357,8 +364,8 @@ impl HoldingStorage {
             holdings
                 .borrow()
                 .iter()
-                .filter(|(_, holding)| holding.user_principal == *user_principal)
-                .map(|(_, holding)| holding)
+                .filter(|entry| entry.value().user_principal == *user_principal)
+                .map(|entry| entry.value().clone())
                 .collect()
         })
     }
@@ -368,8 +375,8 @@ impl HoldingStorage {
             holdings
                 .borrow()
                 .iter()
-                .filter(|(_, holding)| holding.ustbill_id == ustbill_id)
-                .map(|(_, holding)| holding)
+                .filter(|entry| entry.value().ustbill_id == ustbill_id)
+                .map(|entry| entry.value().clone())
                 .collect()
         })
     }
@@ -379,8 +386,8 @@ impl HoldingStorage {
             holdings
                 .borrow()
                 .iter()
-                .filter(|(_, holding)| holding.status == HoldingStatus::Active)
-                .map(|(_, holding)| holding)
+                .filter(|entry| entry.value().status == HoldingStatus::Active)
+                .map(|entry| entry.value().clone())
                 .collect()
         })
     }
@@ -429,8 +436,8 @@ impl TransactionStorage {
             transactions
                 .borrow()
                 .iter()
-                .filter(|(_, transaction)| transaction.user_principal == *user_principal)
-                .map(|(_, transaction)| transaction)
+                .filter(|entry| entry.value().user_principal == *user_principal)
+                .map(|entry| entry.value().clone())
                 .collect()
         })
     }
@@ -440,8 +447,8 @@ impl TransactionStorage {
             transactions
                 .borrow()
                 .iter()
-                .filter(|(_, transaction)| transaction.transaction_type == *transaction_type)
-                .map(|(_, transaction)| transaction)
+                .filter(|entry| entry.value().transaction_type == *transaction_type)
+                .map(|entry| entry.value().clone())
                 .collect()
         })
     }
@@ -461,10 +468,9 @@ impl PlatformConfigStorage {
 
     pub fn update(config: PlatformConfig) -> Result<()> {
         PLATFORM_CONFIG.with(|platform_config| {
-            platform_config
+                        platform_config
                 .borrow_mut()
-                .set(config)
-                .map_err(|_| BitcoinUSTBillsError::PlatformConfigurationError)?;
+                .set(config);
             Ok(())
         })
     }
@@ -487,14 +493,14 @@ impl TreasuryRateStorage {
             rates
                 .borrow()
                 .iter()
-                .filter(|(_, rate)| rate.cusip == cusip)
-                .map(|(_, rate)| rate)
+                .filter(|entry| entry.value().cusip == cusip)
+                .map(|entry| entry.value().clone())
                 .collect()
         })
     }
 
-    pub fn get_all() -> Vec<TreasuryRate> {
-        TREASURY_RATES.with(|rates| rates.borrow().iter().map(|(_, rate)| rate).collect())
+        pub fn get_all() -> Vec<TreasuryRate> {
+                        TREASURY_RATES.with(|rates| rates.borrow().iter().map(|entry| entry.value().clone()).collect())
     }
 
     pub fn clear() -> Result<()> {
@@ -517,9 +523,7 @@ impl TradingMetricsStorage {
 
     pub fn update(metrics: TradingMetrics) -> Result<()> {
         TRADING_METRICS.with(|trading_metrics| {
-            trading_metrics.borrow_mut().set(metrics).map_err(|_| {
-                BitcoinUSTBillsError::DatabaseError("Failed to update trading metrics".to_string())
-            })?;
+                        trading_metrics.borrow_mut().set(metrics);
             Ok(())
         })
     }
@@ -556,7 +560,7 @@ impl TradingMetricsStorage {
 // Utility functions for storage operations
 pub fn generate_id() -> String {
     let timestamp = ic_cdk::api::time();
-    let caller = ic_cdk::caller();
+    let caller = ic_cdk::api::msg_caller();
     format!("{}_{}", timestamp, caller.to_text())
 }
 

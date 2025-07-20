@@ -46,7 +46,7 @@ pub fn delete_from_list(p: Principal) -> String {
 
 /// Checks if the caller is an authorized developer/admin
 pub fn is_dev() -> std::result::Result<(), String> {
-    let caller = ic_cdk::msg_caller();
+        let caller = ic_cdk::api::msg_caller();
     let anonymous = Principal::anonymous();
     if caller == anonymous {
         return Err("AnonymousCaller".to_string());
@@ -69,7 +69,7 @@ pub fn is_admin() -> std::result::Result<(), String> {
 
 /// Assert that the caller is an admin, returning BitcoinUSTBillsError
 pub fn assert_admin() -> Result<()> {
-    let caller = ic_cdk::msg_caller();
+        let caller = ic_cdk::api::msg_caller();
     let anonymous = Principal::anonymous();
 
     if caller == anonymous {
@@ -88,7 +88,7 @@ pub fn assert_admin() -> Result<()> {
 
 /// Assert that the caller is a verified user (not anonymous)
 pub fn assert_user() -> Result<()> {
-    let caller = ic_cdk::msg_caller();
+        let caller = ic_cdk::api::msg_caller();
     let anonymous = Principal::anonymous();
 
     if caller == anonymous {
@@ -124,7 +124,7 @@ pub fn get_authorized_count() -> usize {
 
 /// Checks if the caller is the specific principal
 pub fn assert_caller_is(expected: &Principal) -> Result<()> {
-    let caller = ic_cdk::msg_caller();
+        let caller = ic_cdk::api::msg_caller();
 
     if caller != *expected {
         return Err(BitcoinUSTBillsError::Unauthorized);
@@ -135,7 +135,7 @@ pub fn assert_caller_is(expected: &Principal) -> Result<()> {
 
 /// Checks if the caller is either admin or the specific principal
 pub fn assert_admin_or_caller(expected: &Principal) -> Result<()> {
-    let caller = ic_cdk::msg_caller();
+        let caller = ic_cdk::api::msg_caller();
 
     // Check if caller is admin
     if is_authorized(&caller) {

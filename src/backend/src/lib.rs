@@ -15,10 +15,12 @@ pub use errors::*;
 pub use storage::*;
 pub use types::*;
 
+use crate::utils::get_current_timestamp;
 use candid::Principal;
-use ic_cdk::management_canister::{HttpResponse, TransformArgs};
+use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
 use ic_cdk::{query, update};
 use std::collections::HashMap;
+pub use storage::*;
 use uuid::Uuid;
 
 // ============= USTBILLS CANISTER FUNCTIONS =============
@@ -34,7 +36,7 @@ pub async fn create_ustbill(ustbill_data: USTBillCreateRequest) -> Result<USTBil
 
     // Generate unique ID
     let id = Uuid::new_v4().to_string();
-    let current_time = storage::get_current_timestamp();
+    let current_time = get_current_timestamp();
 
     let ustbill = USTBill {
         id: id.clone(),
@@ -106,7 +108,7 @@ pub fn get_ustbills_paginated(page: usize, per_page: usize) -> Result<PaginatedR
 /// Registers a new user
 #[update]
 pub async fn register_user(user_data: UserRegistrationRequest) -> Result<User> {
-    let principal = ic_cdk::msg_caller();
+    let principal = ic_cdk::api::msg_caller();
 
     // Check if user already exists
     if UserStorage::get(&principal).is_ok() {
@@ -116,7 +118,7 @@ pub async fn register_user(user_data: UserRegistrationRequest) -> Result<User> {
     // Validate user data
     validate_user_data(&user_data)?;
 
-    let current_time = storage::get_current_timestamp();
+    let current_time = get_current_timestamp();
 
     let user = User {
         principal,
@@ -145,7 +147,7 @@ pub async fn update_kyc_status(principal: Principal, status: KYCStatus) -> Resul
 
     let mut user = UserStorage::get(&principal)?;
     user.kyc_status = status;
-    user.updated_at = storage::get_current_timestamp();
+    user.updated_at = get_current_timestamp();
 
     UserStorage::update(user)?;
 
@@ -161,7 +163,7 @@ pub fn get_user_profile(principal: Principal) -> Result<User> {
 /// Deposits funds to user wallet
 #[update]
 pub async fn deposit_funds(amount: u64) -> Result<u64> {
-    let principal = ic_cdk::msg_caller();
+    let principal = ic_cdk::api::msg_caller();
     let mut user = UserStorage::get(&principal)?;
 
     // Validate amount
@@ -171,7 +173,7 @@ pub async fn deposit_funds(amount: u64) -> Result<u64> {
 
     // Update user balance
     user.wallet_balance += amount;
-    user.updated_at = storage::get_current_timestamp();
+    user.updated_at = get_current_timestamp();
 
     UserStorage::update(user.clone())?;
 
@@ -183,7 +185,7 @@ pub async fn deposit_funds(amount: u64) -> Result<u64> {
         amount,
         ustbill_id: None,
         holding_id: None,
-        timestamp: storage::get_current_timestamp(),
+        timestamp: get_current_timestamp(),
         status: TransactionStatus::Completed,
         fees: 0,
         description: "Wallet deposit".to_string(),
@@ -197,7 +199,7 @@ pub async fn deposit_funds(amount: u64) -> Result<u64> {
 /// Withdraws funds from user wallet
 #[update]
 pub async fn withdraw_funds(amount: u64) -> Result<u64> {
-    let principal = ic_cdk::msg_caller();
+    let principal = ic_cdk::api::msg_caller();
     let mut user = UserStorage::get(&principal)?;
 
     // Validate amount
@@ -211,7 +213,7 @@ pub async fn withdraw_funds(amount: u64) -> Result<u64> {
 
     // Update user balance
     user.wallet_balance -= amount;
-    user.updated_at = storage::get_current_timestamp();
+    user.updated_at = get_current_timestamp();
 
     UserStorage::update(user.clone())?;
 
@@ -223,7 +225,7 @@ pub async fn withdraw_funds(amount: u64) -> Result<u64> {
         amount,
         ustbill_id: None,
         holding_id: None,
-        timestamp: storage::get_current_timestamp(),
+        timestamp: get_current_timestamp(),
         status: TransactionStatus::Completed,
         fees: 0,
         description: "Wallet withdrawal".to_string(),
@@ -239,7 +241,7 @@ pub async fn withdraw_funds(amount: u64) -> Result<u64> {
 /// Buys US Treasury Bill tokens
 #[update]
 pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result<TokenHolding> {
-    let principal = ic_cdk::msg_caller();
+    let principal = ic_cdk::api::msg_caller();
     let mut user = UserStorage::get(&principal)?;
 
     // Validate user eligibility
@@ -284,14 +286,14 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
     // Update user balance
     user.wallet_balance -= total_cost;
     user.total_invested += cost;
-    user.updated_at = storage::get_current_timestamp();
+    user.updated_at = get_current_timestamp();
 
     // Update UST Bill
     ustbill.tokens_sold += token_amount;
     if ustbill.tokens_sold >= ustbill.total_tokens {
         ustbill.status = USTBillStatus::SoldOut;
     }
-    ustbill.updated_at = storage::get_current_timestamp();
+    ustbill.updated_at = get_current_timestamp();
 
     // Create holding
     let holding_id = Uuid::new_v4().to_string();
@@ -301,7 +303,7 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
         ustbill_id: ustbill_id.clone(),
         tokens_owned: token_amount,
         purchase_price_per_token: cost / token_amount,
-        purchase_date: storage::get_current_timestamp(),
+        purchase_date: get_current_timestamp(),
         yield_option: YieldOption::Maturity,
         status: HoldingStatus::Active,
         current_value: cost,
@@ -316,7 +318,7 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
         amount: cost,
         ustbill_id: Some(ustbill_id.clone()),
         holding_id: Some(holding_id.clone()),
-        timestamp: storage::get_current_timestamp(),
+        timestamp: get_current_timestamp(),
         status: TransactionStatus::Completed,
         fees,
         description: format!(
@@ -333,7 +335,7 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
         amount: fees,
         ustbill_id: Some(ustbill_id.clone()),
         holding_id: Some(holding_id.clone()),
-        timestamp: storage::get_current_timestamp(),
+        timestamp: get_current_timestamp(),
         status: TransactionStatus::Completed,
         fees: 0,
         description: "Platform fee".to_string(),
@@ -369,7 +371,7 @@ pub fn calculate_current_value(holding_id: String) -> Result<u64> {
     // Calculate based on current market conditions and time to maturity
     let _days_to_maturity = ustbill.days_to_maturity();
     let purchase_date = holding.purchase_date;
-    let current_time = storage::get_current_timestamp();
+    let current_time = get_current_timestamp();
     let days_held = (current_time - purchase_date) / 86400; // Convert to days
 
     // Calculate accrued yield
@@ -393,7 +395,7 @@ pub async fn calculate_maturity_yield(holding_id: String) -> Result<u64> {
     let ustbill = USTBillStorage::get(&holding.ustbill_id)?;
 
     // Check if UST Bill has matured
-    let current_time = storage::get_current_timestamp();
+    let current_time = get_current_timestamp();
     if ustbill.maturity_date <= current_time {
         // Calculate full yield
         let purchase_value = holding.tokens_owned * holding.purchase_price_per_token;
@@ -536,7 +538,7 @@ pub fn validate_ustbill_data(data: &USTBillCreateRequest) -> Result<()> {
         return Err(BitcoinUSTBillsError::InvalidTokenAmount);
     }
 
-    let current_time = storage::get_current_timestamp();
+    let current_time = get_current_timestamp();
     if data.maturity_date <= current_time {
         return Err(BitcoinUSTBillsError::InvalidDate);
     }
@@ -596,7 +598,7 @@ fn transform_treasury_response(response: TransformArgs) -> HttpResponse {
 
 #[ic_cdk::query]
 fn get_principal_data() -> Result<String> {
-    let principal = ic_cdk::msg_caller();
+    let principal = ic_cdk::api::msg_caller();
     match UserStorage::get(&principal) {
         Ok(user) => Ok(user.email),
         Err(_) => Err(BitcoinUSTBillsError::DidntFindUserData),
@@ -605,7 +607,7 @@ fn get_principal_data() -> Result<String> {
 
 #[ic_cdk::update]
 fn set_principal_data(s: String) -> Result<()> {
-    let principal = ic_cdk::msg_caller();
+    let principal = ic_cdk::api::msg_caller();
     match UserStorage::get(&principal) {
         Ok(mut user) => {
             user.email = s;
@@ -632,6 +634,9 @@ pub fn add_to_list(p: Principal) -> Result<()> {
 #[test]
 fn generate_candid() {
     candid::export_service!();
-    std::fs::write("../distributed/backend/backend.did", __export_service())
-        .expect("Failed to write backend.did");
+    std::fs::write(
+        "../distributed/backend/backend.did",
+        __export_service(),
+    )
+    .expect("Failed to write backend.did");
 }

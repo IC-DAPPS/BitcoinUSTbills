@@ -12,14 +12,14 @@ thread_local! {
 impl Store {
     // Retrieves a value from the store for the current caller
     pub fn get() -> Option<String> {
-        DATA.with(|data| data.borrow().get(&ic_cdk::msg_caller()).cloned())
+        DATA.with(|data| data.borrow().get(&ic_cdk::api::msg_caller()).cloned())
     }
 
     // Inserts a value into the store for the current caller
     pub fn insert(s: String) {
         DATA.with(|data| {
             let mut data = data.borrow_mut();
-            data.insert(ic_cdk::caller(), s);
+            data.insert(ic_cdk::api::msg_caller(), s);
         })
     }
 
