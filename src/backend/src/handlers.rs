@@ -1,4 +1,5 @@
-use crate::{guard::GUARD, store::DATA};
+use crate::guard::GUARD;
+use crate::store::DATA;
 use candid::{CandidType, Principal};
 use ic_cdk::{post_upgrade, pre_upgrade, storage};
 use serde::{Deserialize, Serialize};

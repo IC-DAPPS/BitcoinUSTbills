@@ -1,279 +1,323 @@
-# 🏦 BitcoinUSTbills - Democratizing US Treasury Bills
+# BitcoinUSTbills - Decentralized US Treasury Bills Platform
 
-A decentralized platform for fractional ownership of US Treasury Bills on Internet Computer Protocol. Breaking the $1000 minimum barrier, enabling global access to government bonds starting from just $1!
+A comprehensive decentralized platform for tokenizing US Treasury Bills on the Internet Computer Protocol, enabling fractional ownership starting from $1.
 
-## 🎯 Project Purpose
+## 🚀 Project Overview
 
-### **The Problem:**
-- **T-Bills minimum $1000** investment requirement (₹83,000)
-- **Common people** cannot afford the high entry barrier
-- **Global access** is restricted (US citizens only)
-- **Liquidity** problem - difficult to sell before maturity
-- **Complex process** - requires brokerage accounts and paperwork
+BitcoinUSTbills revolutionizes access to US Treasury Bills by:
+- **Fractional Ownership**: Invest in T-Bills starting from just $1
+- **Decentralized Trading**: Trade T-Bill tokens 24/7 on the Internet Computer
+- **Global Access**: Available worldwide through Bitcoin-backed treasury investments
+- **Transparent Yields**: Real-time yield calculations and distributions
+- **Secure Storage**: Persistent data storage using IC stable structures
 
-### **Our Solution:**
-**Tokenize US Treasury Bills to make them globally accessible!**
+## 🏗️ Architecture
 
----
+The platform is built using a multi-canister architecture on the Internet Computer:
 
-## 🚀 Repository Purpose - Step by Step
+### Core Canisters
+- **USTBills Canister**: Manages T-Bill data and operations
+- **User Canister**: Handles user registration, KYC, and wallet management
+- **Trading Canister**: Processes buy/sell transactions
+- **Yield Canister**: Calculates and distributes yields
+- **Storage**: Persistent data layer using IC stable structures
 
-### **1. Tokenization System** 🪙
-```
-Real T-Bill ($1000) → 1000 tokens ($1 each)
-Now invest starting from just $100!
-```
+### Key Components
+- **Rust Backend**: High-performance canister implementation
+- **Stable Storage**: Persistent data using `ic-stable-structures`
+- **HTTP Outcalls**: Real-time Treasury data integration
+- **Access Control**: Role-based security system
+- **Comprehensive Testing**: Unit and integration tests
 
-### **2. Fractional Ownership** 🍰
-```
-Before: Must buy entire T-Bill ($1000)
-After: Start with just 10 tokens ($10)
-```
+## 📊 Data Structures
 
-### **3. Global Access** 🌍
-```
-Before: US citizens only
-After: Anyone can invest (powered by ICP blockchain)
-```
-
-### **4. Instant Liquidity** ⚡
-```
-Before: Wait 3 months for maturity
-After: Sell anytime on secondary market
-```
-
-### **5. Transparency** 👁️
-```
-Before: Bank statements, broker reports
-After: Everything visible on blockchain - real-time tracking
-```
-
----
-
-## 🛠️ Technical Architecture - What We're Building
-
-### **Core Components:**
-1. **Smart Contracts** - Convert T-Bills into tokens
-2. **Marketplace** - Buy/sell platform
-3. **Custody System** - Safely store T-Bills
-4. **Yield Distribution** - Automatically distribute interest
-5. **Portfolio Dashboard** - Real-time tracking
-
-### **User Journey:**
-```
-User Registration → KYC → Deposit Money → Buy T-Bill Tokens → 
-Earn Interest → Sell Anytime → Withdraw Profits
+### USTBill
+```rust
+pub struct USTBill {
+    pub id: String,
+    pub cusip: String,
+    pub face_value: u64,        // In cents
+    pub purchase_price: u64,    // In cents
+    pub maturity_date: u64,     // Unix timestamp
+    pub annual_yield: f64,      // Decimal (0.0526 = 5.26%)
+    pub total_tokens: u64,      // Total tokenized shares
+    pub tokens_sold: u64,       // Tokens already sold
+    pub status: USTBillStatus,  // Active, SoldOut, Matured, Cancelled
+    // ... additional fields
+}
 ```
 
----
-
-## 🌟 Real-World Impact
-
-### **Financial Inclusion** 💰
-- **Students**: Invest in government bonds starting from $500
-- **Small investors**: Diversification opportunity
-- **Global users**: US Treasury security worldwide
-
-### **DeFi Innovation** 🚀
-- **Yield farming**: Stake T-Bill tokens for additional rewards
-- **Collateral**: Use as collateral for loans
-- **Composability**: Integrate with other DeFi protocols
-
-### **Traditional Finance Bridge** 🌉
-- **TradFi + DeFi**: Best of both worlds
-- **Regulatory compliance**: Government securities backed
-- **Institutional adoption**: Banks can also participate
-
----
-
-## 🎪 What We'll Demonstrate
-
-### **Innovation** 💡
-- **First time**: T-Bills tokenized on blockchain
-- **ICP advantage**: Bitcoin integration, low fees
-- **Mass adoption**: Access for retail investors
-
-### **Market Opportunity** 📈
-- **$5 trillion**: T-Bills outstanding market
-- **Global demand**: Safe haven asset
-- **Underserved market**: Small investors
-
-### **Technical Excellence** 🛠️
-- **Scalable architecture**: ICP canisters
-- **Security**: Government-grade compliance
-- **User experience**: Simple mobile app
-
----
-
-## 🗺️ Future Vision
-
-### **Phase 1**: T-Bills tokenization
-### **Phase 2**: All government bonds
-### **Phase 3**: Corporate bonds
-### **Phase 4**: Global bond market
-
----
-
-## 💡 One-Liner Purpose
-**"Democratizing access to US Treasury Bills through blockchain tokenization, making government bonds accessible to everyone starting from just $1!"**
-
----
-
-## 🚀 Tech Stack
-
-### Frontend
-- **Svelte**: `5.35.5` - Latest stable with runes and modern features
-- **SvelteKit**: `2.21.0` - Full-stack framework with SSR
-- **Vite**: `6.0.1` - Next-generation build tool
-- **TypeScript**: `5.6.3` - Type safety and modern JS features
-- **SCSS**: Built-in styling with autoprefixer
-
-### Backend
-- **Rust**: Latest stable with IC CDK
-- **IC CDK**: Internet Computer development kit
-- **Candid**: Interface description language
-- **ICRC-1**: Token standard implementation
-
-### Development
-- **DFX**: `0.24.2+` - Internet Computer SDK
-- **Node.js**: `18+` - JavaScript runtime
-- **npm**: `9+` - Package manager
-
-## 🏗️ Quick Start
-
-### Prerequisites
-
-1. **Install DFX (Internet Computer SDK)**
-   ```bash
-   sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
-   ```
-
-2. **Install Node.js 18+**
-   ```bash
-   # Using nvm (recommended)
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-   nvm install 18
-   nvm use 18
-   ```
-
-3. **Install Rust**
-   ```bash
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   ```
-
-### Installation
-
-1. **Clone this repository**
-   ```bash
-   git clone https://github.com/IC-DAPPS/BitcoinUSTbills.git
-   cd BitcoinUSTbills
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start local IC replica**
-   ```bash
-   dfx start --background
-   ```
-
-4. **Deploy canisters locally**
-   ```bash
-   dfx deploy
-   ```
-
-5. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-Your app will be available at `http://localhost:5173`
-
-## 📁 Project Structure
-
-```
-BitcoinUSTbills/
-├── src/
-│   ├── backend/                 # Rust backend canister
-│   │   ├── src/
-│   │   │   ├── lib.rs          # Main canister logic
-│   │   │   ├── models.rs       # Data structures
-│   │   │   ├── token.rs        # Token implementation
-│   │   │   └── treasury.rs     # T-Bill logic
-│   │   └── Cargo.toml          # Rust dependencies
-│   └── frontend/               # Svelte 5 frontend
-│       ├── src/
-│       │   ├── lib/
-│       │   │   ├── components/ # Reusable UI components
-│       │   │   ├── types/      # TypeScript definitions
-│       │   │   ├── api.ts      # Backend API calls
-│       │   │   └── stores/     # Svelte stores
-│       │   ├── routes/         # SvelteKit routes
-│       │   └── app.html        # HTML template
-│       └── static/             # Static assets
-├── dfx.json                    # IC project configuration
-└── README.md                   # This file
+### User
+```rust
+pub struct User {
+    pub principal: Principal,
+    pub email: String,
+    pub kyc_status: KYCStatus,  // Pending, Verified, Rejected, Expired
+    pub wallet_balance: u64,    // In cents
+    pub total_invested: u64,    // Total investment amount
+    pub total_yield_earned: u64, // Total yield earned
+    // ... additional fields
+}
 ```
 
-## 🔧 Development Scripts
+### TokenHolding
+```rust
+pub struct TokenHolding {
+    pub id: String,
+    pub user_principal: Principal,
+    pub ustbill_id: String,
+    pub tokens_owned: u64,
+    pub purchase_price_per_token: u64,
+    pub yield_option: YieldOption, // Maturity, Flexible
+    pub status: HoldingStatus,     // Active, Sold, Matured
+    // ... additional fields
+}
+```
 
+## 🔧 Core Functions
+
+### USTBill Management
+- `create_ustbill()` - Create new T-Bill offerings (admin only)
+- `get_ustbill()` - Retrieve T-Bill details
+- `get_active_ustbills()` - List all active T-Bills
+- `get_ustbill_availability()` - Check available tokens
+
+### User Management
+- `register_user()` - Register new users
+- `update_kyc_status()` - Update KYC verification (admin only)
+- `deposit_funds()` - Add funds to wallet
+- `withdraw_funds()` - Withdraw funds from wallet
+
+### Trading Operations
+- `buy_ustbill_tokens()` - Purchase T-Bill tokens
+- `sell_ustbill_tokens()` - Sell T-Bill tokens (coming soon)
+- `calculate_purchase_cost()` - Calculate token purchase cost
+- `get_user_holdings()` - Retrieve user's holdings
+
+### Yield Management
+- `calculate_maturity_yield()` - Calculate yield at maturity
+- `get_yield_projection()` - Project future yields
+- `distribute_maturity_yield()` - Distribute yields (coming soon)
+
+### External Integration
+- `fetch_treasury_rates()` - Get real-time Treasury rates
+- `update_ustbill_market_data()` - Sync with external data
+
+## 🛠️ Technical Implementation
+
+### Dependencies
+```toml
+[dependencies]
+candid = "0.10.4"
+ic-cdk = "0.13.1"
+ic-stable-structures = "0.6.4"
+serde = { version = "1.0", features = ["derive"] }
+uuid = { version = "1.6.1", features = ["v4"] }
+sha2 = "0.10.8"
+```
+
+### Storage System
+- **Stable BTreeMaps**: For persistent key-value storage
+- **Memory Management**: Efficient memory allocation
+- **Data Persistence**: Survives canister upgrades
+- **Performance Optimized**: Fast query and update operations
+
+### Security Features
+- **Access Control**: Role-based permissions
+- **KYC Verification**: User identity validation
+- **Principal Validation**: Anonymous caller prevention
+- **Input Validation**: Comprehensive data validation
+- **Error Handling**: Detailed error reporting
+
+## 📱 API Endpoints
+
+### Query Functions (Fast, Read-only)
+- `get_ustbill(ustbill_id: String) -> Result<USTBill>`
+- `get_active_ustbills() -> Vec<USTBill>`
+- `get_user_profile(principal: Principal) -> Result<User>`
+- `calculate_purchase_cost(ustbill_id: String, token_amount: u64) -> Result<u64>`
+- `get_yield_projection(holding_id: String) -> Result<YieldProjection>`
+
+### Update Functions (State-changing)
+- `register_user(user_data: UserRegistrationRequest) -> Result<User>`
+- `buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result<TokenHolding>`
+- `deposit_funds(amount: u64) -> Result<u64>`
+- `withdraw_funds(amount: u64) -> Result<u64>`
+
+### Admin Functions
+- `create_ustbill(ustbill_data: USTBillCreateRequest) -> Result<USTBill>`
+- `update_kyc_status(principal: Principal, status: KYCStatus) -> Result<()>`
+- `update_platform_config(config: PlatformConfig) -> Result<()>`
+
+## 💰 Economic Model
+
+### Platform Configuration
+```rust
+pub struct PlatformConfig {
+    pub platform_fee_percentage: f64,    // 0.5%
+    pub minimum_investment: u64,          // $1 (100 cents)
+    pub maximum_investment: u64,          // $10,000 (1,000,000 cents)
+    pub yield_distribution_frequency: u64, // Daily
+    pub kyc_expiry_days: u64,            // 365 days
+}
+```
+
+### Fee Structure
+- **Platform Fee**: 0.5% on purchases
+- **Minimum Investment**: $1 USD
+- **Maximum Investment**: $10,000 USD per transaction
+
+### Yield Calculations
+- **Simple Interest**: For short-term projections
+- **Compound Interest**: For long-term holdings
+- **Daily Accrual**: Real-time yield tracking
+
+## 🧪 Testing
+
+### Comprehensive Test Suite
+- **Unit Tests**: Individual function testing
+- **Integration Tests**: End-to-end workflows
+- **Validation Tests**: Input validation coverage
+- **Error Handling**: Error scenario testing
+
+### Test Coverage
+- USTBill creation and management
+- User registration and KYC
+- Trading operations
+- Yield calculations
+- Utility functions
+- Error handling
+
+Run tests with:
 ```bash
-# Development
-npm run dev              # Start dev server with HMR
-npm run build           # Build for production
-npm run preview         # Preview production build
-
-# Code Quality
-npm run check           # Type checking
-npm run test            # Run tests
-
-# IC Development
-dfx start              # Start local IC replica
-dfx deploy             # Deploy all canisters
-dfx deploy backend     # Deploy only backend
-dfx deploy frontend    # Deploy only frontend
+cargo test
 ```
 
 ## 🚀 Deployment
 
-### Local Deployment
+### Local Development
 ```bash
+# Start local replica
+dfx start --clean
+
+# Deploy canisters
 dfx deploy
+
+# Generate candid files
+dfx generate
 ```
 
-### IC Mainnet Deployment
+### Production Deployment
 ```bash
+# Deploy to IC mainnet
 dfx deploy --network ic
+
+# Verify deployment
+dfx canister --network ic status ustbills_backend
 ```
+
+### Configuration Files
+- `dfx.json` - Multi-canister deployment configuration
+- `Cargo.toml` - Rust dependencies and build settings
+- `.env` - Environment variables
+
+## 📊 Monitoring & Analytics
+
+### Storage Statistics
+- Total users registered
+- Active T-Bills count
+- Total trading volume
+- Platform fees collected
+
+### Trading Metrics
+- Transaction volume
+- Average prices
+- Yield distributions
+- User activity
+
+## 🔒 Security Considerations
+
+### Access Control
+- Admin-only functions protected
+- User authentication required
+- Principal validation
+- Anonymous caller prevention
+
+### Data Validation
+- CUSIP format validation
+- Email format checking
+- Phone number validation
+- Investment limit enforcement
+
+### Error Handling
+- Comprehensive error types
+- Detailed error messages
+- Graceful failure handling
+- User-friendly responses
+
+## 🗺️ Roadmap
+
+### Phase 1: Core Platform ✅
+- [x] Data structures and storage
+- [x] User registration and management
+- [x] T-Bill creation and management
+- [x] Basic trading functionality
+
+### Phase 2: Advanced Features 🔄
+- [ ] Secondary market trading
+- [ ] Automated yield distribution
+- [ ] Advanced portfolio analytics
+- [ ] Mobile app integration
+
+### Phase 3: Scale & Optimize 📈
+- [ ] Performance optimization
+- [ ] Advanced security features
+- [ ] Compliance integration
+- [ ] Global market expansion
+
+## 📚 Documentation
+
+### API Documentation
+- Candid interface files
+- Function signatures
+- Parameter descriptions
+- Return type definitions
+
+### Developer Guide
+- Setup instructions
+- Code examples
+- Best practices
+- Troubleshooting
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Development Setup
+1. Install Rust and dfx
+2. Clone the repository
+3. Run `dfx start`
+4. Deploy with `dfx deploy`
 
-## 📚 Resources
-
-- [Internet Computer Documentation](https://internetcomputer.org/docs)
-- [Svelte 5 Documentation](https://svelte.dev/docs)
-- [US Treasury Bills Info](https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=billrates)
-- [ICRC-1 Token Standard](https://github.com/dfinity/ICRC-1)
+### Code Standards
+- Rust best practices
+- Comprehensive testing
+- Clear documentation
+- Security-first approach
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See LICENSE file for details.
+
+## 🆘 Support
+
+For support and questions:
+- GitHub Issues
+- Community Discord
+- Documentation Wiki
+- Developer Forums
 
 ---
 
-**Bottom line**: Making traditional finance accessible through blockchain innovation! 🔥
+**Built with ❤️ on the Internet Computer**
 
-**Ready to revolutionize government bond investment? Let's start coding!** 💻🚀
-
----
-
-*Made with ❤️ for democratizing finance on the Internet Computer*
+*Making US Treasury Bills accessible to everyone, everywhere.*
 
