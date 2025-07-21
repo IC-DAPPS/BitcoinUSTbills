@@ -18,11 +18,16 @@ const TRANSACTIONS_MEMORY_ID: MemoryId = MemoryId::new(3);
 const PLATFORM_CONFIG_MEMORY_ID: MemoryId = MemoryId::new(4);
 const TREASURY_RATES_MEMORY_ID: MemoryId = MemoryId::new(5);
 const TRADING_METRICS_MEMORY_ID: MemoryId = MemoryId::new(6);
+const ID_COUNTER_MEMORY_ID: MemoryId = MemoryId::new(7);
 
 // Thread-local storage for memory manager and stable data structures
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> = RefCell::new(
         MemoryManager::init(DefaultMemoryImpl::default())
+    );
+
+    static ID_COUNTER: RefCell<Cell<u64, Memory>> = RefCell::new(
+        Cell::init(MEMORY_MANAGER.with(|m| m.borrow().get(ID_COUNTER_MEMORY_ID)), 0)
     );
 
     static USTBILLS: RefCell<StableBTreeMap<String, USTBill, Memory>> = RefCell::new(
@@ -309,8 +314,14 @@ impl UserStorage {
         })
     }
 
-        pub fn get_all() -> Vec<User> {
-                        USERS.with(|users| users.borrow().iter().map(|entry| entry.value().clone()).collect())
+    pub fn get_all() -> Vec<User> {
+        USERS.with(|users| {
+            users
+                .borrow()
+                .iter()
+                .map(|entry| entry.value().clone())
+                .collect()
+        })
     }
 
     pub fn count() -> u64 {
@@ -468,9 +479,7 @@ impl PlatformConfigStorage {
 
     pub fn update(config: PlatformConfig) -> Result<()> {
         PLATFORM_CONFIG.with(|platform_config| {
-                        platform_config
-                .borrow_mut()
-                .set(config);
+            platform_config.borrow_mut().set(config);
             Ok(())
         })
     }
@@ -499,8 +508,14 @@ impl TreasuryRateStorage {
         })
     }
 
-        pub fn get_all() -> Vec<TreasuryRate> {
-                        TREASURY_RATES.with(|rates| rates.borrow().iter().map(|entry| entry.value().clone()).collect())
+    pub fn get_all() -> Vec<TreasuryRate> {
+        TREASURY_RATES.with(|rates| {
+            rates
+                .borrow()
+                .iter()
+                .map(|entry| entry.value().clone())
+                .collect()
+        })
     }
 
     pub fn clear() -> Result<()> {
@@ -523,7 +538,7 @@ impl TradingMetricsStorage {
 
     pub fn update(metrics: TradingMetrics) -> Result<()> {
         TRADING_METRICS.with(|trading_metrics| {
-                        trading_metrics.borrow_mut().set(metrics);
+            trading_metrics.borrow_mut().set(metrics);
             Ok(())
         })
     }
@@ -559,9 +574,11 @@ impl TradingMetricsStorage {
 
 // Utility functions for storage operations
 pub fn generate_id() -> String {
-    let timestamp = ic_cdk::api::time();
-    let caller = ic_cdk::api::msg_caller();
-    format!("{}_{}", timestamp, caller.to_text())
+    ID_COUNTER.with(|counter| {
+        let current_value = *counter.borrow().get();
+        counter.borrow_mut().set(current_value + 1);
+        current_value.to_string()
+    })
 }
 
 pub fn get_current_timestamp() -> u64 {

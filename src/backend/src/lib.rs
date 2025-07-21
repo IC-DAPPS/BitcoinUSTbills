@@ -21,7 +21,6 @@ use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs
 use ic_cdk::{query, update};
 use std::collections::HashMap;
 pub use storage::*;
-use uuid::Uuid;
 
 // ============= USTBILLS CANISTER FUNCTIONS =============
 
@@ -34,12 +33,10 @@ pub async fn create_ustbill(ustbill_data: USTBillCreateRequest) -> Result<USTBil
     // Validate input data
     validate_ustbill_data(&ustbill_data)?;
 
-    // Generate unique ID
-    let id = Uuid::new_v4().to_string();
     let current_time = get_current_timestamp();
 
     let ustbill = USTBill {
-        id: id.clone(),
+        id: generate_id(),
         cusip: ustbill_data.cusip,
         face_value: ustbill_data.face_value,
         purchase_price: ustbill_data.purchase_price,
@@ -179,7 +176,7 @@ pub async fn deposit_funds(amount: u64) -> Result<u64> {
 
     // Record transaction
     let transaction = Transaction {
-        id: Uuid::new_v4().to_string(),
+        id: generate_id(),
         user_principal: principal,
         transaction_type: TransactionType::Deposit,
         amount,
@@ -219,7 +216,7 @@ pub async fn withdraw_funds(amount: u64) -> Result<u64> {
 
     // Record transaction
     let transaction = Transaction {
-        id: Uuid::new_v4().to_string(),
+        id: generate_id(),
         user_principal: principal,
         transaction_type: TransactionType::Withdrawal,
         amount,
@@ -296,7 +293,7 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
     ustbill.updated_at = get_current_timestamp();
 
     // Create holding
-    let holding_id = Uuid::new_v4().to_string();
+    let holding_id = generate_id();
     let holding = TokenHolding {
         id: holding_id.clone(),
         user_principal: principal,
@@ -312,7 +309,7 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
 
     // Record transaction
     let transaction = Transaction {
-        id: Uuid::new_v4().to_string(),
+        id: generate_id(),
         user_principal: principal,
         transaction_type: TransactionType::Purchase,
         amount: cost,
@@ -329,7 +326,7 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
 
     // Record fees transaction
     let fee_transaction = Transaction {
-        id: Uuid::new_v4().to_string(),
+        id: generate_id(),
         user_principal: principal,
         transaction_type: TransactionType::Fee,
         amount: fees,
@@ -634,9 +631,6 @@ pub fn add_to_list(p: Principal) -> Result<()> {
 #[test]
 fn generate_candid() {
     candid::export_service!();
-    std::fs::write(
-        "../distributed/backend/backend.did",
-        __export_service(),
-    )
-    .expect("Failed to write backend.did");
+    std::fs::write("../distributed/backend/backend.did", __export_service())
+        .expect("Failed to write backend.did");
 }
