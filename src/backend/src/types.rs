@@ -224,6 +224,17 @@ impl Default for PlatformConfig {
     }
 }
 
+// ============= VERIFIED BROKER PURCHASE =============
+
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+pub struct VerifiedBrokerPurchase {
+    pub amount: u64,
+    pub price: u64,
+    pub timestamp: u64,
+    pub broker_txn_id: String,
+    pub ustbill_type: String,
+}
+
 // ============= HELPER FUNCTIONS =============
 
 impl USTBill {

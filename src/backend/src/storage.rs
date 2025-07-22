@@ -19,6 +19,7 @@ const PLATFORM_CONFIG_MEMORY_ID: MemoryId = MemoryId::new(4);
 const TREASURY_RATES_MEMORY_ID: MemoryId = MemoryId::new(5);
 const TRADING_METRICS_MEMORY_ID: MemoryId = MemoryId::new(6);
 const ID_COUNTER_MEMORY_ID: MemoryId = MemoryId::new(7);
+const VERIFIED_PURCHASES_LEDGER_MEMORY_ID: MemoryId = MemoryId::new(8);
 
 // Thread-local storage for memory manager and stable data structures
 thread_local! {
@@ -78,6 +79,12 @@ thread_local! {
                 lowest_price: 0,
                 last_updated: 0,
             }
+        )
+    );
+
+    static VERIFIED_PURCHASES_LEDGER: RefCell<StableBTreeMap<u64, VerifiedBrokerPurchase, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(VERIFIED_PURCHASES_LEDGER_MEMORY_ID))
         )
     );
 }
@@ -186,6 +193,23 @@ impl Storable for TreasuryRate {
 }
 
 impl Storable for TradingMetrics {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(candid::encode_one(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        candid::decode_one(&bytes).unwrap()
+    }
+
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(self).unwrap()
+    }
+
+    const BOUND: ic_stable_structures::storable::Bound =
+        ic_stable_structures::storable::Bound::Unbounded;
+}
+
+impl Storable for VerifiedBrokerPurchase {
     fn to_bytes(&self) -> Cow<[u8]> {
         Cow::Owned(candid::encode_one(self).unwrap())
     }
@@ -572,6 +596,34 @@ impl TradingMetricsStorage {
     }
 }
 
+// Storage interface for Verified Purchases Ledger
+pub struct VerifiedPurchasesLedgerStorage;
+
+impl VerifiedPurchasesLedgerStorage {
+    pub fn insert(purchase: VerifiedBrokerPurchase) -> Result<()> {
+        VERIFIED_PURCHASES_LEDGER.with(|ledger| {
+            let id = ledger.borrow().len();
+            ledger.borrow_mut().insert(id, purchase);
+            Ok(())
+        })
+    }
+
+    pub fn get_all() -> Vec<VerifiedBrokerPurchase> {
+        VERIFIED_PURCHASES_LEDGER.with(|ledger| {
+            ledger
+                .borrow()
+                .iter()
+                .map(|entry| entry.value().clone())
+                .collect()
+        })
+    }
+
+    pub fn count() -> u64 {
+        VERIFIED_PURCHASES_LEDGER.with(|ledger| ledger.borrow().len())
+    }
+}
+
+
 // Utility functions for storage operations
 pub fn generate_id() -> String {
     ID_COUNTER.with(|counter| {
@@ -592,5 +644,6 @@ pub fn get_storage_stats() -> std::collections::HashMap<String, u64> {
     stats.insert("users".to_string(), UserStorage::count());
     stats.insert("holdings".to_string(), HoldingStorage::count());
     stats.insert("transactions".to_string(), TransactionStorage::count());
+    stats.insert("verified_purchases".to_string(), VerifiedPurchasesLedgerStorage::count());
     stats
 }

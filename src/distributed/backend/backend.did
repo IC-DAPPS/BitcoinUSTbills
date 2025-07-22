@@ -155,6 +155,13 @@ type UserRegistrationRequest = record {
   email : text;
   phone_number : opt text;
 };
+type VerifiedBrokerPurchase = record {
+  ustbill_type : text;
+  broker_txn_id : text;
+  timestamp : nat64;
+  price : nat64;
+  amount : nat64;
+};
 type YieldOption = variant { Maturity; Flexible };
 type YieldProjection = record {
   days_to_maturity : nat64;
@@ -166,6 +173,7 @@ type YieldProjection = record {
 };
 service : {
   add_to_list : (principal) -> (Result);
+  admin_add_broker_purchase_record : (nat64, nat64, text, text) -> (Result);
   buy_ustbill_tokens : (text, nat64) -> (Result_1);
   calculate_current_value : (text) -> (Result_2) query;
   calculate_maturity_yield : (text) -> (Result_2);
@@ -174,6 +182,7 @@ service : {
   deposit_funds : (nat64) -> (Result_2);
   fetch_treasury_rates : () -> (Result_4);
   get_active_ustbills : () -> (vec USTBill) query;
+  get_all_verified_broker_purchases : () -> (vec VerifiedBrokerPurchase) query;
   get_platform_config : () -> (PlatformConfig) query;
   get_principal_data : () -> (Result_5) query;
   get_storage_stats : () -> (vec record { text; nat64 }) query;

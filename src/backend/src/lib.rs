@@ -20,7 +20,36 @@ use candid::Principal;
 use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
 use ic_cdk::{query, update};
 use std::collections::HashMap;
+use crate::storage::VerifiedPurchasesLedgerStorage;
 pub use storage::*;
+
+// ============= VERIFIED BROKER PURCHASE FUNCTIONS =============
+
+#[update]
+pub async fn admin_add_broker_purchase_record(
+    amount: u64,
+    price: u64,
+    broker_txn_id: String,
+    ustbill_type: String,
+) -> Result<()> {
+    guard::assert_admin()?;
+
+    let purchase = VerifiedBrokerPurchase {
+        amount,
+        price,
+        timestamp: get_current_timestamp(),
+        broker_txn_id,
+        ustbill_type,
+    };
+
+    VerifiedPurchasesLedgerStorage::insert(purchase)
+}
+
+#[query]
+pub fn get_all_verified_broker_purchases() -> Vec<VerifiedBrokerPurchase> {
+    VerifiedPurchasesLedgerStorage::get_all()
+}
+
 
 // ============= USTBILLS CANISTER FUNCTIONS =============
 

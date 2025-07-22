@@ -1,18 +1,7 @@
 import { backendActorPromise } from "./agent";
+import type { VerifiedBrokerPurchase } from "$lib/types";
 
-export async function get(): Promise<string> {
+export async function getAllVerifiedBrokerPurchases(): Promise<VerifiedBrokerPurchase[]> {
   const backendActor = await backendActorPromise;
-  const result = await backendActor.get_principal_data();
-
-  if ("Err" in result) {
-    console.error("Network error: failed to call IC from `get`");
-    throw new Error("failed to call IC from `get`");
-  }
-
-  return result.Ok;
-}
-
-export async function set(value: string) {
-  const backendActor = await backendActorPromise;
-  await backendActor.set_principal_data(value);
+  return await backendActor.get_all_verified_broker_purchases();
 }

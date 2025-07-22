@@ -2,6 +2,18 @@
   import Toasts from "$lib/components/ui/Toasts.svelte";
 </script>
 
+<header class="bg-white shadow-md">
+  <nav class="container mx-auto px-6 py-3">
+    <div class="flex justify-between items-center">
+      <a href="/" class="text-xl font-semibold text-gray-700">USTBills on ICP</a>
+      <div>
+        <a href="/" class="text-gray-700 hover:text-blue-500 mx-2">Home</a>
+        <a href="/public-ledger" class="text-gray-700 hover:text-blue-500 mx-2">Public Ledger</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
 <Toasts />
 
 <main>
