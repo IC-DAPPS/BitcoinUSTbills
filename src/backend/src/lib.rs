@@ -23,7 +23,9 @@ use std::collections::HashMap;
 use crate::storage::VerifiedPurchasesLedgerStorage;
 pub use storage::*;
 
-// ============= VERIFIED BROKER PURCHASE FUNCTIONS =============
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  VERIFIED BROKER PURCHASE FUNCTIONS                        ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 
 #[update]
 pub async fn admin_add_broker_purchase_record(
@@ -51,7 +53,9 @@ pub fn get_all_verified_broker_purchases() -> Vec<VerifiedBrokerPurchase> {
 }
 
 
-// ============= USTBILLS CANISTER FUNCTIONS =============
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  USTBILLS CANISTER FUNCTIONS                        ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 
 /// Creates a new US Treasury Bill offering
 #[update]
@@ -129,7 +133,9 @@ pub fn get_ustbills_paginated(page: usize, per_page: usize) -> Result<PaginatedR
     })
 }
 
-// ============= USER CANISTER FUNCTIONS =============
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  USER CANISTER FUNCTIONS                        ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 
 /// Registers a new user
 #[update]
@@ -262,7 +268,9 @@ pub async fn withdraw_funds(amount: u64) -> Result<u64> {
     Ok(user.wallet_balance)
 }
 
-// ============= TRADING CANISTER FUNCTIONS =============
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  TRADING CANISTER FUNCTIONS                        ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 
 /// Buys US Treasury Bill tokens
 #[update]
@@ -412,7 +420,9 @@ pub fn get_user_holdings(principal: Principal) -> Vec<TokenHolding> {
     HoldingStorage::get_by_user(&principal)
 }
 
-// ============= YIELD CANISTER FUNCTIONS =============
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  YIELD CANISTER FUNCTIONS                        ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 
 /// Calculates maturity yield for a holding
 #[update]
@@ -463,7 +473,9 @@ pub fn get_yield_projection(holding_id: String) -> Result<YieldProjection> {
     })
 }
 
-// ============= EXTERNAL API INTEGRATION =============
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  EXTERNAL API INTEGRATION                        ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 
 /// Fetches current Treasury rates from external API
 #[update]
@@ -522,7 +534,9 @@ pub async fn update_ustbill_market_data() -> Result<()> {
     Ok(())
 }
 
-// ============= PLATFORM MANAGEMENT =============
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  PLATFORM MANAGEMENT                        ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 
 /// Gets platform configuration
 #[query]
@@ -549,7 +563,9 @@ pub fn get_storage_stats() -> HashMap<String, u64> {
     storage::get_storage_stats()
 }
 
-// ============= HELPER FUNCTIONS =============
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  HELPER FUNCTIONS                        ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 
 pub fn validate_ustbill_data(data: &USTBillCreateRequest) -> Result<()> {
     if data.cusip.is_empty() {
@@ -620,7 +636,9 @@ fn transform_treasury_response(response: TransformArgs) -> HttpResponse {
     res
 }
 
-// ============= LEGACY FUNCTIONS (for backward compatibility) =============
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                  LEGACY FUNCTIONS (for backward compatibility)                        ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
 
 #[ic_cdk::query]
 fn get_principal_data() -> Result<String> {
