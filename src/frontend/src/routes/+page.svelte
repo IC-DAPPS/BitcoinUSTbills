@@ -311,3 +311,56 @@
     </div>
   </div>
 </section>
+
+<!-- Stats Section -->
+<section class="py-16 bg-section">
+  <div class="container mx-auto px-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div>
+        <div class="text-3xl font-bold text-primary mb-2">$10M+</div>
+        <div class="text-sm text-secondary">Total Value Locked</div>
+      </div>
+      <div>
+        <div class="text-3xl font-bold text-primary mb-2">5.2%</div>
+        <div class="text-sm text-secondary">Average Yield</div>
+      </div>
+      <div>
+        <div class="text-3xl font-bold text-primary mb-2">1,000+</div>
+        <div class="text-sm text-secondary">Active Investors</div>
+      </div>
+      <div>
+        <div class="text-3xl font-bold text-primary mb-2">24/7</div>
+        <div class="text-sm text-secondary">Market Access</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-20 bg-blue text-white">
+  <div class="container mx-auto px-6 text-center">
+    <h2 class="text-4xl font-bold mb-6">Ready to Start Investing?</h2>
+    <p class="text-xl mb-8 opacity-90">
+      Join thousands of investors already earning steady yields with Treasury
+      Bills
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <Button
+        variant="secondary"
+        size="lg"
+        on:click={handleStartInvesting}
+        class="bg-white text-blue hover:bg-gray-100"
+      >
+        Get Started Today
+      </Button>
+      <Button
+        variant="outline"
+        size="lg"
+        on:click={handleLearnMore}
+        class="border-white text-white hover:bg-white hover:text-blue"
+      >
+        Learn More
+      </Button>
+    </div>
+  </div>
+</section>

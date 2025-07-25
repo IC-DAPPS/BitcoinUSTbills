@@ -29,22 +29,14 @@
           >Home</a
         >
         <a
-          href="/how-it-works"
+          href="/dashboard"
           class="text-secondary hover:text-primary transition-colors"
-          >How It Works</a
+          >Dashboard</a
         >
         <a
-          href="/yields"
-          class="text-secondary hover:text-primary transition-colors">Yields</a
-        >
-        <a
-          href="/security"
+          href="/public-ledger"
           class="text-secondary hover:text-primary transition-colors"
-          >Security</a
-        >
-        <a
-          href="/faq"
-          class="text-secondary hover:text-primary transition-colors">FAQ</a
+          >Public Ledger</a
         >
         <a
           href="/about"
@@ -55,14 +47,12 @@
       <!-- Auth Section -->
       <div class="flex items-center space-x-4">
         {#if $authStore.isLoggedIn}
-          <a
-            href="/dashboard"
-            class="text-secondary hover:text-primary transition-colors"
-            >Dashboard</a
-          >
+          <span class="text-sm text-secondary">
+            {$authStore.identity?.getPrincipal().toString().slice(0, 8)}...
+          </span>
           <Button variant="secondary" on:click={logout}>Logout</Button>
         {:else}
-          <Button variant="outline" on:click={login}>Login</Button>
+          <Button variant="primary" on:click={login}>Login</Button>
         {/if}
       </div>
 

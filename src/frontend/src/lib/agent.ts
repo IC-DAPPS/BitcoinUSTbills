@@ -16,7 +16,7 @@ async function createActor(agent: HttpAgent) {
 function createAgent(identity: Identity) {
   return new HttpAgent({
     identity,
-    host: import.meta.env.VITE_DFX_NETWORK === "ic" ? "https://ic0.app" : "http://localhost:4943",
+    host: import.meta.env.VITE_DFX_NETWORK === "ic" ? "https://ic0.app" : "http://localhost:8080",
   });
 }
 

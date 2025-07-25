@@ -9,13 +9,18 @@
   export let href: string | undefined = undefined;
   export let target: string | undefined = undefined;
 
+  // Allow additional CSS classes
+  let className = "";
+  export { className as class };
+
   $: classes = [
     "btn",
     `btn-${variant}`,
-    size === "lg" ? "btn-lg" : size === "sm" ? "px-3 py-1.5 text-xs" : "",
+    size === "lg" ? "btn-lg" : size === "sm" ? "btn-sm" : "",
     fullWidth ? "w-full" : "",
     loading ? "cursor-wait" : "",
     "focus-visible",
+    className,
   ]
     .filter(Boolean)
     .join(" ");
