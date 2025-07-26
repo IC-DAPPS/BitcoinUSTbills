@@ -875,3 +875,83 @@ body {
 .h-5 {
   height: 1.25rem;
 }
+
+/* Mobile Menu Enhancements */
+.mobile-menu-transition {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Better mobile spacing */
+@media (max-width: 767px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Mobile header adjustments */
+  header nav {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  /* Mobile menu button animation */
+  .mobile-only button {
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-only button:active {
+    transform: scale(0.95);
+  }
+
+  /* Mobile menu items styling */
+  .mobile-menu-item {
+    transition: background-color 0.2s ease, padding 0.2s ease;
+  }
+
+  .mobile-menu-item:hover {
+    background-color: var(--background-section);
+    padding-left: 1rem;
+  }
+}
+
+/* Improved responsive utility classes */
+@media (max-width: 767px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .desktop-only {
+    display: flex !important;
+  }
+
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Focus improvements for mobile */
+@media (max-width: 767px) {
+  button:focus,
+  a:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+  }
+}
+
+/* Smooth scrolling for mobile navigation */
+@media (max-width: 767px) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  body {
+    overflow-x: hidden;
+  }
+}

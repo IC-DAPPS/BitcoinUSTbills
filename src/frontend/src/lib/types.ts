@@ -88,7 +88,6 @@ export interface USTBillCreateFormData {
   purchasePrice: string;
   maturityDate: string;
   annualYield: string;
-  totalTokens: string;
   issuer: string;
   billType: string;
 }

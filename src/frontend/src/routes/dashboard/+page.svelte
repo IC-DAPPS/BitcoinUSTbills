@@ -59,90 +59,67 @@
     },
   ];
 
-  $: portfolioValue = user ? centsToDoller(user.total_invested) : 0;
-  $: totalYieldEarned = user ? centsToDoller(user.total_yield_earned) : 0;
-  $: walletBalance = user ? centsToDoller(user.wallet_balance) : 0;
+  $: portfolioValue = user ? user.total_invested : 0;
+  $: totalYieldEarned = user ? user.total_yield_earned : 0;
+  $: walletBalance = user ? user.wallet_balance : 0;
+
+  // Mock data for demo
+  const mockUser = {
+    username: "demo_user",
+    email: "demo@example.com",
+    wallet_balance: 2500,
+    total_invested: 1890,
+    total_yield_earned: 125,
+    created_at: Date.now() - 30 * 24 * 60 * 60 * 1000,
+    updated_at: Date.now(),
+  };
+
+  const mockHoldings: TokenHolding[] = [
+    {
+      id: "holding-1",
+      user_principal: "mock-principal",
+      ustbill_id: "1",
+      token_id: 1,
+      purchase_price: 95000, // $950
+      purchase_date: Date.now() - 15 * 24 * 60 * 60 * 1000, // 15 days ago
+      yield_option: { Reinvest: null },
+      status: { Active: null },
+      current_value: 97500, // $975
+      projected_yield: 5000, // $50
+    },
+    {
+      id: "holding-2",
+      user_principal: "mock-principal",
+      ustbill_id: "2",
+      token_id: 2,
+      purchase_price: 94000, // $940
+      purchase_date: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
+      yield_option: { Payout: null },
+      status: { Active: null },
+      current_value: 95200, // $952
+      projected_yield: 7500, // $75
+    },
+  ];
+
+  const mockTradingMetrics: TradingMetrics = {
+    total_volume: 1250000, // $12,500
+    active_bills: 5,
+    avg_yield: 6.75,
+    total_users: 150,
+  };
 
   onMount(async () => {
-    console.log("Dashboard onMount called");
-    console.log("Auth store state:", $authStore);
-
-    // Add a small delay to ensure auth is initialized
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    if (!$authStore.isLoggedIn || !$authStore.identity) {
-      console.log("User not logged in, redirecting to home");
-      goto("/");
-      return;
-    }
-
-    console.log("User is logged in, fetching data...");
+    // Skip auth check for demo
+    console.log("Dashboard loading mock data for demo");
 
     try {
-      const principal = $authStore.identity.getPrincipal();
-      console.log("User principal:", principal.toString());
+      // Simulate loading delay
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-      // For now, use mock data to ensure page renders
-      user = {
-        principal: principal,
-        email: "demo@example.com",
-        phone_number: [],
-        country: "US",
-        kyc_status: { Verified: null },
-        is_active: true,
-        wallet_balance: BigInt(100000), // $1000 in cents
-        total_invested: BigInt(500000), // $5000 in cents
-        total_yield_earned: BigInt(25000), // $250 in cents
-        created_at: BigInt(Date.now() * 1000000),
-        updated_at: BigInt(Date.now() * 1000000),
-      };
-
-      holdings = [];
-      ustbills = [
-        {
-          id: "ustb_001",
-          cusip: "TB-001-2024",
-          face_value: BigInt(100000), // $1000
-          purchase_price: BigInt(9850), // $98.50
-          annual_yield: 5.2,
-          maturity_date: BigInt(
-            (Date.now() + 90 * 24 * 60 * 60 * 1000) * 1000000
-          ),
-          bill_type: "91-Day Treasury Bill",
-          status: { Active: null },
-          total_tokens: BigInt(1000),
-          tokens_sold: BigInt(250),
-          issuer: "US Treasury",
-          created_at: BigInt(Date.now() * 1000000),
-          updated_at: BigInt(Date.now() * 1000000),
-        },
-        {
-          id: "ustb_002",
-          cusip: "TB-002-2024",
-          face_value: BigInt(500000), // $5000
-          purchase_price: BigInt(4900), // $49.00
-          annual_yield: 5.35,
-          maturity_date: BigInt(
-            (Date.now() + 180 * 24 * 60 * 60 * 1000) * 1000000
-          ),
-          bill_type: "182-Day Treasury Bill",
-          status: { Active: null },
-          total_tokens: BigInt(5000),
-          tokens_sold: BigInt(1200),
-          issuer: "US Treasury",
-          created_at: BigInt(Date.now() * 1000000),
-          updated_at: BigInt(Date.now() * 1000000),
-        },
-      ];
-
-      tradingMetrics = {
-        total_volume: BigInt(1000000000), // $10M in cents
-        total_transactions: BigInt(5000),
-        average_price: BigInt(9850),
-        highest_price: BigInt(10000),
-        lowest_price: BigInt(9500),
-        last_updated: BigInt(Date.now() * 1000000),
-      };
+      user = mockUser;
+      holdings = mockHoldings;
+      ustbills = []; // Keep empty for demo focus
+      tradingMetrics = mockTradingMetrics;
 
       console.log("Mock data loaded successfully");
     } catch (e) {
@@ -202,9 +179,7 @@
     {:else}
       <!-- Dashboard Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-primary mb-2">
-          Treasury Tokenizer Dashboard
-        </h1>
+        <h1 class="text-3xl font-bold text-primary mb-2">Dashboard</h1>
         <p class="text-secondary">
           Manage your tokenized Treasury Bill investments
         </p>

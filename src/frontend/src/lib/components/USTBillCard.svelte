@@ -12,13 +12,10 @@
   export let onInvest: ((ustbillId: string) => void) | undefined = undefined;
   export let loading = false;
 
-  $: availableTokens = ustbill.total_tokens - ustbill.tokens_sold;
   $: isAvailable =
-    getStatusText(ustbill.status) === "Active" && availableTokens > 0;
+    getStatusText(ustbill.status) === "Active" && ustbill.owner.length === 0;
   $: statusText =
-    ustbill.tokens_sold >= ustbill.total_tokens
-      ? "SoldOut"
-      : getStatusText(ustbill.status);
+    ustbill.owner.length > 0 ? "SoldOut" : getStatusText(ustbill.status);
 
   function handleInvest() {
     if (onInvest && isAvailable) {
@@ -65,9 +62,9 @@
     </div>
 
     <div class="flex justify-between items-center">
-      <span class="text-sm text-secondary">Available Tokens:</span>
+      <span class="text-sm text-secondary">Availability:</span>
       <span class="text-sm font-medium text-primary">
-        {availableTokens.toLocaleString()} / {ustbill.total_tokens.toLocaleString()}
+        {isAvailable ? "Available" : "Sold Out"}
       </span>
     </div>
 
