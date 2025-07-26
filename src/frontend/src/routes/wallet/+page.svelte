@@ -1,10 +1,10 @@
-<script>
+<script lang="ts">
   import { onMount } from "svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
 
   let loading = true;
-  let error = null;
+  let error: string | null = null;
 
   // Simple mock user data for demo
   let user = {
@@ -67,7 +67,7 @@
     loading = false;
   });
 
-  function getTransactionIcon(type) {
+  function getTransactionIcon(type: string) {
     switch (type) {
       case "Deposit":
         return "⬇️";
@@ -82,7 +82,7 @@
     }
   }
 
-  function getAmountColor(amount) {
+  function getAmountColor(amount: number) {
     return amount >= 0 ? "text-success" : "text-red-600";
   }
 </script>
@@ -193,76 +193,60 @@
       </div>
     </div>
 
-    <!-- Quick Actions & Transaction History -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <!-- Quick Actions -->
-      <div class="card p-6">
-        <h3 class="text-lg font-semibold text-primary mb-4">Quick Actions</h3>
-        <div class="space-y-3">
-          <Button
-            variant="outline"
-            class="w-full justify-start"
-            on:click={() => (window.location.href = "/marketplace")}
-          >
-            🛒 Buy Treasury Bills
-          </Button>
-          <Button
-            variant="outline"
-            class="w-full justify-start"
-            on:click={() => (window.location.href = "/portfolio")}
-          >
-            📊 View Portfolio
-          </Button>
-          <Button
-            variant="outline"
-            class="w-full justify-start"
-            on:click={() => alert("Add Funds functionality would be here")}
-          >
-            💰 Add Funds
-          </Button>
-        </div>
+    <!-- Quick Actions -->
+    <div class="card p-6 mb-8">
+      <h3 class="text-lg font-semibold text-primary mb-4">Quick Actions</h3>
+      <div class="flex flex-row gap-3">
+        <Button
+          variant="outline"
+          class="flex-1 justify-center"
+          on:click={() => (window.location.href = "/marketplace")}
+        >
+          🛒 Buy Treasury Bills
+        </Button>
+        <Button
+          variant="outline"
+          class="flex-1 justify-center"
+          on:click={() => (window.location.href = "/portfolio")}
+        >
+          📊 View Portfolio
+        </Button>
+        <Button
+          variant="outline"
+          class="flex-1 justify-center"
+          on:click={() => alert("Add Funds functionality would be here")}
+        >
+          💰 Add Funds
+        </Button>
       </div>
+    </div>
 
-      <!-- Recent Transactions -->
-      <div class="card p-6 lg:col-span-2">
-        <h3 class="text-lg font-semibold text-primary mb-4">
-          Recent Transactions
-        </h3>
-        <div class="space-y-3">
-          {#each transactions.slice(0, 5) as transaction}
-            <div
-              class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-            >
-              <div class="flex items-center gap-3">
-                <div class="text-xl">
-                  {getTransactionIcon(transaction.type)}
-                </div>
-                <div>
-                  <p class="font-medium text-primary">
-                    {transaction.description}
-                  </p>
-                  <p class="text-sm text-secondary">
-                    {transaction.timestamp} • {transaction.status}
-                  </p>
-                </div>
-              </div>
-              <div class="text-right">
-                <p class="font-semibold {getAmountColor(transaction.amount)}">
-                  {transaction.amount >= 0 ? "+" : ""}{Math.abs(
-                    transaction.amount
-                  ).toFixed(transaction.currency === "ckBTC" ? 6 : 4)}
-                  {transaction.currency}
-                </p>
-                <p class="text-xs text-secondary">
-                  ≈ ${transaction.currency === "ICP"
-                    ? (Math.abs(transaction.amount) * icpPriceUSD).toFixed(2)
-                    : (Math.abs(transaction.amount) * ckbtcPriceUSD).toFixed(2)}
-                  USD
-                </p>
-              </div>
+    <!-- Recent Transactions - Square Blocks -->
+    <div class="mb-8">
+      <h3 class="text-lg font-semibold text-primary mb-6">
+        Recent Transactions
+      </h3>
+      <div class="grid grid-cols-4 gap-4">
+        {#each transactions.slice(0, 4) as transaction}
+          <div
+            class="card p-3 text-center h-32 w-full flex flex-col justify-center"
+          >
+            <div class="text-xl mb-1">
+              {getTransactionIcon(transaction.type)}
             </div>
-          {/each}
-        </div>
+            <p class="text-xs font-medium text-secondary mb-1">
+              {transaction.type}
+            </p>
+            <p class="text-sm font-bold {getAmountColor(transaction.amount)}">
+              {transaction.amount >= 0 ? "+" : ""}{Math.abs(
+                transaction.amount
+              ).toFixed(0)}
+            </p>
+            <p class="text-xs text-secondary">
+              {transaction.currency}
+            </p>
+          </div>
+        {/each}
       </div>
     </div>
   {/if}
