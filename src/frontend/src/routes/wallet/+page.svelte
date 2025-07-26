@@ -62,20 +62,21 @@
   ];
 
   onMount(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    // Simulate loading delay
+    await new Promise((resolve) => setTimeout(resolve, 800));
     loading = false;
   });
 
   function getTransactionIcon(type) {
     switch (type) {
       case "Deposit":
-        return "↗️";
+        return "⬇️";
+      case "Withdraw":
+        return "⬆️";
       case "Purchase":
-        return "💰";
+        return "🛒";
       case "Fee":
-        return "📋";
-      case "Withdrawal":
-        return "↙️";
+        return "💳";
       default:
         return "📄";
     }
@@ -90,7 +91,7 @@
   <title>My Wallet - BitcoinUSTbills</title>
 </svelte:head>
 
-<div class="container mx-auto px-6 py-8">
+<div class="container-wide mx-auto px-6 py-8">
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-primary mb-2">My Wallet</h1>
     <p class="text-secondary">Manage your funds and view transaction history</p>
@@ -113,16 +114,18 @@
       <LoadingSpinner />
     </div>
   {:else}
-    <!-- Wallet Balance -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <!-- ICP Balance -->
-      <div class="card p-8 text-center">
-        <h2 class="text-lg font-semibold text-secondary mb-2">ICP Balance</h2>
-        <p class="text-3xl font-bold text-blue-600 mb-1">
+    <!-- Wallet Balance Cards - Better Desktop Layout -->
+    <div
+      class="wallet-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+    >
+      <!-- ICP Balance Card -->
+      <div class="card p-6 text-center">
+        <h3 class="text-lg font-semibold text-secondary mb-4">ICP Balance</h3>
+        <p class="text-4xl font-bold text-primary mb-4">
           {user.walletBalance.toFixed(4)} ICP
         </p>
-        <p class="text-lg text-secondary mb-4">
-          ≈ ${icpValueUSD.toFixed(2)} USD
+        <p class="text-sm text-secondary mb-6">
+          ≈ ${(user.walletBalance * icpPriceUSD).toFixed(2)} USD
         </p>
         <div class="flex gap-2 justify-center">
           <Button
@@ -130,26 +133,26 @@
             class="flex-1"
             on:click={() => alert("Deposit ICP functionality would be here")}
           >
-            💳 Deposit
+            ⬇ Deposit
           </Button>
           <Button
             variant="secondary"
             class="flex-1"
             on:click={() => alert("Withdraw ICP functionality would be here")}
           >
-            💸 Withdraw
+            ⬆ Withdraw
           </Button>
         </div>
       </div>
 
-      <!-- ckBTC Balance -->
-      <div class="card p-8 text-center">
-        <h2 class="text-lg font-semibold text-secondary mb-2">ckBTC Balance</h2>
-        <p class="text-3xl font-bold text-orange-600 mb-1">
+      <!-- ckBTC Balance Card -->
+      <div class="card p-6 text-center">
+        <h3 class="text-lg font-semibold text-secondary mb-4">ckBTC Balance</h3>
+        <p class="text-4xl font-bold text-primary mb-4">
           {user.ckbtcBalance.toFixed(6)} ckBTC
         </p>
-        <p class="text-lg text-secondary mb-4">
-          ≈ ${ckbtcValueUSD.toFixed(2)} USD
+        <p class="text-sm text-secondary mb-6">
+          ≈ ${(user.ckbtcBalance * ckbtcPriceUSD).toFixed(2)} USD
         </p>
         <div class="flex gap-2 justify-center">
           <Button
@@ -157,76 +160,76 @@
             class="flex-1"
             on:click={() => alert("Deposit ckBTC functionality would be here")}
           >
-            ₿ Deposit
+            ⬇ Deposit
           </Button>
           <Button
             variant="secondary"
             class="flex-1"
             on:click={() => alert("Withdraw ckBTC functionality would be here")}
           >
-            💸 Withdraw
+            ⬆ Withdraw
           </Button>
         </div>
       </div>
-    </div>
 
-    <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="card p-6 text-center">
-        <div class="text-2xl mb-2">🏪</div>
-        <h3 class="text-lg font-semibold text-primary mb-2">Invest in Bills</h3>
-        <p class="text-sm text-secondary mb-4">
-          Browse available Treasury Bills
+      <!-- Total Portfolio Value Card -->
+      <div
+        class="card p-6 text-center bg-gradient-to-br from-blue-50 to-blue-100"
+      >
+        <h3 class="text-lg font-semibold text-secondary mb-4">
+          Total Portfolio
+        </h3>
+        <p class="text-4xl font-bold text-primary mb-4">
+          ${(icpValueUSD + ckbtcValueUSD).toFixed(2)}
         </p>
+        <p class="text-sm text-secondary mb-6">Combined wallet value</p>
         <Button
           variant="primary"
           class="w-full"
           on:click={() => (window.location.href = "/marketplace")}
         >
-          Go to Marketplace
-        </Button>
-      </div>
-
-      <div class="card p-6 text-center">
-        <div class="text-2xl mb-2">📊</div>
-        <h3 class="text-lg font-semibold text-primary mb-2">View Portfolio</h3>
-        <p class="text-sm text-secondary mb-4">Track your investments</p>
-        <Button
-          variant="secondary"
-          class="w-full"
-          on:click={() => (window.location.href = "/portfolio")}
-        >
-          View Holdings
-        </Button>
-      </div>
-
-      <div class="card p-6 text-center">
-        <div class="text-2xl mb-2">📈</div>
-        <h3 class="text-lg font-semibold text-primary mb-2">Dashboard</h3>
-        <p class="text-sm text-secondary mb-4">Overview of your account</p>
-        <Button
-          variant="secondary"
-          class="w-full"
-          on:click={() => (window.location.href = "/dashboard")}
-        >
-          Go to Dashboard
+          Invest Now
         </Button>
       </div>
     </div>
 
-    <!-- Transaction History -->
-    <div class="card p-6">
-      <h3 class="text-xl font-semibold text-primary mb-4">
-        Recent Transactions
-      </h3>
-
-      {#if transactions.length === 0}
-        <div class="text-center py-8">
-          <p class="text-secondary">No transactions yet</p>
-        </div>
-      {:else}
+    <!-- Quick Actions & Transaction History -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Quick Actions -->
+      <div class="card p-6">
+        <h3 class="text-lg font-semibold text-primary mb-4">Quick Actions</h3>
         <div class="space-y-3">
-          {#each transactions as transaction}
+          <Button
+            variant="outline"
+            class="w-full justify-start"
+            on:click={() => (window.location.href = "/marketplace")}
+          >
+            🛒 Buy Treasury Bills
+          </Button>
+          <Button
+            variant="outline"
+            class="w-full justify-start"
+            on:click={() => (window.location.href = "/portfolio")}
+          >
+            📊 View Portfolio
+          </Button>
+          <Button
+            variant="outline"
+            class="w-full justify-start"
+            on:click={() => alert("Add Funds functionality would be here")}
+          >
+            💰 Add Funds
+          </Button>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="card p-6 lg:col-span-2">
+        <h3 class="text-lg font-semibold text-primary mb-4">
+          Recent Transactions
+        </h3>
+        <div class="space-y-3">
+          {#each transactions.slice(0, 5) as transaction}
             <div
               class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
             >
@@ -243,18 +246,24 @@
                   </p>
                 </div>
               </div>
-                              <div class="text-right">
-                  <p class="font-semibold {getAmountColor(transaction.amount)}">
-                    {transaction.amount >= 0 ? "+" : ""}{Math.abs(transaction.amount).toFixed(transaction.currency === 'ckBTC' ? 6 : 4)} {transaction.currency}
-                  </p>
-                  <p class="text-xs text-secondary">
-                    ≈ ${transaction.currency === 'ICP' ? (Math.abs(transaction.amount) * icpPriceUSD).toFixed(2) : (Math.abs(transaction.amount) * ckbtcPriceUSD).toFixed(2)} USD
-                  </p>
-                </div>
+              <div class="text-right">
+                <p class="font-semibold {getAmountColor(transaction.amount)}">
+                  {transaction.amount >= 0 ? "+" : ""}{Math.abs(
+                    transaction.amount
+                  ).toFixed(transaction.currency === "ckBTC" ? 6 : 4)}
+                  {transaction.currency}
+                </p>
+                <p class="text-xs text-secondary">
+                  ≈ ${transaction.currency === "ICP"
+                    ? (Math.abs(transaction.amount) * icpPriceUSD).toFixed(2)
+                    : (Math.abs(transaction.amount) * ckbtcPriceUSD).toFixed(2)}
+                  USD
+                </p>
+              </div>
             </div>
           {/each}
         </div>
-      {/if}
+      </div>
     </div>
   {/if}
 </div>

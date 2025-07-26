@@ -149,6 +149,10 @@
   function handleViewAnalytics() {
     goto("/analytics");
   }
+
+  function goToTransactions() {
+    goto("/transactions");
+  }
 </script>
 
 <svelte:head>
@@ -156,7 +160,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-section">
-  <div class="container mx-auto px-6 py-8">
+  <div class="container-wide mx-auto px-6 py-8">
     {#if loading}
       <div class="flex justify-center items-center h-64">
         <div class="text-center">
@@ -185,212 +189,171 @@
         </p>
       </div>
 
-      <!-- Portfolio Overview -->
-      <div class="card p-6 mb-8">
-        <div class="flex items-center mb-6">
-          <svg
-            class="w-6 h-6 text-blue mr-3"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
-            ></path>
-          </svg>
-          <h2 class="text-xl font-semibold text-primary">Portfolio Overview</h2>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-6">
-          <!-- Total Portfolio Value -->
-          <div>
-            <p class="text-sm text-secondary mb-1">Total Portfolio Value</p>
-            <p class="text-3xl font-bold text-primary">
-              ${portfolioValue.toLocaleString()}
-            </p>
-          </div>
-
-          <!-- Current Yield -->
-          <div>
-            <p class="text-sm text-secondary mb-1">Current Yield</p>
-            <p class="text-3xl font-bold text-success">4.2% APY</p>
-          </div>
-
-          <!-- 24h Change -->
-          <div>
-            <p class="text-sm text-secondary mb-1">24h Change</p>
-            <div class="flex items-center">
-              <p class="text-3xl font-bold text-success">+$45.20</p>
+      <!-- Desktop Layout: Main content + Sidebar -->
+      <div class="dashboard-layout">
+        <div class="dashboard-main">
+          <!-- Portfolio Overview -->
+          <div class="card p-6 mb-8">
+            <div class="flex items-center mb-6">
               <svg
-                class="w-5 h-5 text-success ml-2 flex-shrink-0"
+                class="w-6 h-6 text-blue mr-3"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M7 14l9-9 3 3L19 8l-8 8-4-4z"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
                 ></path>
               </svg>
+              <h2 class="text-xl font-semibold text-primary">
+                Portfolio Overview
+              </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Total Portfolio Value -->
+              <div>
+                <p class="text-sm text-secondary mb-1">Total Portfolio Value</p>
+                <p class="text-3xl font-bold text-primary">
+                  ${portfolioValue.toLocaleString()}
+                </p>
+              </div>
+
+              <!-- Current Yield -->
+              <div>
+                <p class="text-sm text-secondary mb-1">Current Yield</p>
+                <p class="text-3xl font-bold text-success">4.2% APY</p>
+              </div>
+
+              <!-- 24h Change -->
+              <div>
+                <p class="text-sm text-secondary mb-1">24h Change</p>
+                <div class="flex items-center">
+                  <p class="text-3xl font-bold text-success">+$45.20</p>
+                  <svg
+                    class="w-5 h-5 text-success ml-2 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M7 14l9-9 3 3L19 8l-8 8-4-4z"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Treasury Bills Marketplace -->
+          <div class="card p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center">
+                <svg
+                  class="w-6 h-6 text-blue mr-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                  ></path>
+                </svg>
+                <h2 class="text-xl font-semibold text-primary">
+                  Treasury Bills Marketplace
+                </h2>
+              </div>
+            </div>
+
+            <p class="text-secondary mb-6">
+              Available tokenized Treasury Bills
+            </p>
+
+            <div class="grid grid-cols-1 lg:desktop-grid-2 gap-6">
+              {#each ustbills.slice(0, 4) as ustbill}
+                <USTBillCard {ustbill} onInvest={handleInvestClick} />
+              {/each}
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Treasury Bills Marketplace -->
-      <div class="card p-6 mb-8">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center">
-            <svg
-              class="w-6 h-6 text-blue mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-              ></path>
-            </svg>
-            <h2 class="text-xl font-semibold text-primary">
-              Treasury Bills Marketplace
-            </h2>
-          </div>
-        </div>
+        <!-- Sidebar for Recent Transactions & Yield Payments -->
+        <div class="dashboard-sidebar">
+          <!-- Recent Transactions -->
+          <div class="card p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-primary">
+                Recent Transactions
+              </h3>
+              <Button variant="outline" size="sm" on:click={goToTransactions}>
+                View All
+              </Button>
+            </div>
 
-        <p class="text-secondary mb-6">Available tokenized Treasury Bills</p>
-
-        <div class="grid lg:grid-cols-2 gap-6">
-          {#each ustbills.slice(0, 4) as ustbill}
-            <USTBillCard {ustbill} onInvest={handleInvestClick} />
-          {/each}
-        </div>
-      </div>
-
-      <!-- Recent Transactions & Upcoming Yield Payments -->
-      <div class="grid lg:grid-cols-2 gap-8 mb-8">
-        <!-- Recent Transactions -->
-        <div class="card p-6">
-          <div class="flex items-center mb-6">
-            <svg
-              class="w-6 h-6 text-blue mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              ></path>
-            </svg>
-            <h2 class="text-xl font-semibold text-primary">
-              Recent Transactions
-            </h2>
-          </div>
-
-          <div class="space-y-4">
-            {#each recentTransactions as transaction}
-              <div
-                class="flex justify-between items-center py-3 border-b border-light last:border-b-0"
-              >
-                <div class="flex items-center">
-                  <div
-                    class="w-8 h-8 rounded-full {transaction.type === 'Buy'
-                      ? 'bg-green-100'
-                      : 'bg-red-100'} flex items-center justify-center mr-3"
-                  >
-                    {#if transaction.type === "Buy"}
-                      <svg
-                        class="w-4 h-4 text-green-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M7 16l-4-4m0 0l4-4m-4 4h18"
-                        ></path>
-                      </svg>
-                    {:else}
-                      <svg
-                        class="w-4 h-4 text-red-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
-                        ></path>
-                      </svg>
-                    {/if}
-                  </div>
+            <div class="space-y-4">
+              {#each recentTransactions.slice(0, 3) as transaction}
+                <div
+                  class="flex items-center justify-between p-3 bg-gray-50 rounded"
+                >
                   <div>
-                    <p class="font-medium text-primary">{transaction.type}</p>
-                    <p class="text-sm text-secondary">{transaction.token}</p>
+                    <p class="font-medium text-sm">{transaction.type}</p>
+                    <p class="text-xs text-secondary">{transaction.bill_id}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold">${transaction.amount}</p>
+                    <span
+                      class="inline-block px-2 py-1 text-xs rounded-full {transaction.status ===
+                      'completed'
+                        ? 'bg-green-100 text-green-800'
+                        : transaction.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-gray-100 text-gray-800'}"
+                    >
+                      {transaction.status}
+                    </span>
                   </div>
                 </div>
-                <div class="text-right">
-                  <p class="font-semibold text-primary">{transaction.amount}</p>
-                  <StatusBadge status={transaction.status} size="sm" />
-                </div>
-              </div>
-            {/each}
-          </div>
-        </div>
-
-        <!-- Upcoming Yield Payments -->
-        <div class="card p-6">
-          <div class="flex items-center mb-6">
-            <svg
-              class="w-6 h-6 text-blue mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              ></path>
-            </svg>
-            <h2 class="text-xl font-semibold text-primary">
-              Upcoming Yield Payments
-            </h2>
+              {/each}
+            </div>
           </div>
 
-          <div class="space-y-4">
-            {#each upcomingYieldPayments as payment}
-              <div
-                class="flex justify-between items-center py-3 border-b border-light last:border-b-0"
-              >
-                <div>
-                  <p class="font-semibold text-primary">{payment.date}</p>
-                  <p class="text-sm text-secondary">{payment.description}</p>
-                  <span class="text-xs text-muted">{payment.status}</span>
+          <!-- Upcoming Yield Payments -->
+          <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-primary">
+                Upcoming Yields
+              </h3>
+            </div>
+
+            <div class="space-y-4">
+              {#each upcomingYieldPayments.slice(0, 3) as payment}
+                <div
+                  class="flex items-center justify-between p-3 bg-blue-50 rounded"
+                >
+                  <div>
+                    <p class="font-medium text-sm">{payment.bill_id}</p>
+                    <p class="text-xs text-secondary">
+                      Due: {payment.payment_date}
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-blue">
+                      ${payment.expected_amount}
+                    </p>
+                  </div>
                 </div>
-                <div class="text-right">
-                  <p class="text-lg font-semibold text-success">
-                    {payment.amount}
-                  </p>
-                </div>
-              </div>
-            {/each}
+              {/each}
+            </div>
           </div>
         </div>
       </div>

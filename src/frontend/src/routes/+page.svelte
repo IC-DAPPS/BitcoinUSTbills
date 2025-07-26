@@ -181,7 +181,7 @@
 
 <!-- Value Proposition Section -->
 <section class="py-20 bg-white">
-  <div class="container mx-auto px-6">
+  <div class="container-wide mx-auto px-6">
     <div class="text-center mb-16">
       <p class="text-blue font-medium mb-4">Built for Modern Investors</p>
       <h2
@@ -203,15 +203,19 @@
       </p>
     </div>
 
-    <!-- Feature Cards -->
-    <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    <!-- Feature Cards - Enhanced Horizontal Layout -->
+    <div
+      class="features-grid grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
+    >
       <!-- Instant Onboarding -->
-      <div class="text-left">
+      <div
+        class="feature-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200"
+      >
         <div
-          class="w-12 h-12 bg-blue rounded-xl flex items-center justify-center mb-6"
+          class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-md"
         >
           <svg
-            class="w-6 h-6 text-white"
+            class="w-8 h-8 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -224,29 +228,40 @@
             ></path>
           </svg>
         </div>
-        <h3 class="text-xl font-semibold text-primary mb-4">
-          Instant Onboarding
-        </h3>
-        <p class="text-secondary mb-6 leading-relaxed">
+        <h3 class="text-2xl font-bold text-primary mb-4">Instant Onboarding</h3>
+        <p class="text-secondary mb-6 leading-relaxed text-lg">
           Quick registration with streamlined KYC verification. Get started in
           minutes with our secure, user-friendly onboarding process designed for
           modern investors.
         </p>
         <a
           href="/how-it-works"
-          class="text-blue font-medium hover:text-primary transition-colors"
+          class="inline-flex items-center text-blue font-semibold hover:text-primary transition-colors group"
         >
-          Learn more →
+          Learn more
+          <svg
+            class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
         </a>
       </div>
 
       <!-- Fractional Ownership -->
-      <div class="text-left">
+      <div
+        class="feature-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200"
+      >
         <div
-          class="w-12 h-12 bg-blue rounded-xl flex items-center justify-center mb-6"
+          class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-md"
         >
           <svg
-            class="w-6 h-6 text-white"
+            class="w-8 h-8 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -259,29 +274,42 @@
             ></path>
           </svg>
         </div>
-        <h3 class="text-xl font-semibold text-primary mb-4">
+        <h3 class="text-2xl font-bold text-primary mb-4">
           Fractional Ownership
         </h3>
-        <p class="text-secondary mb-6 leading-relaxed">
+        <p class="text-secondary mb-6 leading-relaxed text-lg">
           Invest with as little as $10 in US Treasury Bills. Break down
           traditional barriers and make institutional-grade investments
           accessible to everyone.
         </p>
         <a
           href="/how-it-works"
-          class="text-blue font-medium hover:text-primary transition-colors"
+          class="inline-flex items-center text-blue font-semibold hover:text-primary transition-colors group"
         >
-          Learn more →
+          Learn more
+          <svg
+            class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
         </a>
       </div>
 
       <!-- Real-Time Liquidity -->
-      <div class="text-left">
+      <div
+        class="feature-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200"
+      >
         <div
-          class="w-12 h-12 bg-blue rounded-xl flex items-center justify-center mb-6"
+          class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-md"
         >
           <svg
-            class="w-6 h-6 text-white"
+            class="w-8 h-8 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -294,18 +322,29 @@
             ></path>
           </svg>
         </div>
-        <h3 class="text-xl font-semibold text-primary mb-4">
+        <h3 class="text-2xl font-bold text-primary mb-4">
           Real-Time Liquidity
         </h3>
-        <p class="text-secondary mb-6 leading-relaxed">
+        <p class="text-secondary mb-6 leading-relaxed text-lg">
           Buy and sell tokens instantly with no waiting periods. Access your
           investments 24/7 with unprecedented liquidity in the Treasury market.
         </p>
         <a
           href="/how-it-works"
-          class="text-blue font-medium hover:text-primary transition-colors"
+          class="inline-flex items-center text-blue font-semibold hover:text-primary transition-colors group"
         >
-          Learn more →
+          Learn more
+          <svg
+            class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
         </a>
       </div>
     </div>
@@ -337,19 +376,19 @@
 </section>
 
 <!-- Call to Action -->
-<section class="py-20 bg-blue text-white">
+<section class="py-20 bg-gray-900 text-white">
   <div class="container mx-auto px-6 text-center">
     <h2 class="text-4xl font-bold mb-6">Ready to Start Investing?</h2>
-    <p class="text-xl mb-8 opacity-90">
+    <p class="text-xl mb-8 text-gray-300">
       Join thousands of investors already earning steady yields with Treasury
       Bills
     </p>
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <Button
-        variant="secondary"
+        variant="primary"
         size="lg"
         on:click={handleStartInvesting}
-        class="bg-white text-blue hover:bg-gray-100"
+        class="bg-primary-blue text-white hover:bg-blue-700"
       >
         Get Started Today
       </Button>
@@ -357,7 +396,7 @@
         variant="outline"
         size="lg"
         on:click={handleLearnMore}
-        class="border-white text-white hover:bg-white hover:text-blue"
+        class="border-gray-400 text-gray-300 hover:bg-gray-800 hover:text-white"
       >
         Learn More
       </Button>

@@ -50,243 +50,233 @@
       : 0;
 
   onMount(async () => {
+    // Simulate loading delay
     await new Promise((resolve) => setTimeout(resolve, 600));
     loading = false;
   });
 </script>
 
 <svelte:head>
-  <title>My Portfolio - BitcoinUSTbills</title>
+  <title>Portfolio - BitcoinUSTbills</title>
 </svelte:head>
 
-<div class="container mx-auto px-6 py-8">
+<div class="container-wide mx-auto px-6 py-8">
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-primary mb-2">My Portfolio</h1>
     <p class="text-secondary">Track your UST Bill investments and yields</p>
   </div>
 
-  {#if error}
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <p class="text-red-800">{error}</p>
-      <button
-        class="text-red-600 underline mt-2"
-        on:click={() => (error = null)}
-      >
-        Dismiss
-      </button>
-    </div>
-  {/if}
-
   {#if loading}
     <div class="flex justify-center py-12">
       <LoadingSpinner />
     </div>
+  {:else if error}
+    <div class="card p-6 text-center">
+      <h2 class="text-xl font-semibold text-primary mb-4">
+        Error Loading Portfolio
+      </h2>
+      <p class="text-red-500 mb-4">{error}</p>
+      <Button variant="primary" on:click={() => window.location.reload()}>
+        Try Again
+      </Button>
+    </div>
   {:else}
-    <!-- Performance Metrics -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Portfolio Summary Cards -->
+    <div
+      class="portfolio-summary-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+    >
       <div class="card p-6">
-        <h3 class="text-lg font-semibold text-primary mb-2">Total Invested</h3>
-        <p class="text-3xl font-bold text-secondary">
+        <h3 class="text-sm font-medium text-secondary mb-2">Total Invested</h3>
+        <p class="text-3xl font-bold text-primary">
           ${user.totalInvested.toFixed(2)}
         </p>
       </div>
 
       <div class="card p-6">
-        <h3 class="text-lg font-semibold text-primary mb-2">Current Value</h3>
+        <h3 class="text-sm font-medium text-secondary mb-2">Current Value</h3>
         <p class="text-3xl font-bold text-success">
           ${totalCurrentValue.toFixed(2)}
         </p>
       </div>
 
       <div class="card p-6">
-        <h3 class="text-lg font-semibold text-primary mb-2">Total Return</h3>
-        <p
-          class="text-3xl font-bold {portfolioReturn >= 0
-            ? 'text-success'
-            : 'text-red-600'}"
-        >
+        <h3 class="text-sm font-medium text-secondary mb-2">Total Return</h3>
+        <p class="text-3xl font-bold text-success">
           {portfolioReturn >= 0 ? "+" : ""}{portfolioReturn.toFixed(2)}%
         </p>
       </div>
 
       <div class="card p-6">
-        <h3 class="text-lg font-semibold text-primary mb-2">Projected Yield</h3>
-        <p class="text-3xl font-bold text-blue-600">
+        <h3 class="text-sm font-medium text-secondary mb-2">Projected Yield</h3>
+        <p class="text-3xl font-bold text-primary">
           ${totalProjectedYield.toFixed(2)}
         </p>
       </div>
     </div>
 
-    <!-- User Info -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Portfolio Performance Section -->
+    <div
+      class="portfolio-performance-grid grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+    >
       <div class="card p-6">
-        <h3 class="text-lg font-semibold text-primary mb-4">
-          Account Overview
-        </h3>
-        <div class="space-y-3">
+        <h3 class="text-lg font-semibold text-primary mb-4">Performance</h3>
+        <div class="space-y-4">
           <div class="flex justify-between">
-            <span class="text-secondary">Username:</span>
-            <span class="font-medium">{user.username}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-secondary">Wallet Balance:</span>
-            <span class="font-medium text-success"
-              >${user.walletBalance.toFixed(2)}</span
+            <span class="text-secondary">Total Return</span>
+            <span class="font-semibold text-success"
+              >+{portfolioReturn.toFixed(2)}%</span
             >
           </div>
           <div class="flex justify-between">
-            <span class="text-secondary">Total Yield Earned:</span>
-            <span class="font-medium text-blue-600"
+            <span class="text-secondary">30-Day Return</span>
+            <span class="font-semibold text-success">+1.2%</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Best Performing</span>
+            <span class="font-semibold">{holdings[0]?.cusip || "N/A"}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <h3 class="text-lg font-semibold text-primary mb-4">Yield Summary</h3>
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <span class="text-secondary">Earned This Month</span>
+            <span class="font-semibold text-success"
               >${user.totalYieldEarned.toFixed(2)}</span
             >
           </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Expected Next Month</span>
+            <span class="font-semibold"
+              >${(totalProjectedYield * 0.25).toFixed(2)}</span
+            >
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Annual Projection</span>
+            <span class="font-semibold">${totalProjectedYield.toFixed(2)}</span>
+          </div>
         </div>
       </div>
 
       <div class="card p-6">
         <h3 class="text-lg font-semibold text-primary mb-4">
-          Portfolio Summary
+          Portfolio Health
         </h3>
-        <div class="space-y-3">
+        <div class="space-y-4">
           <div class="flex justify-between">
-            <span class="text-secondary">Active Holdings:</span>
-            <span class="font-medium">{holdings.length}</span>
+            <span class="text-secondary">Diversification</span>
+            <span class="font-semibold text-success">Good</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-secondary">Avg Return:</span>
-            <span class="font-medium text-success"
-              >{portfolioReturn.toFixed(2)}%</span
-            >
+            <span class="text-secondary">Risk Level</span>
+            <span class="font-semibold text-blue">Low</span>
           </div>
-        </div>
-      </div>
-
-      <div class="card p-6">
-        <h3 class="text-lg font-semibold text-primary mb-4">Quick Actions</h3>
-        <div class="space-y-2">
-          <Button
-            variant="primary"
-            class="w-full"
-            on:click={() => (window.location.href = "/marketplace")}
-          >
-            Browse Bills
-          </Button>
-          <Button
-            variant="secondary"
-            class="w-full"
-            on:click={() => (window.location.href = "/wallet")}
-          >
-            Manage Funds
-          </Button>
+          <div class="flex justify-between">
+            <span class="text-secondary">Holdings Count</span>
+            <span class="font-semibold">{holdings.length}</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Holdings Table -->
     <div class="card p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-primary">My Holdings</h3>
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-primary">My Holdings</h2>
         <Button
-          variant="primary"
+          variant="outline"
           on:click={() => (window.location.href = "/marketplace")}
         >
-          Browse Bills
+          Browse More Bills
         </Button>
       </div>
 
       {#if holdings.length === 0}
         <div class="text-center py-8">
-          <h4 class="text-xl font-semibold text-secondary mb-2">
+          <h3 class="text-xl font-semibold text-secondary mb-2">
             No Holdings Yet
-          </h4>
-          <p class="text-gray-500 mb-4">
-            Start building your portfolio by purchasing UST Bills
+          </h3>
+          <p class="text-gray-500 mb-6">
+            Start investing to see your holdings here
           </p>
           <Button
             variant="primary"
             on:click={() => (window.location.href = "/marketplace")}
           >
-            Explore Marketplace
+            Browse Treasury Bills
           </Button>
         </div>
       {:else}
         <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b">
-                <th class="text-left py-3 px-4 font-semibold text-secondary"
-                  >Bill Details</th
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                <th class="text-left py-3 px-4 font-semibold text-secondary"
-                  >Purchase Info</th
+                  Treasury Bill
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                <th class="text-left py-3 px-4 font-semibold text-secondary"
-                  >Current Value</th
+                  Purchase Price
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                <th class="text-left py-3 px-4 font-semibold text-secondary"
-                  >Yield Projection</th
+                  Current Value
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                <th class="text-left py-3 px-4 font-semibold text-secondary"
-                  >Status</th
+                  Projected Yield
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
+                  Days to Maturity
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Status
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="bg-white divide-y divide-gray-200">
               {#each holdings as holding}
-                <tr class="border-b hover:bg-gray-50">
-                  <td class="py-3 px-4">
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div class="font-medium text-primary">
+                      <div class="text-sm font-medium text-gray-900">
                         {holding.cusip}
                       </div>
-                      <div class="text-sm text-secondary">
+                      <div class="text-sm text-gray-500">
                         {holding.billType} Treasury Bill
                       </div>
-                      <div class="text-sm text-secondary">
-                        Maturity: {holding.maturityDays} days
-                      </div>
                     </div>
                   </td>
-                  <td class="py-3 px-4">
-                    <div>
-                      <div class="font-medium">
-                        ${holding.purchasePrice.toFixed(2)}
-                      </div>
-                      <div class="text-sm text-secondary">
-                        on {holding.purchaseDate}
-                      </div>
-                    </div>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${holding.purchasePrice.toLocaleString()}
                   </td>
-                  <td class="py-3 px-4">
-                    <div>
-                      <div class="font-medium text-success">
-                        ${holding.currentValue.toFixed(2)}
-                      </div>
-                      <div
-                        class="text-sm {holding.currentValue >=
-                        holding.purchasePrice
-                          ? 'text-success'
-                          : 'text-red-600'}"
-                      >
-                        {holding.currentValue >= holding.purchasePrice
-                          ? "+"
-                          : ""}${(
-                          holding.currentValue - holding.purchasePrice
-                        ).toFixed(2)}
-                      </div>
-                    </div>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm text-success font-semibold"
+                  >
+                    ${holding.currentValue.toLocaleString()}
                   </td>
-                  <td class="py-3 px-4">
-                    <div>
-                      <div class="font-medium text-blue-600">
-                        ${holding.projectedYield.toFixed(2)}
-                      </div>
-                      <div class="text-sm text-secondary">at maturity</div>
-                    </div>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm text-primary font-semibold"
+                  >
+                    ${holding.projectedYield.toLocaleString()}
                   </td>
-                  <td class="py-3 px-4">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {holding.maturityDays} days
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
                     <span
-                      class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium"
+                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"
                     >
                       {holding.status}
                     </span>
