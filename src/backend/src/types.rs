@@ -8,17 +8,16 @@ use std::collections::HashMap;
 pub struct USTBill {
     pub id: String,
     pub cusip: String,
-    pub face_value: u64,        // In cents ($1000 = 100000)
-    pub purchase_price: u64,    // In cents ($950 = 95000)
-    pub maturity_date: u64,     // Unix timestamp
-    pub annual_yield: f64,      // 5.26% = 0.0526
-    pub total_tokens: u64,      // 1000 tokens
-    pub tokens_sold: u64,       // Tokens already sold
+    pub face_value: u64,          // In cents ($1000 = 100000)
+    pub purchase_price: u64,      // In cents ($950 = 95000)
+    pub maturity_date: u64,       // Unix timestamp
+    pub annual_yield: f64,        // 5.26% = 0.0526
+    pub owner: Option<Principal>, // None = Available, Some(principal) = Sold to that user
     pub status: USTBillStatus,
     pub created_at: u64,
     pub updated_at: u64,
-    pub issuer: String,         // Treasury issuer info
-    pub bill_type: String,      // 4-week, 13-week, 26-week, 52-week
+    pub issuer: String,    // Treasury issuer info
+    pub bill_type: String, // 4-week, 13-week, 26-week, 52-week
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
@@ -34,8 +33,8 @@ pub struct User {
     pub principal: Principal,
     pub email: String,
     pub kyc_status: KYCStatus,
-    pub wallet_balance: u64,    // In cents
-    pub total_invested: u64,    // Total amount invested
+    pub wallet_balance: u64,     // In cents
+    pub total_invested: u64,     // Total amount invested
     pub total_yield_earned: u64, // Total yield earned
     pub created_at: u64,
     pub updated_at: u64,
@@ -57,19 +56,19 @@ pub struct TokenHolding {
     pub id: String,
     pub user_principal: Principal,
     pub ustbill_id: String,
-    pub tokens_owned: u64,
-    pub purchase_price_per_token: u64,  // In cents
+    pub token_id: u64,       // ICRC1 token ID representing this bill
+    pub purchase_price: u64, // Total purchase price in cents
     pub purchase_date: u64,
     pub yield_option: YieldOption,
     pub status: HoldingStatus,
-    pub current_value: u64,      // Current market value
-    pub projected_yield: u64,    // Projected yield at maturity
+    pub current_value: u64,   // Current market value
+    pub projected_yield: u64, // Projected yield at maturity
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
 pub enum YieldOption {
-    Maturity,    // Hold till maturity (full yield)
-    Flexible,    // Can sell anytime (market rate)
+    Maturity, // Hold till maturity (full yield)
+    Flexible, // Can sell anytime (market rate)
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
@@ -89,7 +88,6 @@ pub struct USTBillCreateRequest {
     pub purchase_price: u64,
     pub maturity_date: u64,
     pub annual_yield: f64,
-    pub total_tokens: u64,
     pub issuer: String,
     pub bill_type: String,
 }
@@ -203,22 +201,22 @@ pub enum TransactionStatus {
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
 pub struct PlatformConfig {
-    pub platform_fee_percentage: f64,  // 0.5% = 0.005
-    pub minimum_investment: u64,        // $1 = 100 cents
-    pub maximum_investment: u64,        // $10,000 = 1,000,000 cents
-    pub yield_distribution_frequency: u64, // Days
-    pub kyc_expiry_days: u64,          // 365 days
+    pub platform_fee_percentage: f64,       // 0.5% = 0.005
+    pub minimum_investment: u64,            // $1 = 100 cents
+    pub maximum_investment: u64,            // $10,000 = 1,000,000 cents
+    pub yield_distribution_frequency: u64,  // Days
+    pub kyc_expiry_days: u64,               // 365 days
     pub treasury_api_refresh_interval: u64, // Seconds
 }
 
 impl Default for PlatformConfig {
     fn default() -> Self {
         Self {
-            platform_fee_percentage: 0.005,  // 0.5%
-            minimum_investment: 100,          // $1
-            maximum_investment: 1_000_000,    // $10,000
-            yield_distribution_frequency: 1,  // Daily
-            kyc_expiry_days: 365,            // 1 year
+            platform_fee_percentage: 0.005,      // 0.5%
+            minimum_investment: 100,             // $1
+            maximum_investment: 1_000_000,       // $10,000
+            yield_distribution_frequency: 1,     // Daily
+            kyc_expiry_days: 365,                // 1 year
             treasury_api_refresh_interval: 3600, // 1 hour
         }
     }
@@ -238,14 +236,14 @@ pub struct VerifiedBrokerPurchase {
 // ============= HELPER FUNCTIONS =============
 
 impl USTBill {
-    pub fn available_tokens(&self) -> u64 {
-        self.total_tokens - self.tokens_sold
-    }
-    
     pub fn is_available_for_purchase(&self) -> bool {
-        self.status == USTBillStatus::Active && self.available_tokens() > 0
+        self.status == USTBillStatus::Active && self.owner.is_none()
     }
-    
+
+    pub fn is_owned_by(&self, principal: &Principal) -> bool {
+        self.owner.map_or(false, |owner| owner == *principal)
+    }
+
     pub fn days_to_maturity(&self) -> u64 {
         let current_time = ic_cdk::api::time() / 1_000_000_000; // Convert to seconds
         if self.maturity_date > current_time {
@@ -260,7 +258,7 @@ impl User {
     pub fn is_eligible_for_trading(&self) -> bool {
         self.kyc_status == KYCStatus::Verified && self.is_active
     }
-    
+
     pub fn total_portfolio_value(&self) -> u64 {
         // This will be calculated dynamically by aggregating holdings
         self.total_invested
@@ -270,11 +268,10 @@ impl User {
 impl TokenHolding {
     pub fn calculate_current_yield(&self, annual_rate: f64, days_held: u64) -> u64 {
         let daily_rate = annual_rate / 365.0;
-        let current_value = self.tokens_owned * self.purchase_price_per_token;
-        (current_value as f64 * daily_rate * days_held as f64) as u64
+        (self.purchase_price as f64 * daily_rate * days_held as f64) as u64
     }
-    
+
     pub fn is_active(&self) -> bool {
         self.status == HoldingStatus::Active
     }
-} 
+}

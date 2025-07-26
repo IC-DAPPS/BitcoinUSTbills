@@ -66,9 +66,9 @@ export const idlFactory = ({ IDL }) => {
     'id' : IDL.Text,
     'status' : HoldingStatus,
     'user_principal' : IDL.Principal,
-    'purchase_price_per_token' : IDL.Nat64,
+    'purchase_price' : IDL.Nat64,
+    'token_id' : IDL.Nat64,
     'purchase_date' : IDL.Nat64,
-    'tokens_owned' : IDL.Nat64,
     'yield_option' : YieldOption,
     'current_value' : IDL.Nat64,
     'projected_yield' : IDL.Nat64,
@@ -89,7 +89,6 @@ export const idlFactory = ({ IDL }) => {
     'annual_yield' : IDL.Float64,
     'maturity_date' : IDL.Nat64,
     'issuer' : IDL.Text,
-    'total_tokens' : IDL.Nat64,
     'bill_type' : IDL.Text,
   });
   const USTBillStatus = IDL.Variant({
@@ -103,14 +102,13 @@ export const idlFactory = ({ IDL }) => {
     'status' : USTBillStatus,
     'updated_at' : IDL.Nat64,
     'purchase_price' : IDL.Nat64,
+    'owner' : IDL.Opt(IDL.Principal),
     'face_value' : IDL.Nat64,
     'cusip' : IDL.Text,
-    'tokens_sold' : IDL.Nat64,
     'created_at' : IDL.Nat64,
     'annual_yield' : IDL.Float64,
     'maturity_date' : IDL.Nat64,
     'issuer' : IDL.Text,
-    'total_tokens' : IDL.Nat64,
     'bill_type' : IDL.Text,
   });
   const Result_3 = IDL.Variant({
@@ -221,7 +219,7 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
-    'buy_ustbill_tokens' : IDL.Func([IDL.Text, IDL.Nat64], [Result_1], []),
+    'buy_ustbill' : IDL.Func([IDL.Text], [Result_1], []),
     'calculate_current_value' : IDL.Func([IDL.Text], [Result_2], ['query']),
     'calculate_maturity_yield' : IDL.Func([IDL.Text], [Result_2], []),
     'calculate_purchase_cost' : IDL.Func(

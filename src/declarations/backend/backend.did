@@ -86,9 +86,9 @@ type TokenHolding = record {
   id : text;
   status : HoldingStatus;
   user_principal : principal;
-  purchase_price_per_token : nat64;
+  purchase_price : nat64;
+  token_id : nat64;
   purchase_date : nat64;
-  tokens_owned : nat64;
   yield_option : YieldOption;
   current_value : nat64;
   projected_yield : nat64;
@@ -116,14 +116,13 @@ type USTBill = record {
   status : USTBillStatus;
   updated_at : nat64;
   purchase_price : nat64;
+  owner : opt principal;
   face_value : nat64;
   cusip : text;
-  tokens_sold : nat64;
   created_at : nat64;
   annual_yield : float64;
   maturity_date : nat64;
   issuer : text;
-  total_tokens : nat64;
   bill_type : text;
 };
 type USTBillCreateRequest = record {
@@ -133,7 +132,6 @@ type USTBillCreateRequest = record {
   annual_yield : float64;
   maturity_date : nat64;
   issuer : text;
-  total_tokens : nat64;
   bill_type : text;
 };
 type USTBillStatus = variant { Active; SoldOut; Matured; Cancelled };
@@ -174,7 +172,7 @@ type YieldProjection = record {
 service : {
   add_to_list : (principal) -> (Result);
   admin_add_broker_purchase_record : (nat64, nat64, text, text) -> (Result);
-  buy_ustbill_tokens : (text, nat64) -> (Result_1);
+  buy_ustbill : (text) -> (Result_1);
   calculate_current_value : (text) -> (Result_2) query;
   calculate_maturity_yield : (text) -> (Result_2);
   calculate_purchase_cost : (text, nat64) -> (Result_2) query;

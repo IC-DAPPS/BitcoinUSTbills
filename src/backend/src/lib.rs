@@ -15,12 +15,12 @@ pub use errors::*;
 pub use storage::*;
 pub use types::*;
 
+use crate::storage::VerifiedPurchasesLedgerStorage;
 use crate::utils::get_current_timestamp;
 use candid::Principal;
 use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
 use ic_cdk::{query, update};
 use std::collections::HashMap;
-use crate::storage::VerifiedPurchasesLedgerStorage;
 pub use storage::*;
 
 // ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -52,7 +52,6 @@ pub fn get_all_verified_broker_purchases() -> Vec<VerifiedBrokerPurchase> {
     VerifiedPurchasesLedgerStorage::get_all()
 }
 
-
 // ╔══════════════════════════════════════════════════════════════════════════════╗
 // ║                  USTBILLS CANISTER FUNCTIONS                        ║
 // ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -75,8 +74,7 @@ pub async fn create_ustbill(ustbill_data: USTBillCreateRequest) -> Result<USTBil
         purchase_price: ustbill_data.purchase_price,
         maturity_date: ustbill_data.maturity_date,
         annual_yield: ustbill_data.annual_yield,
-        total_tokens: ustbill_data.total_tokens,
-        tokens_sold: 0,
+        owner: None, // Available for purchase
         status: USTBillStatus::Active,
         created_at: current_time,
         updated_at: current_time,
@@ -102,11 +100,11 @@ pub fn get_active_ustbills() -> Vec<USTBill> {
     USTBillStorage::get_active()
 }
 
-/// Gets available token count for a specific US Treasury Bill
+/// Checks if a US Treasury Bill is available for purchase (single ownership model)
 #[query]
 pub fn get_ustbill_availability(ustbill_id: String) -> Result<u64> {
     let ustbill = USTBillStorage::get(&ustbill_id)?;
-    Ok(ustbill.available_tokens())
+    Ok(if ustbill.owner.is_none() { 1 } else { 0 })
 }
 
 /// Retrieves paginated list of US Treasury Bills
@@ -272,9 +270,9 @@ pub async fn withdraw_funds(amount: u64) -> Result<u64> {
 // ║                  TRADING CANISTER FUNCTIONS                        ║
 // ╚══════════════════════════════════════════════════════════════════════════════╝
 
-/// Buys US Treasury Bill tokens
+/// Buys entire US Treasury Bill (single ownership model)
 #[update]
-pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result<TokenHolding> {
+pub async fn buy_ustbill(ustbill_id: String) -> Result<TokenHolding> {
     let principal = ic_cdk::api::msg_caller();
     let mut user = UserStorage::get(&principal)?;
 
@@ -286,17 +284,13 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
     // Get UST Bill
     let mut ustbill = USTBillStorage::get(&ustbill_id)?;
 
-    // Validate UST Bill availability
+    // Validate UST Bill availability (single ownership model)
     if !ustbill.is_available_for_purchase() {
         return Err(BitcoinUSTBillsError::USTBillSoldOut);
     }
 
-    if ustbill.available_tokens() < token_amount {
-        return Err(BitcoinUSTBillsError::InsufficientTokens);
-    }
-
-    // Calculate purchase cost
-    let cost = calculate_purchase_cost_internal(&ustbill, token_amount)?;
+    // Purchase cost is the full bill price
+    let cost = ustbill.purchase_price;
     let config = PlatformConfigStorage::get();
 
     // Validate investment limits
@@ -322,21 +316,20 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
     user.total_invested += cost;
     user.updated_at = get_current_timestamp();
 
-    // Update UST Bill
-    ustbill.tokens_sold += token_amount;
-    if ustbill.tokens_sold >= ustbill.total_tokens {
-        ustbill.status = USTBillStatus::SoldOut;
-    }
+    // Update UST Bill (single ownership model)
+    ustbill.owner = Some(principal);
+    ustbill.status = USTBillStatus::SoldOut;
     ustbill.updated_at = get_current_timestamp();
 
     // Create holding
     let holding_id = generate_id();
+    let token_id = 1; // Single token representing ownership of the entire bill
     let holding = TokenHolding {
         id: holding_id.clone(),
         user_principal: principal,
         ustbill_id: ustbill_id.clone(),
-        tokens_owned: token_amount,
-        purchase_price_per_token: cost / token_amount,
+        token_id,
+        purchase_price: cost,
         purchase_date: get_current_timestamp(),
         yield_option: YieldOption::Maturity,
         status: HoldingStatus::Active,
@@ -355,10 +348,7 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
         timestamp: get_current_timestamp(),
         status: TransactionStatus::Completed,
         fees,
-        description: format!(
-            "Purchase of {} tokens from UST Bill {}",
-            token_amount, ustbill_id
-        ),
+        description: format!("Purchase of UST Bill {}", ustbill_id),
     };
 
     // Record fees transaction
@@ -384,16 +374,16 @@ pub async fn buy_ustbill_tokens(ustbill_id: String, token_amount: u64) -> Result
 
     // Update trading metrics
     TradingMetricsStorage::update_volume(cost)?;
-    TradingMetricsStorage::update_price(cost / token_amount)?;
+    TradingMetricsStorage::update_price(cost)?;
 
     Ok(holding)
 }
 
-/// Calculates purchase cost for tokens
+/// Calculates purchase cost for UST Bill (single ownership model)
 #[query]
-pub fn calculate_purchase_cost(ustbill_id: String, token_amount: u64) -> Result<u64> {
+pub fn calculate_purchase_cost(ustbill_id: String, _token_amount: u64) -> Result<u64> {
     let ustbill = USTBillStorage::get(&ustbill_id)?;
-    calculate_purchase_cost_internal(&ustbill, token_amount)
+    calculate_purchase_cost_internal(&ustbill, 1)
 }
 
 /// Calculates current value of a holding
@@ -433,9 +423,9 @@ pub async fn calculate_maturity_yield(holding_id: String) -> Result<u64> {
     // Check if UST Bill has matured
     let current_time = get_current_timestamp();
     if ustbill.maturity_date <= current_time {
-        // Calculate full yield
-        let purchase_value = holding.tokens_owned * holding.purchase_price_per_token;
-        let face_value = (ustbill.face_value * holding.tokens_owned) / ustbill.total_tokens;
+        // Calculate full yield (single ownership model)
+        let purchase_value = holding.purchase_price;
+        let face_value = ustbill.face_value; // User owns the entire bill
         let yield_amount = face_value - purchase_value;
 
         Ok(yield_amount)
@@ -576,10 +566,6 @@ pub fn validate_ustbill_data(data: &USTBillCreateRequest) -> Result<()> {
         return Err(BitcoinUSTBillsError::InvalidYieldRate);
     }
 
-    if data.total_tokens == 0 {
-        return Err(BitcoinUSTBillsError::InvalidTokenAmount);
-    }
-
     let current_time = get_current_timestamp();
     if data.maturity_date <= current_time {
         return Err(BitcoinUSTBillsError::InvalidDate);
@@ -604,13 +590,9 @@ pub fn validate_user_data(data: &UserRegistrationRequest) -> Result<()> {
     Ok(())
 }
 
-pub fn calculate_purchase_cost_internal(ustbill: &USTBill, token_amount: u64) -> Result<u64> {
-    if token_amount == 0 {
-        return Err(BitcoinUSTBillsError::InvalidTokenAmount);
-    }
-
-    let cost_per_token = ustbill.purchase_price / ustbill.total_tokens;
-    Ok(cost_per_token * token_amount)
+pub fn calculate_purchase_cost_internal(ustbill: &USTBill, _token_amount: u64) -> Result<u64> {
+    // In single ownership model, cost is always the full bill price
+    Ok(ustbill.purchase_price)
 }
 
 pub fn calculate_projected_yield(ustbill: &USTBill, investment: u64) -> u64 {

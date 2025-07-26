@@ -148,10 +148,10 @@ export async function withdrawFunds(amount: bigint): Promise<bigint> {
 // ============= TRADING OPERATIONS =============
 
 /**
- * Purchases UST Bill tokens
+ * Purchases entire UST Bill (single ownership model)
  */
-export async function buyUSTBillTokens(ustbillId: string, tokenAmount: bigint): Promise<TokenHolding> {
-  const result = await getActor().buy_ustbill_tokens(ustbillId, tokenAmount);
+export async function buyUSTBill(ustbillId: string): Promise<TokenHolding> {
+  const result = await getActor().buy_ustbill(ustbillId);
   return handleResult(result);
 }
 

@@ -16,7 +16,8 @@
     },
     "frontend": {
       "dependencies": [
-        "backend"
+        "backend",
+        "ustb_token_ledger"
       ],
       "frontend": {
         "entrypoint": "build/index.html"
@@ -25,6 +26,12 @@
         "build/"
       ],
       "type": "assets"
+    },
+    "ustb_token_ledger": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ledger.did",
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ic-icrc1-ledger.wasm.gz",
+      "init_arg": "(variant { Init = record { minting_account = record { owner = principal \"$(dfx identity get-principal)\"; subaccount = null; }; fee_collector_account = null; transfer_fee = 10_000; decimals = opt 8; max_memo_length = opt 80; token_symbol = \"USTB\"; token_name = \"UST Bill Token\"; metadata = vec {}; initial_balances = vec { record { record { owner = principal \"$(dfx identity get-principal)\"; subaccount = null; }; 1_000_000_000_000; } }; feature_flags = opt record { icrc2 = true }; maximum_number_of_accounts = null; accounts_overflow_trim_quantity = null; archive_options = record { num_blocks_to_archive = 1000; max_transactions_per_response = null; trigger_threshold = 2000; max_message_size_bytes = null; cycles_for_archive_creation = null; node_max_memory_size_bytes = null; controller_id = principal \"$(dfx identity get-principal)\"; more_controller_ids = null; } } })"
     },
     "ii": {
       "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",

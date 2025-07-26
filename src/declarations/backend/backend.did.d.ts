@@ -103,9 +103,9 @@ export interface TokenHolding {
   'id' : string,
   'status' : HoldingStatus,
   'user_principal' : Principal,
-  'purchase_price_per_token' : bigint,
+  'purchase_price' : bigint,
+  'token_id' : bigint,
   'purchase_date' : bigint,
-  'tokens_owned' : bigint,
   'yield_option' : YieldOption,
   'current_value' : bigint,
   'projected_yield' : bigint,
@@ -136,14 +136,13 @@ export interface USTBill {
   'status' : USTBillStatus,
   'updated_at' : bigint,
   'purchase_price' : bigint,
+  'owner' : [] | [Principal],
   'face_value' : bigint,
   'cusip' : string,
-  'tokens_sold' : bigint,
   'created_at' : bigint,
   'annual_yield' : number,
   'maturity_date' : bigint,
   'issuer' : string,
-  'total_tokens' : bigint,
   'bill_type' : string,
 }
 export interface USTBillCreateRequest {
@@ -153,7 +152,6 @@ export interface USTBillCreateRequest {
   'annual_yield' : number,
   'maturity_date' : bigint,
   'issuer' : string,
-  'total_tokens' : bigint,
   'bill_type' : string,
 }
 export type USTBillStatus = { 'Active' : null } |
@@ -201,7 +199,7 @@ export interface _SERVICE {
     [bigint, bigint, string, string],
     Result
   >,
-  'buy_ustbill_tokens' : ActorMethod<[string, bigint], Result_1>,
+  'buy_ustbill' : ActorMethod<[string], Result_1>,
   'calculate_current_value' : ActorMethod<[string], Result_2>,
   'calculate_maturity_yield' : ActorMethod<[string], Result_2>,
   'calculate_purchase_cost' : ActorMethod<[string, bigint], Result_2>,
