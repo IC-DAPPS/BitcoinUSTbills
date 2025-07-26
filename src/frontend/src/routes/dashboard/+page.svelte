@@ -358,50 +358,81 @@
         </div>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="card p-6">
-        <div class="flex items-center mb-6">
-          <svg
-            class="w-6 h-6 text-blue mr-3"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-          <h2 class="text-xl font-semibold text-primary">Quick Actions</h2>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-4">
-          <Button
-            variant="primary"
-            size="lg"
+      <!-- Quick Actions - Horizontal Blocks -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold text-primary mb-6">Quick Actions</h2>
+        <div class="grid grid-cols-3 gap-6">
+          <div
+            class="card p-6 text-center cursor-pointer hover:bg-gray-50 h-32 flex flex-col justify-center"
             on:click={handleBuyTokens}
-            class="h-16"
           >
-            Buy Tokens
-          </Button>
-          <Button
-            variant="secondary"
-            size="lg"
+            <div
+              class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-sm font-semibold text-primary">Buy Tokens</h3>
+          </div>
+
+          <div
+            class="card p-6 text-center cursor-pointer hover:bg-gray-50 h-32 flex flex-col justify-center"
             on:click={handleSellTokens}
-            class="h-16"
           >
-            Sell Tokens
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
+            <div
+              class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-sm font-semibold text-primary">Sell Tokens</h3>
+          </div>
+
+          <div
+            class="card p-6 text-center cursor-pointer hover:bg-gray-50 h-32 flex flex-col justify-center"
             on:click={handleViewAnalytics}
-            class="h-16"
           >
-            View Analytics
-          </Button>
+            <div
+              class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-sm font-semibold text-primary">View Analytics</h3>
+          </div>
         </div>
       </div>
     {/if}
