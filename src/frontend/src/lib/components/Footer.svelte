@@ -1,27 +1,8 @@
-<footer class="bg-blue-600 text-white border-t-2 border-blue-400 mt-16">
+<footer
+  class="bg-blue-600 text-white border-t-2 border-blue-400 mt-16"
+  style="background-color: #2563eb !important; color: white !important;"
+>
   <div class="container-wide mx-auto px-6 py-12">
-    <!-- Footer Brand Section -->
-    <div class="text-center mb-10 pb-8 border-b border-blue-500/30">
-      <div class="flex items-center justify-center space-x-3 mb-4">
-        <div
-          class="w-10 h-10 bg-white rounded-lg flex items-center justify-center"
-        >
-          <span class="text-blue-600 font-bold text-lg">B</span>
-        </div>
-        <div>
-          <h2 class="text-xl font-bold text-white">BitcoinUSTbills</h2>
-          <p class="text-blue-100 text-sm">
-            Democratizing Treasury Investments
-          </p>
-        </div>
-      </div>
-      <p class="text-blue-100 max-w-2xl mx-auto">
-        Your trusted platform for tokenized US Treasury Bills. Secure,
-        transparent, and accessible treasury investments powered by blockchain
-        technology.
-      </p>
-    </div>
-
     <!-- Main Footer Links -->
     <div class="footer-grid grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
       <!-- Product Links -->
@@ -35,35 +16,36 @@
           <li>
             <a
               href="/marketplace"
-              class="text-blue-100 hover:text-white transition-colors"
-              >Marketplace</a
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Marketplace</a
             >
           </li>
           <li>
             <a
               href="/dashboard"
-              class="text-blue-100 hover:text-white transition-colors"
-              >Dashboard</a
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Dashboard</a
             >
           </li>
           <li>
             <a
               href="/portfolio"
-              class="text-blue-100 hover:text-white transition-colors"
-              >Portfolio</a
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Portfolio</a
             >
           </li>
           <li>
             <a
               href="/wallet"
-              class="text-blue-100 hover:text-white transition-colors">Wallet</a
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Wallet</a
             >
           </li>
           <li>
             <a
               href="/how-it-works"
-              class="text-blue-100 hover:text-white transition-colors"
-              >How It Works</a
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">How It Works</a
             >
           </li>
         </ul>
@@ -78,28 +60,38 @@
         </h3>
         <ul class="space-y-2">
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >Documentation</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Documentation</a
             >
           </li>
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >API Reference</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">API Reference</a
             >
           </li>
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >Security</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Security</a
             >
           </li>
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >Compliance</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Compliance</a
             >
           </li>
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >Help Center</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Help Center</a
             >
           </li>
         </ul>
@@ -114,28 +106,38 @@
         </h3>
         <ul class="space-y-2">
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >Privacy Policy</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Privacy Policy</a
             >
           </li>
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >Terms of Service</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Terms of Service</a
             >
           </li>
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >Disclaimer</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Disclaimer</a
             >
           </li>
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >Risk Disclosure</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Risk Disclosure</a
             >
           </li>
           <li>
-            <a href="#" class="text-blue-100 hover:text-white transition-colors"
-              >Contact Us</a
+            <a
+              href="#"
+              class="text-white hover:text-blue-200 transition-colors"
+              style="color: white !important;">Contact Us</a
             >
           </li>
         </ul>
@@ -145,28 +147,25 @@
     <!-- Footer Bottom Section -->
     <div class="border-t border-blue-500/30 pt-6">
       <div
-        class="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0"
+        class="flex flex-wrap justify-center items-center space-x-6 text-center text-sm"
       >
-        <!-- Copyright -->
-        <div class="text-center lg:text-left">
-          <p class="text-blue-100 text-sm mb-1">
-            © 2024 BitcoinUSTbills. All rights reserved.
-          </p>
-          <p class="text-blue-200 text-xs">
-            Securities offered through licensed broker-dealers.
-          </p>
+        <span class="text-white" style="color: white !important;"
+          >© 2024 BitcoinUSTbills. All rights reserved.</span
+        >
+        <span class="text-white" style="color: white !important;"
+          >Securities offered through licensed broker-dealers.</span
+        >
+        <div class="flex items-center">
+          <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+          <span class="text-white" style="color: white !important;"
+            >SEC Compliant</span
+          >
         </div>
-
-        <!-- Compliance Badges -->
-        <div class="flex items-center space-x-6">
-          <div class="flex items-center">
-            <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-            <span class="text-blue-100 text-sm">SEC Compliant</span>
-          </div>
-          <div class="flex items-center">
-            <div class="w-2 h-2 bg-white rounded-full mr-2"></div>
-            <span class="text-blue-100 text-sm">Blockchain Verified</span>
-          </div>
+        <div class="flex items-center">
+          <div class="w-2 h-2 bg-white rounded-full mr-2"></div>
+          <span class="text-white" style="color: white !important;"
+            >Blockchain Verified</span
+          >
         </div>
       </div>
     </div>
