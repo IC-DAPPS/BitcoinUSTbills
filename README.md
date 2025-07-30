@@ -17,7 +17,7 @@ A comprehensive Web3 platform for tokenizing and trading US Treasury Bills on th
 | **Platform Architecture** | Centralized Systems | Hybrid (On/Off-chain) | ✅ **Fully On-chain Web3 Platform** |
 | **Price Data Source** | Manual/Delayed Updates | Off-chain Oracles | ✅ **Direct Fed API via HTTPS Outcalls** |
 | **Data Storage** | Centralized Databases | External Storage + IPFS | ✅ **Stable Structures - Native Persistence** |
-| **User Authentication** | Username/Password | MetaMask + External KYC | ✅ **Internet Identity + Verifiable Credentials** |
+| **User Authentication** | Username/Password | MetaMask + External KYC | ✅ **Internet Identity + Government-backed VCs** |
 | **Minimum Investment** | $1,000-10,000 | $100-1,000 | ✅ **$1 - True Fractional Access** |
 | **Transaction Costs** | Fixed Trading Fees | User Pays High Gas | ✅ **Reverse Gas Model - Platform Covers** |
 | **Settlement Speed** | T+1/T+2 Days | Minutes (with gas) | ✅ **Instant On-chain Settlement** |
@@ -35,7 +35,7 @@ BitcoinUSTbills revolutionizes access to US Treasury Bills by leveraging Interne
 - **Web3 Trading Platform**: Fully on-chain trading infrastructure for traditional assets
 - **Fractional Tokenization**: Convert T-Bills into tradeable digital tokens starting from $1
 - **Real-time Integration**: Direct Fed API calls via HTTPS Outcalls for live pricing
-- **Native Web3 KYC**: Internet Identity + Verifiable Credentials integration
+- **Government-backed KYC**: Direct government API integration with IC Verifiable Credentials
 - **Bitcoin-backed Access**: Global reach through Bitcoin treasury investments
 - **Zero Platform Dependencies**: No external databases or services needed
 
@@ -53,7 +53,7 @@ BitcoinUSTbills revolutionizes access to US Treasury Bills by leveraging Interne
 - **Order Matching**: Decentralized exchange functionality
 - **Yield Distribution**: Automated smart contract processing
 - **Data Storage**: Persistent on-chain storage
-- **User Authentication**: Self-sovereign identity management
+- **User Authentication**: Self-sovereign identity management with government-backed verification
 
 ### **🎯 The Bridge: TradFi ↔ DeFi**
 BitcoinUSTbills serves as a **bridge between traditional finance and DeFi**, bringing the stability of government securities to the accessibility and innovation of Web3.
@@ -98,6 +98,47 @@ BitcoinUSTbills serves as a **bridge between traditional finance and DeFi**, bri
 - **🟢 Self-Custody**: Users control their tokens via Web3 wallets
 - **🟢 Transparent Operations**: All transactions visible on blockchain
 - **🟢 Global Access**: No geographic restrictions for trading
+
+### **🔐 KYC & Verifiable Credentials Architecture**
+
+Our platform implements a revolutionary **Government-backed KYC system** using Internet Computer's Verifiable Credentials framework, enabling **real document verification** with **cross-dapp credential sharing**.
+
+```mermaid
+graph TD
+    A["🏛️ Government APIs<br/>(Aadhaar, SSA, etc.)"] --> B["🏗️ KYC Issuer Canister<br/>(WE BUILD THIS)"]
+    B --> C["📋 IC VC Standards<br/>(From Repository)"]
+    C --> D["🔗 Internet Identity<br/>(Principal Linking)"]
+    D --> E["💰 BitcoinUSTbills<br/>(Relying Party)"]
+    
+    F["👤 User"] --> G["📄 Upload Documents"]
+    G --> B
+    B --> H["✅ VerifiedAdult VC"]
+    H --> D
+    D --> I["🔄 Secure Principal Mapping"]
+    I --> E
+    E --> J["💳 Allow T-Bill Trading"]
+    
+    style A fill:#ffcccc
+    style B fill:#ccffcc
+    style C fill:#ccccff
+    style E fill:#ffffcc
+```
+
+#### **🚀 KYC Innovation Highlights**
+- **Real Government Integration**: Direct API connections to Aadhaar (India), SSA (US), HMRC (UK)
+- **Cross-Dapp Verification**: KYC once, trade everywhere using IC VC standards
+- **Privacy-Preserving**: Only share required attributes (age 18+, residency) not personal data
+- **Instant Verification**: No waiting periods, immediate trading access after verification
+- **Regulatory Compliant**: Government-backed verification meets all financial regulations
+
+#### **🔄 Verification Flow**
+1. **Document Upload**: User uploads government ID (passport, Aadhaar, SSN)
+2. **Government Verification**: Direct API calls to official government databases
+3. **VC Issuance**: Government-backed Verifiable Credential issued
+4. **Cross-Platform Access**: Same VC works across all IC dapps
+5. **Trading Enabled**: Instant access to T-Bill trading with verified status
+
+> **Technical Advantage**: Unlike traditional platforms requiring separate KYC for each service, our IC VC integration allows **one verification, universal access** across the entire Internet Computer ecosystem.
 
 ---
 
