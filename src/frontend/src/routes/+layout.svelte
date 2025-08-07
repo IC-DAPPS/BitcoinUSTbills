@@ -68,6 +68,16 @@
             class="text-secondary hover:text-primary transition-colors"
             >Purchased</a
           >
+          <a
+            href="/kyc"
+            class="text-secondary hover:text-primary transition-colors"
+            >KYC</a
+          >
+          <a
+            href="/admin/kyc"
+            class="text-secondary hover:text-primary transition-colors"
+            >Admin KYC</a
+          >
         </div>
 
         <!-- Desktop Auth Section -->
@@ -169,6 +179,20 @@
               on:click={closeMobileMenu}
             >
               Purchased
+            </a>
+            <a
+              href="/kyc"
+              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              on:click={closeMobileMenu}
+            >
+              KYC
+            </a>
+            <a
+              href="/admin/kyc"
+              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              on:click={closeMobileMenu}
+            >
+              Admin KYC
             </a>
 
             <!-- Mobile Auth Section -->
