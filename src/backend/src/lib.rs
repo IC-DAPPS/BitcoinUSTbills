@@ -1152,36 +1152,7 @@ async fn verify_government_signature(_data: &str, _signature: &str) -> Result<bo
     Ok(true)
 }
 
-/// Parse government API response
-fn parse_government_response(_response: &str) -> Result<GovernmentKYCData> {
-    // TODO: Parse XML/JSON responses from different government APIs
-    // Each country has different response formats
 
-    // For demo, return dummy data
-    Ok(GovernmentKYCData {
-        user_principal: ic_cdk::caller(),
-        full_name: "Demo User".to_string(),
-        date_of_birth: "1990-01-01".to_string(),
-        country_code: "US".to_string(),
-        document_number: "DEMO123456".to_string(),
-        verification_level: "Full".to_string(),
-    })
-}
-
-/// Generate JWT backed by government verification
-fn generate_government_backed_jwt(kyc_data: &GovernmentKYCData) -> Result<String> {
-    // TODO: Generate proper JWT with government-verified claims
-    // Include government session ID and verification proofs
-
-    let jwt = format!(
-        "gov_verified_{}_{}_{}",
-        kyc_data.country_code,
-        kyc_data.document_number,
-        get_current_timestamp()
-    );
-
-    Ok(jwt)
-}
 
 fn calculate_age_from_dob(_dob: &str) -> Result<u8> {
     // TODO: Proper date parsing and age calculation

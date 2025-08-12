@@ -123,7 +123,6 @@ type Icrc21VcConsentMessageRequest = record {
 };
 type IssuedCredentialData = record { vc_jws : text };
 type KYCCredential = record {
-  verification_level : KYCVerificationLevel;
   verified_date : nat64;
   tier : nat8;
   credential_jws : text;
@@ -131,7 +130,6 @@ type KYCCredential = record {
   expiry_date : nat64;
 };
 type KYCStatus = variant { Rejected; Verified; Expired; Pending };
-type KYCVerificationLevel = variant { Enhanced; Premium; Basic; Institutional };
 type OCRResult = record {
   extracted_country : text;
   extracted_name : text;

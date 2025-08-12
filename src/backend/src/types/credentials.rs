@@ -118,7 +118,6 @@ pub struct KYCCredential {
     pub expiry_date: u64,
     pub issuer: String,
     pub credential_jws: String,
-    pub verification_level: super::kyc::KYCVerificationLevel,
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
