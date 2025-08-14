@@ -103,14 +103,8 @@ export const idlFactory = ({ IDL }) => {
     'Err' : BitcoinUSTBillsError,
   });
   const HoldingStatus = IDL.Variant({
-    'Sold' : IDL.Null,
     'Active' : IDL.Null,
     'Matured' : IDL.Null,
-    'Cancelled' : IDL.Null,
-  });
-  const YieldOption = IDL.Variant({
-    'Maturity' : IDL.Null,
-    'Flexible' : IDL.Null,
   });
   const TokenHolding = IDL.Record({
     'id' : IDL.Text,
@@ -119,7 +113,6 @@ export const idlFactory = ({ IDL }) => {
     'purchase_price' : IDL.Nat64,
     'token_id' : IDL.Nat64,
     'purchase_date' : IDL.Nat64,
-    'yield_option' : YieldOption,
     'current_value' : IDL.Nat64,
     'projected_yield' : IDL.Nat64,
     'ustbill_id' : IDL.Text,
@@ -247,14 +240,7 @@ export const idlFactory = ({ IDL }) => {
     'country_code' : IDL.Text,
     'country_name' : IDL.Text,
   });
-  const KYCVerificationLevel = IDL.Variant({
-    'Enhanced' : IDL.Null,
-    'Premium' : IDL.Null,
-    'Basic' : IDL.Null,
-    'Institutional' : IDL.Null,
-  });
   const KYCCredential = IDL.Record({
-    'verification_level' : KYCVerificationLevel,
     'verified_date' : IDL.Nat64,
     'tier' : IDL.Nat8,
     'credential_jws' : IDL.Text,

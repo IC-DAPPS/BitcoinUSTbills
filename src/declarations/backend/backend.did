@@ -108,7 +108,7 @@ type GetCredentialRequest = record {
   prepared_context : opt blob;
   credential_spec : CredentialSpec;
 };
-type HoldingStatus = variant { Sold; Active; Matured; Cancelled };
+type HoldingStatus = variant { Active; Matured };
 type HttpHeader = record { value : text; name : text };
 type HttpResponse = record {
   status : nat;
@@ -123,7 +123,6 @@ type Icrc21VcConsentMessageRequest = record {
 };
 type IssuedCredentialData = record { vc_jws : text };
 type KYCCredential = record {
-  verification_level : KYCVerificationLevel;
   verified_date : nat64;
   tier : nat8;
   credential_jws : text;
@@ -131,7 +130,6 @@ type KYCCredential = record {
   expiry_date : nat64;
 };
 type KYCStatus = variant { Rejected; Verified; Expired; Pending };
-type KYCVerificationLevel = variant { Enhanced; Premium; Basic; Institutional };
 type OCRResult = record {
   extracted_country : text;
   extracted_name : text;
@@ -197,7 +195,6 @@ type TokenHolding = record {
   purchase_price : nat64;
   token_id : nat64;
   purchase_date : nat64;
-  yield_option : YieldOption;
   current_value : nat64;
   projected_yield : nat64;
   ustbill_id : text;
@@ -306,7 +303,6 @@ type VerifiedResidentCredential = record {
   country_code : text;
   country_name : text;
 };
-type YieldOption = variant { Maturity; Flexible };
 type YieldProjection = record {
   days_to_maturity : nat64;
   holding_id : text;

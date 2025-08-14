@@ -109,10 +109,8 @@ export interface GetCredentialRequest {
   'prepared_context' : [] | [Uint8Array | number[]],
   'credential_spec' : CredentialSpec,
 }
-export type HoldingStatus = { 'Sold' : null } |
-  { 'Active' : null } |
-  { 'Matured' : null } |
-  { 'Cancelled' : null };
+export type HoldingStatus = { 'Active' : null } |
+  { 'Matured' : null };
 export interface HttpHeader { 'value' : string, 'name' : string }
 export interface HttpResponse {
   'status' : bigint,
@@ -130,7 +128,6 @@ export interface Icrc21VcConsentMessageRequest {
 }
 export interface IssuedCredentialData { 'vc_jws' : string }
 export interface KYCCredential {
-  'verification_level' : KYCVerificationLevel,
   'verified_date' : bigint,
   'tier' : number,
   'credential_jws' : string,
@@ -141,10 +138,6 @@ export type KYCStatus = { 'Rejected' : null } |
   { 'Verified' : null } |
   { 'Expired' : null } |
   { 'Pending' : null };
-export type KYCVerificationLevel = { 'Enhanced' : null } |
-  { 'Premium' : null } |
-  { 'Basic' : null } |
-  { 'Institutional' : null };
 export interface OCRResult {
   'extracted_country' : string,
   'extracted_name' : string,
@@ -217,7 +210,6 @@ export interface TokenHolding {
   'purchase_price' : bigint,
   'token_id' : bigint,
   'purchase_date' : bigint,
-  'yield_option' : YieldOption,
   'current_value' : bigint,
   'projected_yield' : bigint,
   'ustbill_id' : string,
@@ -332,8 +324,6 @@ export interface VerifiedResidentCredential {
   'country_code' : string,
   'country_name' : string,
 }
-export type YieldOption = { 'Maturity' : null } |
-  { 'Flexible' : null };
 export interface YieldProjection {
   'days_to_maturity' : bigint,
   'holding_id' : string,
