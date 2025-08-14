@@ -23,7 +23,7 @@ const VERIFIED_PURCHASES_LEDGER_MEMORY_ID: MemoryId = MemoryId::new(8);
 const VC_CREDENTIALS_MEMORY_ID: MemoryId = MemoryId::new(9);
 const VC_PREPARED_CONTEXTS_MEMORY_ID: MemoryId = MemoryId::new(10);
 const FREE_KYC_SESSIONS_MEMORY_ID: MemoryId = MemoryId::new(11);
-const MANUAL_REVIEW_ITEMS_MEMORY_ID: MemoryId = MemoryId::new(12);
+
 
 // Thread-local storage for memory manager and stable data structures
 thread_local! {
@@ -114,11 +114,7 @@ thread_local! {
         )
     );
 
-    static MANUAL_REVIEW_ITEMS: RefCell<StableBTreeMap<String, ManualReviewItem, Memory>> = RefCell::new(
-        StableBTreeMap::init(
-            MEMORY_MANAGER.with(|m| m.borrow().get(MANUAL_REVIEW_ITEMS_MEMORY_ID))
-        )
-    );
+    
 }
 
 // Implement Storable for our custom types
@@ -313,22 +309,7 @@ impl Storable for FreeKYCSession {
         ic_stable_structures::storable::Bound::Unbounded;
 }
 
-impl Storable for ManualReviewItem {
-    fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(candid::encode_one(self).unwrap())
-    }
 
-    fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        candid::decode_one(&bytes).unwrap()
-    }
-
-    fn into_bytes(self) -> Vec<u8> {
-        candid::encode_one(self).unwrap()
-    }
-
-    const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Unbounded;
-}
 
 // Storage interface for USTBills
 pub struct USTBillStorage;
@@ -896,67 +877,7 @@ impl FreeKYCStorage {
     }
 }
 
-// Storage interface for Manual Review Items
-pub struct ManualReviewStorage;
 
-impl ManualReviewStorage {
-    pub fn insert(review_id: String, item: ManualReviewItem) -> Result<()> {
-        MANUAL_REVIEW_ITEMS.with(|items| {
-            items.borrow_mut().insert(review_id, item);
-            Ok(())
-        })
-    }
-
-    pub fn get(review_id: &String) -> Result<ManualReviewItem> {
-        MANUAL_REVIEW_ITEMS.with(|items| {
-            items
-                .borrow()
-                .get(review_id)
-                .ok_or(BitcoinUSTBillsError::VCCredentialNotFound(
-                    "Review item not found".to_string(),
-                ))
-        })
-    }
-
-    pub fn update(review_id: String, item: ManualReviewItem) -> Result<()> {
-        MANUAL_REVIEW_ITEMS.with(|items| {
-            items.borrow_mut().insert(review_id, item);
-            Ok(())
-        })
-    }
-
-    pub fn get_pending() -> Vec<(String, ManualReviewItem)> {
-        MANUAL_REVIEW_ITEMS.with(|items| {
-            items
-                .borrow()
-                .iter()
-                .filter(|entry| entry.value().status == ReviewStatus::Pending)
-                .map(|entry| (entry.key().clone(), entry.value().clone()))
-                .collect()
-        })
-    }
-
-    pub fn get_by_reviewer(reviewer: &Principal) -> Vec<(String, ManualReviewItem)> {
-        MANUAL_REVIEW_ITEMS.with(|items| {
-            items
-                .borrow()
-                .iter()
-                .filter(|entry| {
-                    if let Some(assigned) = &entry.value().assigned_reviewer {
-                        assigned == reviewer
-                    } else {
-                        false
-                    }
-                })
-                .map(|entry| (entry.key().clone(), entry.value().clone()))
-                .collect()
-        })
-    }
-
-    pub fn count() -> u64 {
-        MANUAL_REVIEW_ITEMS.with(|items| items.borrow().len())
-    }
-}
 
 // Utility functions for storage operations
 pub fn generate_id() -> String {
@@ -988,9 +909,6 @@ pub fn get_storage_stats() -> std::collections::HashMap<String, u64> {
         VCPreparedContextsStorage::count(),
     );
     stats.insert("free_kyc_sessions".to_string(), FreeKYCStorage::count());
-    stats.insert(
-        "manual_review_items".to_string(),
-        ManualReviewStorage::count(),
-    );
+    
     stats
 }

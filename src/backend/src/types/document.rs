@@ -94,38 +94,7 @@ pub struct SanctionsCheckResult {
     pub details: Option<String>,
 }
 
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
-pub struct ManualReviewItem {
-    pub review_id: String,
-    pub user_principal: Principal,
-    pub document_image: Vec<u8>,
-    pub selfie_image: Vec<u8>,
-    pub ocr_extracted: OCRResult,
-    pub calculated_age: u8,
-    pub priority: ReviewPriority,
-    pub assigned_reviewer: Option<Principal>,
-    pub review_deadline: u64,
-    pub status: ReviewStatus,
-    pub created_at: u64,
-}
 
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
-pub enum ReviewPriority {
-    Low,    // High confidence OCR, just needs final check
-    Medium, // Medium confidence, needs careful review  
-    High,   // Low confidence or suspicious activity
-    Urgent, // Potential fraud or sanctions hit
-}
-
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
-pub enum ReviewStatus {
-    Pending,
-    InProgress,
-    Approved,
-    Rejected,
-    RequiresAdditionalDocs,
-    Escalated,
-}
 
 // ============= FREE API CONFIGURATION =============
 
