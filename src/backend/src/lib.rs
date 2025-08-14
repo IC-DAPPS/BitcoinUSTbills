@@ -342,7 +342,6 @@ pub fn buy_ustbill(ustbill_id: String) -> Result<TokenHolding> {
         token_id,
         purchase_price: cost,
         purchase_date: get_current_timestamp(),
-        yield_option: YieldOption::Maturity,
         status: HoldingStatus::Active,
         current_value: cost,
         projected_yield: calculate_projected_yield(&ustbill, cost),
@@ -935,8 +934,8 @@ pub async fn upload_document_free_kyc(
     // Step 4: Calculate age (Free)
     let age = calculate_age_from_dob(&ocr_result.extracted_dob)?;
 
-    // Step 5: Store for manual review if needed (Free)
-    let needs_review = ocr_result.confidence_score < 0.8 || age < 18;
+    // Step 5: All cases require manual review
+    let needs_review = true; // Always send for manual review
 
     let kyc_session = FreeKYCSession {
         upload_id: upload_id.clone(),
@@ -948,11 +947,7 @@ pub async fn upload_document_free_kyc(
         calculated_age: age,
         ofac_clear: true, // TODO: Implement actual OFAC check
         needs_manual_review: needs_review,
-        status: if needs_review {
-            FreeKYCStatus::PendingReview
-        } else {
-            FreeKYCStatus::AutoApproved
-        },
+        status: FreeKYCStatus::PendingReview, // Always set to PendingReview
         created_at: get_current_timestamp(),
         reviewed_at: None,
         reviewer_notes: None,
@@ -961,13 +956,8 @@ pub async fn upload_document_free_kyc(
     // Store session
     FreeKYCStorage::insert(upload_id.clone(), kyc_session.clone())?;
 
-    // Auto-approve if confidence is high and age check passes
-    if !needs_review && age >= 18 {
-        issue_free_kyc_credential(caller, &kyc_session).await?;
-        ic_cdk::println!("✅ Auto-approved KYC for user: {}", caller.to_text());
-    } else {
-        ic_cdk::println!("⏳ Queued for manual review: {}", upload_id);
-    }
+    // Log that it's queued for manual review
+    ic_cdk::println!("⏳ Queued for manual review: {}", upload_id);
 
     Ok(upload_id)
 }
@@ -1139,18 +1129,7 @@ pub fn get_free_kyc_status(upload_id: String) -> Result<FreeKYCSession> {
 
 // ============= HELPER FUNCTIONS =============
 
-/// Verify digital signature from government
-async fn verify_government_signature(_data: &str, _signature: &str) -> Result<bool> {
-    // TODO: Implement government public key verification
-    // Each country has different signature schemes:
-    // - India: RSA with SHA-256 (UIDAI certificates)
-    // - US: Various federal PKI certificates
-    // - UK: Government Digital Service certificates
 
-    // For demo, always return true
-    // In production, use proper cryptographic verification
-    Ok(true)
-}
 
 
 
