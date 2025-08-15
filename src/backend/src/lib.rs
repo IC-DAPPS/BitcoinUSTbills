@@ -7,7 +7,6 @@ mod guard;
 mod handlers;
 mod storage;
 mod store;
-// mod token; // Temporarily disabled for demo
 mod types;
 mod utils;
 
@@ -375,10 +374,6 @@ pub fn buy_ustbill(ustbill_id: String) -> Result<TokenHolding> {
         description: "Platform fee".to_string(),
     };
 
-    // TODO: ICRC1 token minting (temporarily disabled for demo)
-    // let token_block_index = token::mint_bill_token(principal, ustbill_id.clone()).await?;
-    // ic_cdk::api::print!(&format!("Token minted at block index: {}", token_block_index));
-
     // Save all updates
     UserStorage::update(user)?;
     USTBillStorage::update(ustbill)?;
@@ -423,19 +418,6 @@ pub fn calculate_current_value(holding_id: String) -> Result<u64> {
 pub fn get_user_holdings(principal: Principal) -> Vec<TokenHolding> {
     HoldingStorage::get_by_user(&principal)
 }
-
-// TODO: ICRC1 functions (temporarily disabled for demo)
-// /// Gets user's ICRC1 token balance
-// #[update]
-// pub async fn get_user_token_balance(principal: Principal) -> Result<u64> {
-//     token::get_token_balance(principal).await
-// }
-
-// /// Gets token metadata (name, symbol, decimals)
-// #[update]
-// pub async fn get_token_info() -> Result<(String, String, u8)> {
-//     token::get_token_metadata().await
-// }
 
 // ╔══════════════════════════════════════════════════════════════════════════════╗
 // ║                  YIELD CANISTER FUNCTIONS                        ║
