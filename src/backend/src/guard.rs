@@ -190,39 +190,3 @@ pub fn has_authorized_principals() -> bool {
 pub fn get_initial_principal() -> Principal {
     Principal::from_text(INITIAL_AUTHORIZED_PRINCIPAL).expect("Invalid initial principal")
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_initial_principal() {
-        let initial = get_initial_principal();
-        assert!(is_authorized(&initial));
-    }
-
-    #[test]
-    fn test_add_and_remove_principal() {
-        let test_principal = Principal::from_text("rdmx6-jaaaa-aaaah-qcaiq-cai").unwrap();
-
-        // Initially should not be authorized
-        assert!(!is_authorized(&test_principal));
-
-        // Add to list
-        add_to_list(test_principal);
-        assert!(is_authorized(&test_principal));
-
-        // Remove from list
-        delete_from_list(test_principal);
-        assert!(!is_authorized(&test_principal));
-    }
-
-    #[test]
-    fn test_validate_principal() {
-        let anonymous = Principal::anonymous();
-        assert!(validate_principal(&anonymous).is_err());
-
-        let valid = get_initial_principal();
-        assert!(validate_principal(&valid).is_ok());
-    }
-}

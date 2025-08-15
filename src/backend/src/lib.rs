@@ -420,7 +420,7 @@ pub fn get_user_holdings(principal: Principal) -> Vec<TokenHolding> {
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════════╗
-// ║                  YIELD CANISTER FUNCTIONS                        ║
+// ║                  YIELD FUNCTIONS                        ║
 // ╚══════════════════════════════════════════════════════════════════════════════╝
 
 /// Calculates maturity yield for a holding
