@@ -627,37 +627,7 @@ fn transform_treasury_response(response: TransformArgs) -> HttpResponse {
     res
 }
 
-// ╔══════════════════════════════════════════════════════════════════════════════╗
-// ║                  LEGACY FUNCTIONS (for backward compatibility)                        ║
-// ╚══════════════════════════════════════════════════════════════════════════════╝
 
-#[ic_cdk::query]
-fn get_principal_data() -> Result<String> {
-    let principal = ic_cdk::api::msg_caller();
-    match UserStorage::get(&principal) {
-        Ok(user) => Ok(user.email),
-        Err(_) => Err(BitcoinUSTBillsError::DidntFindUserData),
-    }
-}
-
-#[ic_cdk::update]
-fn set_principal_data(s: String) -> Result<()> {
-    let principal = ic_cdk::api::msg_caller();
-    match UserStorage::get(&principal) {
-        Ok(mut user) => {
-            user.email = s;
-            UserStorage::update(user)?;
-            Ok(())
-        }
-        Err(_) => Err(BitcoinUSTBillsError::DidntFindUserData),
-    }
-}
-
-#[update]
-pub fn test_func() -> Result<String> {
-    guard::assert_admin()?;
-    Ok("test_func with admin guard".to_string())
-}
 
 #[update]
 pub fn add_to_list(p: Principal) -> Result<()> {
