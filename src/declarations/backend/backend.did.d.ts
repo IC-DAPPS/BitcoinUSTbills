@@ -3,28 +3,18 @@ import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
 export type BitcoinUSTBillsError = { 'UserAlreadyExists' : null } |
-  { 'VCPreparationFailed' : string } |
-  { 'VCInvalidIdAlias' : string } |
   { 'TradingNotAllowed' : null } |
-  { 'VCUnsupportedCredentialSpec' : string } |
   { 'AccessDenied' : null } |
   { 'InvalidAmount' : null } |
   { 'TransactionCancelled' : null } |
   { 'MinimumInvestmentNotMet' : null } |
-  { 'VCUnsupportedOrigin' : string } |
   { 'HoldingNotFound' : null } |
   { 'DatabaseError' : string } |
   { 'YieldCalculationError' : null } |
   { 'FailedToAddToList' : null } |
-  { 'VCConsentMessageUnavailable' : string } |
-  { 'VCVerificationFailed' : string } |
   { 'TreasuryDataFetchError' : null } |
   { 'TransactionFailed' : null } |
   { 'MaximumInvestmentExceeded' : null } |
-  { 'VCIssuanceFailed' : string } |
-  { 'VCCredentialNotFound' : string } |
-  { 'VCUnknownSubject' : string } |
-  { 'VCCredentialExpired' : string } |
   { 'USTBillSoldOut' : null } |
   { 'SystemError' : string } |
   { 'InvalidPrincipal' : null } |
@@ -33,7 +23,6 @@ export type BitcoinUSTBillsError = { 'UserAlreadyExists' : null } |
   { 'USTBillMatured' : null } |
   { 'ValidationError' : string } |
   { 'ExternalAPIError' : string } |
-  { 'VCInvalidCredentialType' : string } |
   { 'InvalidTokenAmount' : null } |
   { 'USTBillCancelled' : null } |
   { 'InsufficientTokens' : null } |
@@ -43,21 +32,17 @@ export type BitcoinUSTBillsError = { 'UserAlreadyExists' : null } |
   { 'KYCNotVerified' : null } |
   { 'PlatformConfigurationError' : null } |
   { 'InvalidCUSIP' : null } |
-  { 'VCSignatureNotFound' : string } |
   { 'DidntFindUserData' : null } |
   { 'InvalidHoldingData' : null } |
   { 'USTBillAlreadyExists' : null } |
   { 'InvalidTransactionType' : null } |
   { 'InvalidUserData' : null } |
-  { 'VCGenericError' : string } |
   { 'YieldDistributionError' : null } |
   { 'TransactionNotFound' : null } |
   { 'NotImplemented' : null } |
   { 'USTBillNotFound' : null } |
   { 'StorageError' : string } |
-  { 'VCUnauthorizedSubject' : string } |
   { 'InvalidYieldRate' : null } |
-  { 'VCInternalError' : string } |
   { 'InternalError' : string } |
   { 'InvalidUSTBillData' : null } |
   { 'PlatformFeesCalculationError' : null } |

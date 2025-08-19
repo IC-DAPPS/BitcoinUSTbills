@@ -75,23 +75,6 @@ pub enum BitcoinUSTBillsError {
     YieldDistributionError,
     MaturityDatePassed,
 
-    // Verifiable Credentials errors
-    VCUnknownSubject(String),
-    VCUnauthorizedSubject(String),
-    VCInvalidIdAlias(String),
-    VCUnsupportedCredentialSpec(String),
-    VCSignatureNotFound(String),
-    VCInternalError(String),
-    VCConsentMessageUnavailable(String),
-    VCGenericError(String),
-    VCUnsupportedOrigin(String),
-    VCInvalidCredentialType(String),
-    VCCredentialExpired(String),
-    VCCredentialNotFound(String),
-    VCPreparationFailed(String),
-    VCIssuanceFailed(String),
-    VCVerificationFailed(String),
-
     // Legacy errors (keeping for compatibility)
     DidntFindUserData,
     FailedToAddToList,
@@ -195,54 +178,7 @@ impl std::fmt::Display for BitcoinUSTBillsError {
             BitcoinUSTBillsError::MaturityDatePassed => {
                 write!(f, "Maturity date has already passed")
             }
-
-            // Verifiable Credentials errors
-            BitcoinUSTBillsError::VCUnknownSubject(msg) => {
-                write!(f, "Unknown subject for credential issuance: {}", msg)
-            }
-            BitcoinUSTBillsError::VCUnauthorizedSubject(msg) => {
-                write!(f, "Unauthorized subject for credential: {}", msg)
-            }
-            BitcoinUSTBillsError::VCInvalidIdAlias(msg) => {
-                write!(f, "Invalid ID alias provided: {}", msg)
-            }
-            BitcoinUSTBillsError::VCUnsupportedCredentialSpec(msg) => {
-                write!(f, "Unsupported credential specification: {}", msg)
-            }
-            BitcoinUSTBillsError::VCSignatureNotFound(msg) => {
-                write!(f, "Signature not found for credential: {}", msg)
-            }
-            BitcoinUSTBillsError::VCInternalError(msg) => {
-                write!(f, "Internal VC issuer error: {}", msg)
-            }
-            BitcoinUSTBillsError::VCConsentMessageUnavailable(msg) => {
-                write!(f, "Consent message unavailable: {}", msg)
-            }
-            BitcoinUSTBillsError::VCGenericError(msg) => {
-                write!(f, "VC generic error: {}", msg)
-            }
-            BitcoinUSTBillsError::VCUnsupportedOrigin(msg) => {
-                write!(f, "Unsupported origin for VC request: {}", msg)
-            }
-            BitcoinUSTBillsError::VCInvalidCredentialType(msg) => {
-                write!(f, "Invalid credential type: {}", msg)
-            }
-            BitcoinUSTBillsError::VCCredentialExpired(msg) => {
-                write!(f, "Credential has expired: {}", msg)
-            }
-            BitcoinUSTBillsError::VCCredentialNotFound(msg) => {
-                write!(f, "Credential not found: {}", msg)
-            }
-            BitcoinUSTBillsError::VCPreparationFailed(msg) => {
-                write!(f, "Credential preparation failed: {}", msg)
-            }
-            BitcoinUSTBillsError::VCIssuanceFailed(msg) => {
-                write!(f, "Credential issuance failed: {}", msg)
-            }
-            BitcoinUSTBillsError::VCVerificationFailed(msg) => {
-                write!(f, "Credential verification failed: {}", msg)
-            }
-
+            
             // Legacy errors
             BitcoinUSTBillsError::DidntFindUserData => write!(f, "User data not found"),
             BitcoinUSTBillsError::FailedToAddToList => write!(f, "Failed to add to list"),

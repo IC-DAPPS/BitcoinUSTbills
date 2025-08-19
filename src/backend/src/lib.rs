@@ -775,10 +775,13 @@ pub async fn admin_review_free_kyc(upload_id: String, approved: bool, notes: Str
     kyc_session.reviewer_notes = Some(notes);
 
     if approved {
-        // Issue VC after manual approval
-        issue_free_kyc_credential(kyc_session.user_principal, &kyc_session).await?;
+        // VC issuance hata diya; sirf user ko Verified mark kar rahe hain
+        if let Ok(mut user) = UserStorage::get(&kyc_session.user_principal) {
+            user.kyc_status = KYCStatus::Verified;
+            UserStorage::update(user)?;
+        }
         ic_cdk::println!(
-            "✅ Manual approval for: {}",
+            "Manual approval for: {}",
             kyc_session.user_principal.to_text()
         );
     } else {
@@ -805,63 +808,6 @@ pub fn admin_get_pending_reviews() -> Result<Vec<FreeKYCSession>> {
         .collect();
 
     Ok(pending)
-}
-
-/// Issue credential after free KYC verification
-async fn issue_free_kyc_credential(
-    user_principal: Principal,
-    kyc_session: &FreeKYCSession,
-) -> Result<()> {
-    let current_time = get_current_timestamp();
-    let expiry_time = current_time + (365 * 24 * 60 * 60); // 1 year
-
-    // Get or create user credentials
-    let mut user_credentials = VCCredentialsStorage::get(&user_principal)
-        .unwrap_or_else(|| UserCredentials::new(user_principal));
-
-    // Add adult credential if age verified
-    if kyc_session.calculated_age >= 18 {
-        user_credentials.add_adult_credential(VerifiedAdultCredential {
-            min_age: 18,
-            verified_date: current_time,
-            expiry_date: expiry_time,
-            issuer: "BitcoinUSTbills_Free_KYC".to_string(),
-            credential_jws: format!(
-                "free_kyc_adult_{}_{}",
-                user_principal.to_text(),
-                current_time
-            ),
-        });
-    }
-
-    // Add resident credential based on document
-    user_credentials.add_resident_credential(VerifiedResidentCredential {
-        country_code: kyc_session.ocr_result.extracted_country.clone(),
-        country_name: get_country_name(&kyc_session.ocr_result.extracted_country),
-        verified_date: current_time,
-        expiry_date: expiry_time,
-        issuer: "BitcoinUSTbills_Free_KYC".to_string(),
-        credential_jws: format!(
-            "free_kyc_resident_{}_{}",
-            user_principal.to_text(),
-            current_time
-        ),
-    });
-
-    // Store credentials
-    VCCredentialsStorage::update(user_principal, user_credentials)?;
-
-    // Update user record
-    if let Ok(mut user) = UserStorage::get(&user_principal) {
-        user.last_vc_verification = Some(current_time);
-        user.verified_adult = kyc_session.calculated_age >= 18;
-        user.verified_resident = true;
-        user.kyc_tier = 1; // Basic free KYC
-        user.max_investment_limit = 100000; // $1,000 limit for free KYC
-        UserStorage::update(user)?;
-    }
-
-    Ok(())
 }
 
 /// Check user's free KYC status
@@ -911,65 +857,6 @@ fn validate_ocr_result(ocr_result: &OCRResult) -> Result<()> {
             "Extracted date of birth is empty",
         ));
     }
-    Ok(())
-}
-
-fn generate_credential_jwt(request: &GetCredentialRequest, caller: &Principal) -> Result<String> {
-    // In a real implementation, this would create a signed JWT.
-    // For now, we'll create a placeholder string.
-    let credential_type = &request.credential_spec.credential_type;
-    let jwt = format!(
-        "dummy_jwt_{}_{}_{}",
-        credential_type,
-        caller.to_text(),
-        get_current_timestamp()
-    );
-    Ok(jwt)
-}
-
-fn store_user_credential(
-    request: &GetCredentialRequest,
-    caller: &Principal,
-    vc_jws: &str,
-) -> Result<()> {
-    let mut user_credentials =
-        VCCredentialsStorage::get(caller).unwrap_or_else(|| UserCredentials::new(*caller));
-
-    let credential_type = &request.credential_spec.credential_type;
-    let current_time = get_current_timestamp();
-    let expiry_date = current_time + (365 * 24 * 60 * 60); // 1 year expiry
-
-    match credential_type.as_str() {
-        "VerifiedAdult" => {
-            user_credentials.add_adult_credential(VerifiedAdultCredential {
-                min_age: 18,
-                verified_date: current_time,
-                expiry_date,
-                issuer: "BitcoinUSTbills".to_string(),
-                credential_jws: vc_jws.to_string(),
-            });
-        }
-        "VerifiedResident" => {
-            // Extract country from arguments if available
-            let country_code = "US".to_string(); // Placeholder
-            user_credentials.add_resident_credential(VerifiedResidentCredential {
-                country_code: country_code.clone(),
-                country_name: get_country_name(&country_code),
-                verified_date: current_time,
-                expiry_date,
-                issuer: "BitcoinUSTbills".to_string(),
-                credential_jws: vc_jws.to_string(),
-            });
-        }
-        // Add other credential types if needed
-        _ => {
-            return Err(BitcoinUSTBillsError::VCUnsupportedCredentialSpec(
-                credential_type.clone(),
-            ));
-        }
-    }
-
-    VCCredentialsStorage::update(*caller, user_credentials)?;
     Ok(())
 }
 

@@ -20,10 +20,7 @@ const TREASURY_RATES_MEMORY_ID: MemoryId = MemoryId::new(5);
 const TRADING_METRICS_MEMORY_ID: MemoryId = MemoryId::new(6);
 const ID_COUNTER_MEMORY_ID: MemoryId = MemoryId::new(7);
 const VERIFIED_PURCHASES_LEDGER_MEMORY_ID: MemoryId = MemoryId::new(8);
-const VC_CREDENTIALS_MEMORY_ID: MemoryId = MemoryId::new(9);
-const VC_PREPARED_CONTEXTS_MEMORY_ID: MemoryId = MemoryId::new(10);
 const FREE_KYC_SESSIONS_MEMORY_ID: MemoryId = MemoryId::new(11);
-
 
 // Thread-local storage for memory manager and stable data structures
 thread_local! {
@@ -92,19 +89,6 @@ thread_local! {
         )
     );
 
-    // ============= VC STORAGE STRUCTURES =============
-
-    static VC_CREDENTIALS: RefCell<StableBTreeMap<Principal, UserCredentials, Memory>> = RefCell::new(
-        StableBTreeMap::init(
-            MEMORY_MANAGER.with(|m| m.borrow().get(VC_CREDENTIALS_MEMORY_ID))
-        )
-    );
-
-    static VC_PREPARED_CONTEXTS: RefCell<StableBTreeMap<String, PreparedCredentialData, Memory>> = RefCell::new(
-        StableBTreeMap::init(
-            MEMORY_MANAGER.with(|m| m.borrow().get(VC_PREPARED_CONTEXTS_MEMORY_ID))
-        )
-    );
 
     // ============= FREE KYC STORAGE STRUCTURES =============
 
@@ -114,7 +98,7 @@ thread_local! {
         )
     );
 
-    
+
 }
 
 // Implement Storable for our custom types
@@ -254,42 +238,6 @@ impl Storable for VerifiedBrokerPurchase {
         ic_stable_structures::storable::Bound::Unbounded;
 }
 
-// ============= VC STORABLE IMPLEMENTATIONS =============
-
-impl Storable for UserCredentials {
-    fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(candid::encode_one(self).unwrap())
-    }
-
-    fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        candid::decode_one(&bytes).unwrap()
-    }
-
-    fn into_bytes(self) -> Vec<u8> {
-        candid::encode_one(self).unwrap()
-    }
-
-    const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Unbounded;
-}
-
-impl Storable for PreparedCredentialData {
-    fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(candid::encode_one(self).unwrap())
-    }
-
-    fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        candid::decode_one(&bytes).unwrap()
-    }
-
-    fn into_bytes(self) -> Vec<u8> {
-        candid::encode_one(self).unwrap()
-    }
-
-    const BOUND: ic_stable_structures::storable::Bound =
-        ic_stable_structures::storable::Bound::Unbounded;
-}
-
 // ============= FREE KYC STORABLE IMPLEMENTATIONS =============
 
 impl Storable for FreeKYCSession {
@@ -308,8 +256,6 @@ impl Storable for FreeKYCSession {
     const BOUND: ic_stable_structures::storable::Bound =
         ic_stable_structures::storable::Bound::Unbounded;
 }
-
-
 
 // Storage interface for USTBills
 pub struct USTBillStorage;
@@ -708,103 +654,6 @@ impl VerifiedPurchasesLedgerStorage {
     }
 }
 
-// ============= VC STORAGE INTERFACES =============
-
-// Storage interface for VC Credentials
-pub struct VCCredentialsStorage;
-
-impl VCCredentialsStorage {
-    pub fn insert(principal: Principal, credentials: UserCredentials) -> Result<()> {
-        VC_CREDENTIALS.with(|vc_creds| {
-            vc_creds.borrow_mut().insert(principal, credentials);
-            Ok(())
-        })
-    }
-
-    pub fn get(principal: &Principal) -> Option<UserCredentials> {
-        VC_CREDENTIALS.with(|vc_creds| vc_creds.borrow().get(principal))
-    }
-
-    pub fn update(principal: Principal, credentials: UserCredentials) -> Result<()> {
-        VC_CREDENTIALS.with(|vc_creds| {
-            vc_creds.borrow_mut().insert(principal, credentials);
-            Ok(())
-        })
-    }
-
-    pub fn remove(principal: &Principal) -> Option<UserCredentials> {
-        VC_CREDENTIALS.with(|vc_creds| vc_creds.borrow_mut().remove(principal))
-    }
-
-    pub fn get_all() -> Vec<(Principal, UserCredentials)> {
-        VC_CREDENTIALS.with(|vc_creds| {
-            vc_creds
-                .borrow()
-                .iter()
-                .map(|entry| (entry.key().clone(), entry.value().clone()))
-                .collect()
-        })
-    }
-
-    pub fn count() -> u64 {
-        VC_CREDENTIALS.with(|vc_creds| vc_creds.borrow().len())
-    }
-
-    pub fn exists(principal: &Principal) -> bool {
-        VC_CREDENTIALS.with(|vc_creds| vc_creds.borrow().contains_key(principal))
-    }
-}
-
-// Storage interface for VC Prepared Contexts
-pub struct VCPreparedContextsStorage;
-
-impl VCPreparedContextsStorage {
-    pub fn insert(context_id: String, data: PreparedCredentialData) -> Result<()> {
-        VC_PREPARED_CONTEXTS.with(|contexts| {
-            contexts.borrow_mut().insert(context_id, data);
-            Ok(())
-        })
-    }
-
-    pub fn get(context_id: &String) -> Option<PreparedCredentialData> {
-        VC_PREPARED_CONTEXTS.with(|contexts| contexts.borrow().get(context_id))
-    }
-
-    pub fn remove(context_id: &String) -> Option<PreparedCredentialData> {
-        VC_PREPARED_CONTEXTS.with(|contexts| contexts.borrow_mut().remove(context_id))
-    }
-
-    pub fn cleanup_expired(expiry_time: u64) -> u64 {
-        VC_PREPARED_CONTEXTS.with(|contexts| {
-            let current_time = ic_cdk::api::time();
-            let mut removed_count = 0;
-            let keys_to_remove: Vec<String> = contexts
-                .borrow()
-                .iter()
-                .filter_map(|entry| {
-                    // Simple expiry check - in production you'd store timestamps
-                    if current_time > expiry_time {
-                        Some(entry.key().clone())
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-
-            for key in keys_to_remove {
-                if contexts.borrow_mut().remove(&key).is_some() {
-                    removed_count += 1;
-                }
-            }
-            removed_count
-        })
-    }
-
-    pub fn count() -> u64 {
-        VC_PREPARED_CONTEXTS.with(|contexts| contexts.borrow().len())
-    }
-}
-
 // ============= FREE KYC STORAGE INTERFACES =============
 
 // Storage interface for Free KYC Sessions
@@ -823,7 +672,7 @@ impl FreeKYCStorage {
             sessions
                 .borrow()
                 .get(upload_id)
-                .ok_or(BitcoinUSTBillsError::VCCredentialNotFound(
+                .ok_or(BitcoinUSTBillsError::StorageError(
                     "KYC session not found".to_string(),
                 ))
         })
@@ -877,8 +726,6 @@ impl FreeKYCStorage {
     }
 }
 
-
-
 // Utility functions for storage operations
 pub fn generate_id() -> String {
     ID_COUNTER.with(|counter| {
@@ -903,12 +750,7 @@ pub fn get_storage_stats() -> std::collections::HashMap<String, u64> {
         "verified_purchases".to_string(),
         VerifiedPurchasesLedgerStorage::count(),
     );
-    stats.insert("vc_credentials".to_string(), VCCredentialsStorage::count());
-    stats.insert(
-        "vc_prepared_contexts".to_string(),
-        VCPreparedContextsStorage::count(),
-    );
     stats.insert("free_kyc_sessions".to_string(), FreeKYCStorage::count());
-    
+
     stats
 }
