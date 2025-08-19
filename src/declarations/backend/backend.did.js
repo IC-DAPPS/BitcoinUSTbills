@@ -158,14 +158,6 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : USTBill,
     'Err' : BitcoinUSTBillsError,
   });
-  const DerivationOriginRequest = IDL.Record({
-    'frontend_hostname' : IDL.Text,
-  });
-  const DerivationOriginData = IDL.Record({ 'origin' : IDL.Text });
-  const Result_5 = IDL.Variant({
-    'Ok' : DerivationOriginData,
-    'Err' : BitcoinUSTBillsError,
-  });
   const TreasuryRate = IDL.Record({
     'record_date' : IDL.Text,
     'rate' : IDL.Float64,
@@ -174,7 +166,7 @@ export const idlFactory = ({ IDL }) => {
     'security_type' : IDL.Text,
     'rate_date' : IDL.Text,
   });
-  const Result_6 = IDL.Variant({
+  const Result_5 = IDL.Variant({
     'Ok' : IDL.Vec(TreasuryRate),
     'Err' : BitcoinUSTBillsError,
   });
@@ -185,23 +177,7 @@ export const idlFactory = ({ IDL }) => {
     'price' : IDL.Nat64,
     'amount' : IDL.Nat64,
   });
-  const SignedIdAlias = IDL.Record({ 'credential_jws' : IDL.Text });
-  const ArgumentValue = IDL.Variant({ 'Int' : IDL.Int32, 'String' : IDL.Text });
-  const CredentialSpec = IDL.Record({
-    'arguments' : IDL.Opt(IDL.Vec(IDL.Tuple(IDL.Text, ArgumentValue))),
-    'credential_type' : IDL.Text,
-  });
-  const GetCredentialRequest = IDL.Record({
-    'signed_id_alias' : SignedIdAlias,
-    'prepared_context' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-    'credential_spec' : CredentialSpec,
-  });
-  const IssuedCredentialData = IDL.Record({ 'vc_jws' : IDL.Text });
-  const Result_7 = IDL.Variant({
-    'Ok' : IssuedCredentialData,
-    'Err' : BitcoinUSTBillsError,
-  });
-  const Result_8 = IDL.Variant({
+  const Result_6 = IDL.Variant({
     'Ok' : FreeKYCSession,
     'Err' : BitcoinUSTBillsError,
   });
@@ -213,10 +189,6 @@ export const idlFactory = ({ IDL }) => {
     'maximum_investment' : IDL.Nat64,
     'treasury_api_refresh_interval' : IDL.Nat64,
   });
-  const Result_9 = IDL.Variant({
-    'Ok' : IDL.Text,
-    'Err' : BitcoinUSTBillsError,
-  });
   const TradingMetrics = IDL.Record({
     'average_price' : IDL.Nat64,
     'last_updated' : IDL.Nat64,
@@ -224,49 +196,6 @@ export const idlFactory = ({ IDL }) => {
     'total_transactions' : IDL.Nat64,
     'total_volume' : IDL.Nat64,
     'highest_price' : IDL.Nat64,
-  });
-  const VerifiedAdultCredential = IDL.Record({
-    'verified_date' : IDL.Nat64,
-    'min_age' : IDL.Nat8,
-    'credential_jws' : IDL.Text,
-    'issuer' : IDL.Text,
-    'expiry_date' : IDL.Nat64,
-  });
-  const VerifiedResidentCredential = IDL.Record({
-    'verified_date' : IDL.Nat64,
-    'credential_jws' : IDL.Text,
-    'issuer' : IDL.Text,
-    'expiry_date' : IDL.Nat64,
-    'country_code' : IDL.Text,
-    'country_name' : IDL.Text,
-  });
-  const KYCCredential = IDL.Record({
-    'verified_date' : IDL.Nat64,
-    'tier' : IDL.Nat8,
-    'credential_jws' : IDL.Text,
-    'issuer' : IDL.Text,
-    'expiry_date' : IDL.Nat64,
-  });
-  const AccreditedInvestorCredential = IDL.Record({
-    'verified_date' : IDL.Nat64,
-    'credential_jws' : IDL.Text,
-    'issuer' : IDL.Text,
-    'expiry_date' : IDL.Nat64,
-    'annual_income_verified' : IDL.Bool,
-    'net_worth_verified' : IDL.Bool,
-  });
-  const UserCredentials = IDL.Record({
-    'principal' : IDL.Principal,
-    'last_updated' : IDL.Nat64,
-    'verified_adult' : IDL.Opt(VerifiedAdultCredential),
-    'verified_resident' : IDL.Opt(VerifiedResidentCredential),
-    'kyc_credential' : IDL.Opt(KYCCredential),
-    'accredited_investor' : IDL.Opt(AccreditedInvestorCredential),
-    'credential_count' : IDL.Nat32,
-  });
-  const Result_10 = IDL.Variant({
-    'Ok' : UserCredentials,
-    'Err' : BitcoinUSTBillsError,
   });
   const KYCStatus = IDL.Variant({
     'Rejected' : IDL.Null,
@@ -294,7 +223,7 @@ export const idlFactory = ({ IDL }) => {
     'wallet_balance' : IDL.Nat64,
     'total_yield_earned' : IDL.Nat64,
   });
-  const Result_11 = IDL.Variant({ 'Ok' : User, 'Err' : BitcoinUSTBillsError });
+  const Result_7 = IDL.Variant({ 'Ok' : User, 'Err' : BitcoinUSTBillsError });
   const PaginatedResponse = IDL.Record({
     'per_page' : IDL.Nat64,
     'total' : IDL.Nat64,
@@ -302,7 +231,7 @@ export const idlFactory = ({ IDL }) => {
     'page' : IDL.Nat64,
     'has_next' : IDL.Bool,
   });
-  const Result_12 = IDL.Variant({
+  const Result_8 = IDL.Variant({
     'Ok' : PaginatedResponse,
     'Err' : BitcoinUSTBillsError,
   });
@@ -314,19 +243,8 @@ export const idlFactory = ({ IDL }) => {
     'projected_yield' : IDL.Nat64,
     'yield_percentage' : IDL.Float64,
   });
-  const Result_13 = IDL.Variant({
+  const Result_9 = IDL.Variant({
     'Ok' : YieldProjection,
-    'Err' : BitcoinUSTBillsError,
-  });
-  const PrepareCredentialRequest = IDL.Record({
-    'signed_id_alias' : SignedIdAlias,
-    'credential_spec' : CredentialSpec,
-  });
-  const PreparedCredentialData = IDL.Record({
-    'prepared_context' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-  });
-  const Result_14 = IDL.Variant({
-    'Ok' : PreparedCredentialData,
     'Err' : BitcoinUSTBillsError,
   });
   const UserRegistrationRequest = IDL.Record({
@@ -344,32 +262,11 @@ export const idlFactory = ({ IDL }) => {
     'context' : IDL.Vec(IDL.Nat8),
     'response' : HttpResponse,
   });
-  const Icrc21ConsentPreferences = IDL.Record({ 'language' : IDL.Text });
-  const Icrc21VcConsentMessageRequest = IDL.Record({
-    'preferences' : Icrc21ConsentPreferences,
-    'credential_spec' : CredentialSpec,
-  });
-  const Icrc21ConsentInfo = IDL.Record({
-    'consent_message' : IDL.Text,
-    'language' : IDL.Text,
-  });
-  const Result_15 = IDL.Variant({
-    'Ok' : Icrc21ConsentInfo,
-    'Err' : BitcoinUSTBillsError,
-  });
-  const TradingEligibility = IDL.Record({
-    'can_trade' : IDL.Bool,
-    'compliance_notes' : IDL.Vec(IDL.Text),
-    'max_investment_amount' : IDL.Nat64,
-    'requires_accreditation' : IDL.Bool,
-    'restricted_countries' : IDL.Vec(IDL.Text),
-  });
-  const Result_16 = IDL.Variant({
-    'Ok' : TradingEligibility,
+  const Result_10 = IDL.Variant({
+    'Ok' : IDL.Text,
     'Err' : BitcoinUSTBillsError,
   });
   return IDL.Service({
-    'add_to_list' : IDL.Func([IDL.Principal], [Result], []),
     'admin_add_broker_purchase_record' : IDL.Func(
         [IDL.Nat64, IDL.Nat64, IDL.Text, IDL.Text],
         [Result],
@@ -391,55 +288,37 @@ export const idlFactory = ({ IDL }) => {
       ),
     'create_ustbill' : IDL.Func([USTBillCreateRequest], [Result_4], []),
     'deposit_funds' : IDL.Func([IDL.Nat64], [Result_3], []),
-    'derivation_origin' : IDL.Func(
-        [DerivationOriginRequest],
-        [Result_5],
-        ['query'],
-      ),
-    'fetch_treasury_rates' : IDL.Func([], [Result_6], []),
+    'fetch_treasury_rates' : IDL.Func([], [Result_5], []),
     'get_active_ustbills' : IDL.Func([], [IDL.Vec(USTBill)], ['query']),
     'get_all_verified_broker_purchases' : IDL.Func(
         [],
         [IDL.Vec(VerifiedBrokerPurchase)],
         ['query'],
       ),
-    'get_credential' : IDL.Func([GetCredentialRequest], [Result_7], ['query']),
-    'get_free_kyc_status' : IDL.Func([IDL.Text], [Result_8], ['query']),
+    'get_free_kyc_status' : IDL.Func([IDL.Text], [Result_6], ['query']),
     'get_platform_config' : IDL.Func([], [PlatformConfig], ['query']),
-    'get_principal_data' : IDL.Func([], [Result_9], ['query']),
     'get_storage_stats' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat64))],
         ['query'],
       ),
     'get_trading_metrics' : IDL.Func([], [TradingMetrics], ['query']),
-    'get_user_credential_status' : IDL.Func(
-        [IDL.Opt(IDL.Principal)],
-        [Result_10],
-        ['query'],
-      ),
     'get_user_holdings' : IDL.Func(
         [IDL.Principal],
         [IDL.Vec(TokenHolding)],
         ['query'],
       ),
-    'get_user_profile' : IDL.Func([IDL.Principal], [Result_11], ['query']),
+    'get_user_profile' : IDL.Func([], [Result_7], ['query']),
     'get_ustbill' : IDL.Func([IDL.Text], [Result_4], ['query']),
     'get_ustbill_availability' : IDL.Func([IDL.Text], [Result_3], ['query']),
     'get_ustbills_paginated' : IDL.Func(
         [IDL.Nat64, IDL.Nat64],
-        [Result_12],
+        [Result_8],
         ['query'],
       ),
-    'get_yield_projection' : IDL.Func([IDL.Text], [Result_13], ['query']),
-    'prepare_credential' : IDL.Func(
-        [PrepareCredentialRequest],
-        [Result_14],
-        [],
-      ),
-    'register_user' : IDL.Func([UserRegistrationRequest], [Result_11], []),
-    'set_principal_data' : IDL.Func([IDL.Text], [Result], []),
-    'test_func' : IDL.Func([], [Result_9], []),
+    'get_yield_projection' : IDL.Func([IDL.Text], [Result_9], ['query']),
+    'is_user_registered' : IDL.Func([], [IDL.Bool], ['query']),
+    'register_user' : IDL.Func([UserRegistrationRequest], [Result_7], []),
     'transform_treasury_response' : IDL.Func(
         [TransformArgs],
         [HttpResponse],
@@ -450,17 +329,7 @@ export const idlFactory = ({ IDL }) => {
     'update_ustbill_market_data' : IDL.Func([], [Result], []),
     'upload_document_free_kyc' : IDL.Func(
         [IDL.Vec(IDL.Nat8), IDL.Text, IDL.Vec(IDL.Nat8)],
-        [Result_9],
-        [],
-      ),
-    'vc_consent_message' : IDL.Func(
-        [Icrc21VcConsentMessageRequest],
-        [Result_15],
-        ['query'],
-      ),
-    'verify_user_credentials' : IDL.Func(
-        [IDL.Opt(IDL.Principal)],
-        [Result_16],
+        [Result_10],
         [],
       ),
     'withdraw_funds' : IDL.Func([IDL.Nat64], [Result_3], []),

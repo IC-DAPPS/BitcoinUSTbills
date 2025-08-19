@@ -1,12 +1,3 @@
-type AccreditedInvestorCredential = record {
-  verified_date : nat64;
-  credential_jws : text;
-  issuer : text;
-  expiry_date : nat64;
-  annual_income_verified : bool;
-  net_worth_verified : bool;
-};
-type ArgumentValue = variant { Int : int32; String : text };
 type BitcoinUSTBillsError = variant {
   UserAlreadyExists;
   VCPreparationFailed : text;
@@ -74,12 +65,6 @@ type BitcoinUSTBillsError = variant {
   InsufficientFunds;
   HoldingMatured;
 };
-type CredentialSpec = record {
-  arguments : opt vec record { text; ArgumentValue };
-  credential_type : text;
-};
-type DerivationOriginData = record { origin : text };
-type DerivationOriginRequest = record { frontend_hostname : text };
 type FreeKYCSession = record {
   status : FreeKYCStatus;
   user_principal : principal;
@@ -103,31 +88,12 @@ type FreeKYCStatus = variant {
   Processing;
   Expired;
 };
-type GetCredentialRequest = record {
-  signed_id_alias : SignedIdAlias;
-  prepared_context : opt blob;
-  credential_spec : CredentialSpec;
-};
 type HoldingStatus = variant { Active; Matured };
 type HttpHeader = record { value : text; name : text };
 type HttpResponse = record {
   status : nat;
   body : blob;
   headers : vec HttpHeader;
-};
-type Icrc21ConsentInfo = record { consent_message : text; language : text };
-type Icrc21ConsentPreferences = record { language : text };
-type Icrc21VcConsentMessageRequest = record {
-  preferences : Icrc21ConsentPreferences;
-  credential_spec : CredentialSpec;
-};
-type IssuedCredentialData = record { vc_jws : text };
-type KYCCredential = record {
-  verified_date : nat64;
-  tier : nat8;
-  credential_jws : text;
-  issuer : text;
-  expiry_date : nat64;
 };
 type KYCStatus = variant { Rejected; Verified; Expired; Pending };
 type OCRResult = record {
@@ -153,41 +119,17 @@ type PlatformConfig = record {
   maximum_investment : nat64;
   treasury_api_refresh_interval : nat64;
 };
-type PrepareCredentialRequest = record {
-  signed_id_alias : SignedIdAlias;
-  credential_spec : CredentialSpec;
-};
-type PreparedCredentialData = record { prepared_context : opt blob };
 type Result = variant { Ok; Err : BitcoinUSTBillsError };
 type Result_1 = variant { Ok : vec FreeKYCSession; Err : BitcoinUSTBillsError };
-type Result_10 = variant { Ok : UserCredentials; Err : BitcoinUSTBillsError };
-type Result_11 = variant { Ok : User; Err : BitcoinUSTBillsError };
-type Result_12 = variant { Ok : PaginatedResponse; Err : BitcoinUSTBillsError };
-type Result_13 = variant { Ok : YieldProjection; Err : BitcoinUSTBillsError };
-type Result_14 = variant {
-  Ok : PreparedCredentialData;
-  Err : BitcoinUSTBillsError;
-};
-type Result_15 = variant { Ok : Icrc21ConsentInfo; Err : BitcoinUSTBillsError };
-type Result_16 = variant {
-  Ok : TradingEligibility;
-  Err : BitcoinUSTBillsError;
-};
+type Result_10 = variant { Ok : text; Err : BitcoinUSTBillsError };
 type Result_2 = variant { Ok : TokenHolding; Err : BitcoinUSTBillsError };
 type Result_3 = variant { Ok : nat64; Err : BitcoinUSTBillsError };
 type Result_4 = variant { Ok : USTBill; Err : BitcoinUSTBillsError };
-type Result_5 = variant {
-  Ok : DerivationOriginData;
-  Err : BitcoinUSTBillsError;
-};
-type Result_6 = variant { Ok : vec TreasuryRate; Err : BitcoinUSTBillsError };
-type Result_7 = variant {
-  Ok : IssuedCredentialData;
-  Err : BitcoinUSTBillsError;
-};
-type Result_8 = variant { Ok : FreeKYCSession; Err : BitcoinUSTBillsError };
-type Result_9 = variant { Ok : text; Err : BitcoinUSTBillsError };
-type SignedIdAlias = record { credential_jws : text };
+type Result_5 = variant { Ok : vec TreasuryRate; Err : BitcoinUSTBillsError };
+type Result_6 = variant { Ok : FreeKYCSession; Err : BitcoinUSTBillsError };
+type Result_7 = variant { Ok : User; Err : BitcoinUSTBillsError };
+type Result_8 = variant { Ok : PaginatedResponse; Err : BitcoinUSTBillsError };
+type Result_9 = variant { Ok : YieldProjection; Err : BitcoinUSTBillsError };
 type TokenHolding = record {
   id : text;
   status : HoldingStatus;
@@ -198,13 +140,6 @@ type TokenHolding = record {
   current_value : nat64;
   projected_yield : nat64;
   ustbill_id : text;
-};
-type TradingEligibility = record {
-  can_trade : bool;
-  compliance_notes : vec text;
-  max_investment_amount : nat64;
-  requires_accreditation : bool;
-  restricted_countries : vec text;
 };
 type TradingMetrics = record {
   average_price : nat64;
@@ -267,26 +202,10 @@ type User = record {
   wallet_balance : nat64;
   total_yield_earned : nat64;
 };
-type UserCredentials = record {
-  "principal" : principal;
-  last_updated : nat64;
-  verified_adult : opt VerifiedAdultCredential;
-  verified_resident : opt VerifiedResidentCredential;
-  kyc_credential : opt KYCCredential;
-  accredited_investor : opt AccreditedInvestorCredential;
-  credential_count : nat32;
-};
 type UserRegistrationRequest = record {
   country : text;
   email : text;
   phone_number : opt text;
-};
-type VerifiedAdultCredential = record {
-  verified_date : nat64;
-  min_age : nat8;
-  credential_jws : text;
-  issuer : text;
-  expiry_date : nat64;
 };
 type VerifiedBrokerPurchase = record {
   ustbill_type : text;
@@ -294,14 +213,6 @@ type VerifiedBrokerPurchase = record {
   timestamp : nat64;
   price : nat64;
   amount : nat64;
-};
-type VerifiedResidentCredential = record {
-  verified_date : nat64;
-  credential_jws : text;
-  issuer : text;
-  expiry_date : nat64;
-  country_code : text;
-  country_name : text;
 };
 type YieldProjection = record {
   days_to_maturity : nat64;
@@ -312,7 +223,6 @@ type YieldProjection = record {
   yield_percentage : float64;
 };
 service : {
-  add_to_list : (principal) -> (Result);
   admin_add_broker_purchase_record : (nat64, nat64, text, text) -> (Result);
   admin_get_pending_reviews : () -> (Result_1) query;
   admin_review_free_kyc : (text, bool, text) -> (Result);
@@ -322,33 +232,25 @@ service : {
   calculate_purchase_cost : (text, nat64) -> (Result_3) query;
   create_ustbill : (USTBillCreateRequest) -> (Result_4);
   deposit_funds : (nat64) -> (Result_3);
-  derivation_origin : (DerivationOriginRequest) -> (Result_5) query;
-  fetch_treasury_rates : () -> (Result_6);
+  fetch_treasury_rates : () -> (Result_5);
   get_active_ustbills : () -> (vec USTBill) query;
   get_all_verified_broker_purchases : () -> (vec VerifiedBrokerPurchase) query;
-  get_credential : (GetCredentialRequest) -> (Result_7) query;
-  get_free_kyc_status : (text) -> (Result_8) query;
+  get_free_kyc_status : (text) -> (Result_6) query;
   get_platform_config : () -> (PlatformConfig) query;
-  get_principal_data : () -> (Result_9) query;
   get_storage_stats : () -> (vec record { text; nat64 }) query;
   get_trading_metrics : () -> (TradingMetrics) query;
-  get_user_credential_status : (opt principal) -> (Result_10) query;
   get_user_holdings : (principal) -> (vec TokenHolding) query;
-  get_user_profile : (principal) -> (Result_11) query;
+  get_user_profile : () -> (Result_7) query;
   get_ustbill : (text) -> (Result_4) query;
   get_ustbill_availability : (text) -> (Result_3) query;
-  get_ustbills_paginated : (nat64, nat64) -> (Result_12) query;
-  get_yield_projection : (text) -> (Result_13) query;
-  prepare_credential : (PrepareCredentialRequest) -> (Result_14);
-  register_user : (UserRegistrationRequest) -> (Result_11);
-  set_principal_data : (text) -> (Result);
-  test_func : () -> (Result_9);
+  get_ustbills_paginated : (nat64, nat64) -> (Result_8) query;
+  get_yield_projection : (text) -> (Result_9) query;
+  is_user_registered : () -> (bool) query;
+  register_user : (UserRegistrationRequest) -> (Result_7);
   transform_treasury_response : (TransformArgs) -> (HttpResponse) query;
   update_kyc_status : (principal, KYCStatus) -> (Result);
   update_platform_config : (PlatformConfig) -> (Result);
   update_ustbill_market_data : () -> (Result);
-  upload_document_free_kyc : (blob, text, blob) -> (Result_9);
-  vc_consent_message : (Icrc21VcConsentMessageRequest) -> (Result_15) query;
-  verify_user_credentials : (opt principal) -> (Result_16);
+  upload_document_free_kyc : (blob, text, blob) -> (Result_10);
   withdraw_funds : (nat64) -> (Result_3);
 }

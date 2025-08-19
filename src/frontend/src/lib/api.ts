@@ -33,6 +33,7 @@ import type {
   // Error types
   BitcoinUSTBillsError
 } from "../../../declarations/backend/backend.did";
+import type { GetUserProfileResponse } from "./types/result";
 
 // ============= UTILITY FUNCTIONS =============
 
@@ -114,9 +115,10 @@ export async function registerUser(userData: UserRegistrationRequest): Promise<U
 /**
  * Gets user profile by principal
  */
-export async function getUserProfile(principal: Principal): Promise<User> {
-  const result = await getActor().get_user_profile(principal);
-  return handleResult(result);
+export async function getUserProfile(): Promise<GetUserProfileResponse
+> {
+return getActor().get_user_profile();
+
 }
 
 /**
@@ -268,40 +270,6 @@ export async function adminAddBrokerPurchaseRecord(
  */
 export async function getAllVerifiedBrokerPurchases(): Promise<VerifiedBrokerPurchase[]> {
   return await getActor().get_all_verified_broker_purchases();
-}
-
-// ============= LEGACY/TEST FUNCTIONS =============
-
-/**
- * Gets principal data (legacy function)
- */
-export async function getPrincipalData(): Promise<string> {
-  const result = await getActor().get_principal_data();
-  return handleResult(result);
-}
-
-/**
- * Sets principal data (legacy function)
- */
-export async function setPrincipalData(data: string): Promise<void> {
-  const result = await getActor().set_principal_data(data);
-  handleResult(result);
-}
-
-/**
- * Test function (Admin only)
- */
-export async function testFunc(): Promise<string> {
-  const result = await getActor().test_func();
-  return handleResult(result);
-}
-
-/**
- * Adds principal to authorized list (Admin only)
- */
-export async function addToList(principal: Principal): Promise<void> {
-  const result = await getActor().add_to_list(principal);
-  handleResult(result);
 }
 
 // ============= HELPER FUNCTIONS =============

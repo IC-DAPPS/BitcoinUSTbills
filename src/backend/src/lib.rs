@@ -179,6 +179,20 @@ pub fn register_user(user_data: UserRegistrationRequest) -> Result<User> {
     Ok(user)
 }
 
+/// Checks if a user is registered
+#[query]
+pub fn is_user_registered() -> bool {
+    let principal = ic_cdk::api::msg_caller();
+    UserStorage::get(&principal).is_ok()
+}
+
+/// Retrieves user profile
+#[query]
+pub fn get_user_profile() -> Result<User> {
+    let principal = ic_cdk::api::msg_caller();
+    UserStorage::get(&principal)
+}
+
 /// Updates KYC status for a user
 #[update]
 pub fn update_kyc_status(principal: Principal, status: KYCStatus) -> Result<()> {
@@ -192,12 +206,6 @@ pub fn update_kyc_status(principal: Principal, status: KYCStatus) -> Result<()> 
     UserStorage::update(user)?;
 
     Ok(())
-}
-
-/// Retrieves user profile
-#[query]
-pub fn get_user_profile(principal: Principal) -> Result<User> {
-    UserStorage::get(&principal)
 }
 
 /// Deposits funds to user wallet
@@ -627,7 +635,6 @@ fn transform_treasury_response(response: TransformArgs) -> HttpResponse {
     res
 }
 
-
 // ============= FREE KYC MVP IMPLEMENTATION =============
 // Start with free options, upgrade later to paid services
 
@@ -873,10 +880,6 @@ pub fn get_free_kyc_status(upload_id: String) -> Result<FreeKYCSession> {
 
 // ============= HELPER FUNCTIONS =============
 
-
-
-
-
 fn calculate_age_from_dob(_dob: &str) -> Result<u8> {
     // TODO: Proper date parsing and age calculation
     // For demo, assume everyone is 25
@@ -976,4 +979,3 @@ pub fn generate_candid() {
     std::fs::write("../distributed/backend/backend.did", __export_service())
         .expect("Failed to write backend.did");
 }
-
