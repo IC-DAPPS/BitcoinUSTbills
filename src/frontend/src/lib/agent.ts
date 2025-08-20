@@ -3,6 +3,8 @@ import { idlFactory } from "../../../declarations/backend";
 import { writable } from "svelte/store";
 import { authStore } from "./auth";
 import type { _SERVICE } from "../../../declarations/backend/backend.did";
+import { getAgent } from "./actors/agents.ic";
+import { onDestroy } from "svelte";
 
 const canisterId = import.meta.env.VITE_CANISTER_ID_BACKEND;
 
@@ -13,21 +15,16 @@ async function createActor(agent: HttpAgent) {
   });
 }
 
-function createAgent(identity: Identity) {
-  return new HttpAgent({
-    identity,
-    host: import.meta.env.VITE_DFX_NETWORK === "ic" ? "https://ic0.app" : "http://localhost:8080",
-  });
-}
 
 export const actor = writable<ActorSubclass<_SERVICE> | null>(null);
 
-authStore.subscribe(async ({ identity }) => {
+export const newActorUnsubscriber = authStore.subscribe(async ({ identity }) => {
   if (identity) {
-    const agent = createAgent(identity);
+    const agent = await getAgent({ identity });
     const newActor = await createActor(agent);
     actor.set(newActor);
   } else {
     actor.set(null);
   }
 });
+

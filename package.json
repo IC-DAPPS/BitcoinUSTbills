@@ -30,10 +30,12 @@
     "vitest": "^2.0.5"
   },
   "dependencies": {
-    "@dfinity/agent": "2.4.1",
-    "@dfinity/auth-client": "2.4.1",
-    "@dfinity/candid": "2.4.1",
-    "@dfinity/principal": "2.4.1",
-    "@dfinity/utils": "2.13.2"
+    "@dfinity/agent": "^2.0.0",
+    "@dfinity/auth-client": "^2.0.0",
+    "@dfinity/candid": "^2.0.0",
+    "@dfinity/ledger-icrc": "^2.10.0",
+    "@dfinity/principal": "^2.0.0",
+    "@dfinity/utils": "^2.14.0",
+    "@lucide/svelte": "^0.540.0"
   }
 }

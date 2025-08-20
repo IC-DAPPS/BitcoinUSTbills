@@ -3,9 +3,10 @@
 	import Toasts from '$lib/components/ui/Toasts.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Footer from '$lib/components/Footer.svelte';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { authStore, initAuth, login, logout } from '$lib/auth';
 	import { fetchUserProfile } from '$lib/state/user.svelte';
+	import { newActorUnsubscriber } from '$lib/agent';
 
 	// Mobile menu state
 	let isMobileMenuOpen = false;
@@ -27,6 +28,8 @@
 			await fetchUserProfile();
 		}
 	});
+
+	onDestroy(newActorUnsubscriber);
 </script>
 
 <div class="min-h-screen flex flex-col">
