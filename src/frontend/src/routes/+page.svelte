@@ -203,115 +203,138 @@
       </p>
     </div>
 
-    <!-- Feature Cards - Consistent Card Blocks -->
-    <div class="grid grid-cols-3 gap-6">
+    <!-- Feature Cards - Responsive Card Blocks -->
+    <div class="feature-cards-container">
       <!-- Instant Onboarding -->
-      <div class="card p-6 text-center">
-        <div
-          class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto mb-4"
-        >
-          <svg
-            class="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div class="feature-card">
+        <div class="feature-card-icon">
+          <div
+            class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
+            <svg
+              class="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </div>
         </div>
-        <h3 class="text-xl font-bold text-primary mb-4">Instant Onboarding</h3>
-        <p class="text-secondary mb-4 text-sm">
-          Quick registration with streamlined KYC verification. Get started in
-          minutes with our secure, user-friendly onboarding process designed for
-          modern investors.
-        </p>
-        <a
-          href="/how-it-works"
-          class="text-blue font-semibold hover:text-primary"
-        >
-          Learn more →
-        </a>
+        <div class="feature-card-content">
+          <h3 class="text-xl font-bold text-primary mb-4 text-center">
+            Instant Onboarding
+          </h3>
+          <p
+            class="feature-card-description text-secondary text-sm text-center"
+          >
+            Quick registration with streamlined KYC verification. Get started in
+            minutes with our secure, user-friendly onboarding process designed
+            for modern investors.
+          </p>
+          <a
+            href="/how-it-works"
+            class="text-blue font-semibold hover:text-primary text-center block"
+          >
+            Learn more →
+          </a>
+        </div>
       </div>
 
       <!-- Fractional Ownership -->
-      <div class="card p-6 text-center">
-        <div
-          class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto mb-4"
-        >
-          <svg
-            class="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div class="feature-card">
+        <div class="feature-card-icon">
+          <div
+            class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
-            ></path>
-          </svg>
+            <svg
+              class="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
+              ></path>
+            </svg>
+          </div>
         </div>
-        <h3 class="text-xl font-bold text-primary mb-4">
-          Fractional Ownership
-        </h3>
-        <p class="text-secondary mb-4 text-sm">
-          Invest with as little as $10 in US Treasury Bills. Break down
-          traditional barriers and make institutional-grade investments
-          accessible to everyone.
-        </p>
-        <a
-          href="/how-it-works"
-          class="text-blue font-semibold hover:text-primary"
-        >
-          Learn more →
-        </a>
+        <div class="feature-card-content">
+          <h3 class="text-xl font-bold text-primary mb-4 text-center">
+            Fractional Ownership
+          </h3>
+          <p
+            class="feature-card-description text-secondary text-sm text-center"
+          >
+            Invest with as little as $10 in US Treasury Bills. Break down
+            traditional barriers and make institutional-grade investments
+            accessible to everyone.
+          </p>
+          <a
+            href="/how-it-works"
+            class="text-blue font-semibold hover:text-primary text-center block"
+          >
+            Learn more →
+          </a>
+        </div>
       </div>
 
       <!-- Real-Time Liquidity -->
-      <div class="card p-6 text-center">
-        <div
-          class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto mb-4"
-        >
-          <svg
-            class="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div class="feature-card">
+        <div class="feature-card-icon">
+          <div
+            class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
+            <svg
+              class="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </div>
         </div>
-        <h3 class="text-xl font-bold text-primary mb-4">Real-Time Liquidity</h3>
-        <p class="text-secondary mb-4 text-sm">
-          Buy and sell tokens instantly with no waiting periods. Access your
-          investments 24/7 with unprecedented liquidity in the Treasury market.
-        </p>
-        <a
-          href="/how-it-works"
-          class="text-blue font-semibold hover:text-primary"
-        >
-          Learn more →
-        </a>
+        <div class="feature-card-content">
+          <h3 class="text-xl font-bold text-primary mb-4 text-center">
+            Real-Time Liquidity
+          </h3>
+          <p
+            class="feature-card-description text-secondary text-sm text-center"
+          >
+            Buy and sell tokens instantly with no waiting periods. Access your
+            investments 24/7 with unprecedented liquidity in the Treasury
+            market.
+          </p>
+          <a
+            href="/how-it-works"
+            class="text-blue font-semibold hover:text-primary text-center block"
+          >
+            Learn more →
+          </a>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Stats Section - Horizontal Blocks -->
+<!-- Stats Section - Responsive Stats Cards -->
 <section class="py-16 bg-section">
   <div class="container mx-auto px-6">
-    <div class="grid grid-cols-4 gap-6">
+    <div class="purchase-summary-grid">
       <div class="card p-6 text-center">
         <div class="text-3xl font-bold text-primary mb-2">$10M+</div>
         <div class="text-sm text-secondary">Total Value Locked</div>

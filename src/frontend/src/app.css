@@ -1007,7 +1007,6 @@ html {
   scroll-behavior: smooth;
 }
 
-
 /* Global Styles */
 * {
   box-sizing: border-box;
@@ -1141,5 +1140,61 @@ footer a {
   /* Prevent horizontal scroll on mobile */
   body {
     overflow-x: hidden;
+  }
+}
+
+/* Card container for responsive layout */
+.feature-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+/* Individual card styling */
+.feature-card {
+  background: var(--background-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  min-height: 320px; /* Consistent height */
+  max-height: 400px; /* Prevent over-stretching */
+}
+
+/* Card icon area */
+.feature-card-icon {
+  flex-shrink: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Card content area */
+.feature-card-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Card description */
+.feature-card-description {
+  flex-grow: 1;
+  margin-bottom: 1.5rem;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+  .feature-cards-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+
+  .feature-card {
+    min-height: 280px;
+    max-height: 350px;
+    padding: 1.5rem 1rem;
   }
 }
