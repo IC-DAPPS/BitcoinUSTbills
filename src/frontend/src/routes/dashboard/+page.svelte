@@ -168,7 +168,9 @@
 <div class="min-h-screen bg-section">
 	<div class="container-wide mx-auto px-6 py-8">
 		{#if !$authStore.isLoggedIn}
-			<LoginPrompt />
+			<div class="card p-6 text-center">
+				<p class="text-secondary">Please login to view your dashboard</p>
+			</div>
 		{:else if loading}
 			<div class="flex justify-center items-center h-64">
 				<div class="text-center">

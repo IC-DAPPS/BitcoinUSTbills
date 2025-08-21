@@ -3,6 +3,8 @@ import { writable, get } from 'svelte/store';
 import { AuthClient } from '@dfinity/auth-client';
 import type { Identity } from '@dfinity/agent';
 import { fetchUserProfile } from './state/user.svelte';
+import { isUserRegistered } from './api';
+import { goto } from '$app/navigation';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -36,6 +38,12 @@ export async function login() {
       const identity = authClient.getIdentity();
       authStore.update(store => ({ ...store, isLoggedIn: true, identity }));
       await fetchUserProfile();
+
+      if (await isUserRegistered()) {
+        goto('/dashboard');
+      } else {
+        goto('/register');
+      }
     },
   });
 }
