@@ -6,6 +6,8 @@ import { fetchUserProfile } from './state/user.svelte';
 import { isUserRegistered } from './api';
 import { goto } from '$app/navigation';
 import { IDENTITY_PROVIDER } from './const';
+import { getAgent } from './actors/agents.ic';
+import { createActor, actor } from './agent';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -38,11 +40,22 @@ export async function login() {
     onSuccess: async () => {
       const identity = authClient.getIdentity();
       authStore.update(store => ({ ...store, isLoggedIn: true, identity }));
-      await fetchUserProfile();
 
-      if (await isUserRegistered()) {
-        goto('/dashboard');
-      } else {
+      // Initialize actor before making API calls
+      const agent = await getAgent({ identity });
+      const newActor = await createActor(agent);
+      actor.set(newActor);
+
+      // Now we can safely make API calls
+      try {
+        if (await isUserRegistered()) {
+          goto('/dashboard');
+        } else {
+          goto('/register');
+        }
+      } catch (error) {
+        console.error('Error checking user registration:', error);
+        // If there's an error, assume user needs to register
         goto('/register');
       }
     },
