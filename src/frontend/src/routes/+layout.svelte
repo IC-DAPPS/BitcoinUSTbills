@@ -10,6 +10,7 @@
 	import { page } from '$app/stores';
 	import { navigating } from '$app/stores';
 	import { Toaster } from 'svelte-sonner';
+	import { fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
 
 	// Mobile menu state
 	let isMobileMenuOpen = false;
@@ -67,6 +68,7 @@
 	authStore.subscribe(async (authState) => {
 		if (authState.isLoggedIn) {
 			await fetchUserProfile();
+			await fetchCkbtcBalance();
 		}
 	});
 
@@ -263,9 +265,9 @@
 	</main>
 
 	<!-- Footer with controlled visibility -->
-	<div class="footer-container {isFooterVisible ? 'visible' : ''}">
+	<!-- <div class="footer-container {isFooterVisible ? 'visible' : ''}">
 		<Footer />
-	</div>
+	</div> -->
 </div>
 
 <style>

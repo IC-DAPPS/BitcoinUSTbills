@@ -99,8 +99,9 @@
 		aria-hidden="true"
 	>
 		<div
+			{...$$restProps}
 			bind:this={dialogEl}
-			class={`modal-dialog ${sizeClass}`}
+			class={`modal-content ${sizeClass}`}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby={title ? 'modal-title' : undefined}
@@ -150,14 +151,14 @@
 		align-items: center;
 		justify-content: center;
 		padding: 1rem;
+		z-index: 1000;
 	}
 
-	/* Dialog container */
-	.modal-dialog {
+	/* Modal content container */
+	.modal-content {
 		width: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		max-width: fit-content;
+		margin: auto;
 	}
 
 	/* Surface */
@@ -219,23 +220,40 @@
 	/* Sizes */
 	.modal-sm .modal-surface {
 		max-width: 24rem;
+		width: 24rem;
 	}
 	.modal-md .modal-surface {
 		max-width: 32rem;
+		width: 32rem;
 	}
 	.modal-lg .modal-surface {
 		max-width: 40rem;
+		width: 40rem;
 	}
 	.modal-xl .modal-surface {
 		max-width: 56rem;
+		width: 56rem;
 	}
 	.modal-full .modal-surface {
 		max-width: 95vw;
+		width: 95vw;
 		height: 90vh;
 	}
 
 	/* Small screens: ensure good spacing */
 	@media (max-width: 640px) {
+		.modal-backdrop {
+			padding: 0.5rem;
+		}
+
+		.modal-sm .modal-surface,
+		.modal-md .modal-surface,
+		.modal-lg .modal-surface,
+		.modal-xl .modal-surface {
+			width: 100%;
+			max-width: calc(100vw - 1rem);
+		}
+
 		.modal-footer {
 			flex-direction: column;
 			align-items: stretch;

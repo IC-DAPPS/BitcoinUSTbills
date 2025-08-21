@@ -3,6 +3,11 @@
 	import Button from '$lib/components/ui/Button.svelte';
 	import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
 	import CkbtcDeposit from '$lib/components/wallet/CkbtcDeposit.svelte';
+	import { ckbtcBalance, fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
+	import Ckbtcwithdraw from '$lib/components/wallet/Ckbtcwithdraw.svelte';
+	import { CKBTC_LEDGER_CANISTER_ID } from '$lib/constants';
+	import { authStore } from '$lib/auth';
+	import LoginPrompt from '$lib/components/ui/LoginPrompt.svelte';
 
 	let loading = true;
 	let error: string | null = null;
@@ -63,6 +68,7 @@
 	];
 
 	onMount(async () => {
+		await fetchCkbtcBalance();
 		// Simulate loading delay
 		await new Promise((resolve) => setTimeout(resolve, 800));
 		loading = false;
@@ -86,8 +92,6 @@
 	function getAmountColor(amount: number) {
 		return amount >= 0 ? 'text-success' : 'text-red-600';
 	}
-
-	let closeCkbtcWithdraw = false;
 </script>
 
 <svelte:head>
@@ -111,7 +115,7 @@
 		<div class="flex justify-center py-12">
 			<LoadingSpinner />
 		</div>
-	{:else}
+	{:else if $authStore.isLoggedIn}
 		<!-- Wallet Balance Cards - Better Desktop Layout -->
 		<div class="wallet-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
 			<!-- ICP Balance Card -->
@@ -145,25 +149,19 @@
 			<div class="card p-6 text-center">
 				<h3 class="text-lg font-semibold text-secondary mb-4">ckBTC Balance</h3>
 				<p class="text-4xl font-bold text-primary mb-4">
-					{user.ckbtcBalance.toFixed(6)} ckBTC
+					{ckbtcBalance.format} ckBTC
 				</p>
-				<p class="text-sm text-secondary mb-6">
+				<!-- <p class="text-sm text-secondary mb-6">
 					≈ ${(user.ckbtcBalance * ckbtcPriceUSD).toFixed(2)} USD
-				</p>
-				<div class="flex gap-2 justify-center">
+				</p> -->
+				<div class="flex space-x-2 justify-center">
 					<CkbtcDeposit />
-					<Button
-						variant="secondary"
-						class="flex-1"
-						on:click={() => alert('Withdraw ckBTC functionality would be here')}
-					>
-						⬆ Withdraw
-					</Button>
+					<Ckbtcwithdraw ledgerId={CKBTC_LEDGER_CANISTER_ID} />
 				</div>
 			</div>
 
 			<!-- Total Portfolio Value Card -->
-			<div class="card p-6 text-center bg-gradient-to-br from-blue-50 to-blue-100">
+			<!-- <div class="card p-6 text-center bg-gradient-to-br from-blue-50 to-blue-100">
 				<h3 class="text-lg font-semibold text-secondary mb-4">Total Portfolio</h3>
 				<p class="text-4xl font-bold text-primary mb-4">
 					${(icpValueUSD + ckbtcValueUSD).toFixed(2)}
@@ -176,7 +174,7 @@
 				>
 					Invest Now
 				</Button>
-			</div>
+			</div> -->
 		</div>
 
 		<!-- Quick Actions -->
@@ -228,6 +226,10 @@
 					</div>
 				{/each}
 			</div>
+		</div>
+	{:else}
+		<div class="card p-6 text-center">
+			<p class="text-secondary">Please login to view your wallet</p>
 		</div>
 	{/if}
 </div>
