@@ -6,11 +6,12 @@
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { authStore, initAuth, login, logout } from '$lib/auth';
 	import { fetchUserProfile } from '$lib/state/user.svelte';
-	import { newActorUnsubscriber } from '$lib/agent';
 	import { page } from '$app/stores';
 	import { navigating } from '$app/stores';
 	import { Toaster } from 'svelte-sonner';
 	import { fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
+	import { getAgent } from '$lib/actors/agents.ic';
+	import { actor, createActor } from '$lib/agent';
 
 	// Mobile menu state
 	let isMobileMenuOpen = false;
@@ -67,8 +68,20 @@
 
 	authStore.subscribe(async (authState) => {
 		if (authState.isLoggedIn) {
-			await fetchUserProfile();
-			await fetchCkbtcBalance();
+			if (authState.identity) {
+				await fetchUserProfile();
+				await fetchCkbtcBalance();
+			}
+		}
+	});
+
+	const newActorUnsubscriber = authStore.subscribe(async ({ identity }) => {
+		if (identity) {
+			const agent = await getAgent({ identity });
+			const newActor = await createActor(agent);
+			actor.set(newActor);
+		} else {
+			actor.set(null);
 		}
 	});
 

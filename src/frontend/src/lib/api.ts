@@ -33,7 +33,7 @@ import type {
   // Error types
   BitcoinUSTBillsError
 } from "../../../declarations/backend/backend.did";
-import type { GetUserProfileResponse } from "./types/result";
+import type { GetUserProfileResponse, RegisterUserResponse } from "./types/result";
 
 // ============= UTILITY FUNCTIONS =============
 
@@ -112,12 +112,17 @@ export async function registerUser(userData: UserRegistrationRequest): Promise<U
   return handleResult(result);
 }
 
+export async function isUserRegistered(): Promise<boolean> {
+  return getActor().is_user_registered();
+
+}
+
 /**
  * Gets user profile by principal
  */
 export async function getUserProfile(): Promise<GetUserProfileResponse
 > {
-return getActor().get_user_profile();
+  return getActor().get_user_profile();
 
 }
 
