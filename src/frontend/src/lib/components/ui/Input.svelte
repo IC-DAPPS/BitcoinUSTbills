@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let id: string;
-	export let name: string;
+	export let name: string | undefined;
 	export let inputType = 'text';
 	export let type: string;
 	export let value = '';
@@ -8,7 +8,16 @@
 	export let placeholder = '';
 </script>
 
-<input {id} {name} type={type ?? inputType} bind:value {disabled} {placeholder} class="input" />
+<input
+	{...$$restProps}
+	{id}
+	{name}
+	type={type ?? inputType}
+	bind:value
+	{disabled}
+	{placeholder}
+	class="input"
+/>
 
 <style>
 	.input {
