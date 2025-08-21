@@ -5,6 +5,7 @@ import type { Identity } from '@dfinity/agent';
 import { fetchUserProfile } from './state/user.svelte';
 import { isUserRegistered } from './api';
 import { goto } from '$app/navigation';
+import { IDENTITY_PROVIDER } from './const';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -33,7 +34,7 @@ export async function login() {
   if (!authClient) return;
 
   await authClient.login({
-    identityProvider: 'https://identity.ic0.app',
+    identityProvider: IDENTITY_PROVIDER,
     onSuccess: async () => {
       const identity = authClient.getIdentity();
       authStore.update(store => ({ ...store, isLoggedIn: true, identity }));
