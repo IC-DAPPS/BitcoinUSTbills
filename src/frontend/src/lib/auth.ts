@@ -2,6 +2,7 @@
 import { writable, get } from 'svelte/store';
 import { AuthClient } from '@dfinity/auth-client';
 import type { Identity } from '@dfinity/agent';
+import { fetchUserProfile } from './state/user.svelte';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -34,6 +35,7 @@ export async function login() {
     onSuccess: async () => {
       const identity = authClient.getIdentity();
       authStore.update(store => ({ ...store, isLoggedIn: true, identity }));
+      await fetchUserProfile();
     },
   });
 }
