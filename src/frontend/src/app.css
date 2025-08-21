@@ -112,7 +112,19 @@ body {
 
 /* Component Base Styles */
 .btn {
-  @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  border-radius: var(--radius-lg);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  font-family: inherit;
 }
 
 .btn-primary {
@@ -1196,5 +1208,67 @@ footer a {
     min-height: 280px;
     max-height: 350px;
     padding: 1.5rem 1rem;
+  }
+}
+
+/* Button improvements for desktop CTA section */
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+  padding: 12px 24px;
+  min-height: 44px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: var(--primary-blue);
+  color: var(--text-white);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* CTA Section specific button styling */
+.cta-section .btn-primary {
+  background-color: var(--primary-blue) !important;
+  color: var(--text-white) !important;
+  border: 1px solid var(--primary-blue) !important;
+}
+
+.cta-section .btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-blue-dark) !important;
+  border-color: var(--primary-blue-dark) !important;
+}
+
+/* Make Learn More button look like Get Started Today button */
+.cta-section .btn-outline {
+  background-color: var(--primary-blue) !important;
+  color: var(--text-white) !important;
+  border: 1px solid var(--primary-blue) !important;
+}
+
+.cta-section .btn-outline:hover:not(:disabled) {
+  background-color: var(--primary-blue-dark) !important;
+  color: var(--text-white) !important;
+  border-color: var(--primary-blue-dark) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Desktop button layout improvements */
+@media (min-width: 768px) {
+  .cta-buttons {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 1.5rem !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .cta-buttons button {
+    min-width: 200px !important;
+    flex-shrink: 0 !important;
   }
 }

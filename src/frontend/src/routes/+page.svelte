@@ -356,19 +356,19 @@
 </section>
 
 <!-- Call to Action -->
-<section class="py-20 bg-gray-900 text-white">
+<section class="py-20 bg-gray-900 text-white cta-section">
   <div class="container mx-auto px-6 text-center">
     <h2 class="text-4xl font-bold mb-6">Ready to Start Investing?</h2>
     <p class="text-xl mb-8 text-gray-300">
       Join thousands of investors already earning steady yields with Treasury
       Bills
     </p>
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+    <div class="cta-buttons flex flex-col sm:flex-row gap-4 justify-center">
       <Button
         variant="primary"
         size="lg"
         on:click={handleStartInvesting}
-        class="bg-primary-blue text-white hover:bg-blue-700"
+        class="btn btn-primary btn-lg"
       >
         Get Started Today
       </Button>
@@ -376,7 +376,7 @@
         variant="outline"
         size="lg"
         on:click={handleLearnMore}
-        class="border-gray-400 text-gray-300 hover:bg-gray-800 hover:text-white"
+        class="btn btn-outline btn-lg"
       >
         Learn More
       </Button>
