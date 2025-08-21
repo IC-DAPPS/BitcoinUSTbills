@@ -1,5 +1,5 @@
 <footer
-  class="bg-blue-600 text-white border-t-2 border-blue-400 mt-16"
+  class="bg-blue-600 text-white border-t-2 border-blue-400 mt-16 footer-smooth"
   style="background-color: #2563eb !important; color: white !important;"
 >
   <div class="container-wide mx-auto px-6 py-12">
