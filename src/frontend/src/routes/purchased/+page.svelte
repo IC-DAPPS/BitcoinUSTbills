@@ -126,7 +126,7 @@
     </div>
 
     <!-- Purchases Table -->
-    <div class="card">
+    <div class="card desktop-only mb-12">
       <div class="overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500">
           <thead class="text-xs text-gray-700 uppercase bg-gray-50">
@@ -173,6 +173,72 @@
             {/each}
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="mobile-only mb-12">
+      <div class="space-y-4">
+        {#each purchases as purchase}
+          <div class="transaction-card card p-4">
+            <div class="transaction-card-header mb-3">
+              <div class="flex justify-between items-start">
+                <div class="transaction-timestamp">
+                  <p class="text-xs text-secondary font-medium">
+                    Transaction Date
+                  </p>
+                  <p class="text-sm font-semibold text-primary">
+                    {purchase.timestamp}
+                  </p>
+                </div>
+                <div class="transaction-status">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {purchase.status ===
+                    'completed'
+                      ? 'bg-green-100 text-green-800'
+                      : purchase.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-gray-100 text-gray-800'}"
+                  >
+                    {purchase.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="transaction-card-body">
+              <div class="transaction-details-grid">
+                <div class="transaction-detail-item">
+                  <p class="text-xs text-secondary font-medium">T-Bill Type</p>
+                  <p class="text-sm font-semibold">{purchase.tbillType}</p>
+                </div>
+
+                <div class="transaction-detail-item">
+                  <p class="text-xs text-secondary font-medium">Amount</p>
+                  <p class="text-sm font-semibold">{purchase.amount}</p>
+                </div>
+
+                <div class="transaction-detail-item">
+                  <p class="text-xs text-secondary font-medium">Price</p>
+                  <p class="text-sm font-semibold text-primary">
+                    {purchase.price}
+                  </p>
+                </div>
+
+                <div class="transaction-detail-item transaction-id-item">
+                  <p class="text-xs text-secondary font-medium">
+                    Broker Transaction ID
+                  </p>
+                  <code
+                    class="text-xs bg-gray-100 px-2 py-1 rounded block mt-1"
+                  >
+                    {purchase.brokerTxnId}
+                  </code>
+                </div>
+              </div>
+            </div>
+          </div>
+        {/each}
       </div>
     </div>
   {/if}

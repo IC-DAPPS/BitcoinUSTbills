@@ -1104,7 +1104,7 @@ body {
 }
 
 .desktop-only {
-  display: none;
+  display: block;
 }
 
 @media (min-width: 768px) {
@@ -1272,7 +1272,7 @@ footer a {
 
 @media (min-width: 768px) {
   .desktop-only {
-    display: flex !important;
+    display: block !important;
   }
 
   .mobile-only {
@@ -1305,11 +1305,122 @@ footer a {
 .feature-cards-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem;
 }
 
-/* Individual card styling */
+/* Transaction Card Styles for Mobile */
+.transaction-card {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  background-color: var(--background-card);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.transaction-card:hover {
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-2px);
+}
+
+.transaction-card-header {
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.transaction-timestamp {
+  margin-bottom: 0.5rem;
+}
+
+.transaction-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+}
+
+.transaction-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--background-section);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.transaction-id-item {
+  grid-column: 1 / -1; /* Full width for transaction ID */
+  margin-top: 0.75rem;
+  padding: 1rem;
+  background-color: var(--background-main);
+}
+
+.transaction-timestamp p:first-child,
+.transaction-detail-item p:first-child {
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  margin-bottom: 0.25rem;
+}
+
+.transaction-timestamp p:last-child,
+.transaction-detail-item p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.transaction-detail-item .text-primary {
+  color: var(--primary-blue) !important;
+  font-weight: 700;
+}
+
+/* Spacing utility for mobile cards */
+.space-y-4 > * + * {
+  margin-top: 1.5rem;
+}
+
+/* Mobile-specific enhancements */
+@media (max-width: 767px) {
+  .transaction-card {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .container-wide {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Enhanced mobile responsiveness for very small screens */
+@media (max-width: 360px) {
+  .transaction-details-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .transaction-id-item {
+    grid-column: 1;
+    margin-top: 1rem;
+  }
+
+  .transaction-card {
+    padding: 1.25rem;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+  }
+
+  .container-wide {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
 .feature-card {
   background: var(--background-card);
   border: 1px solid var(--border-light);

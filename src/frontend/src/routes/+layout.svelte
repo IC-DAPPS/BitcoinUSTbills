@@ -100,7 +100,7 @@
 						>Portfolio</a
 					>
 					<a href="/wallet" class="text-secondary hover:text-primary transition-colors">Wallet</a>
-					<a href="/public-ledger" class="text-secondary hover:text-primary transition-colors"
+					<a href="/purchased" class="text-secondary hover:text-primary transition-colors"
 						>Purchased</a
 					>
 					<a href="/kyc" class="text-secondary hover:text-primary transition-colors">KYC</a>
@@ -190,7 +190,7 @@
 							Wallet
 						</a>
 						<a
-							href="/public-ledger"
+							href="/purchased"
 							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
 							on:click={closeMobileMenu}
 						>
