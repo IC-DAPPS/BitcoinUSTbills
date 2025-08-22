@@ -15,10 +15,6 @@
       ]
     },
     "frontend": {
-      "dependencies": [
-        "backend",
-        "ustb_token_ledger"
-      ],
       "frontend": {
         "entrypoint": "build/index.html"
       },

@@ -180,13 +180,17 @@
 {#if showBuyModal && selectedBill}
   <div
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    on:click={closeBuyModal}
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="buy-modal-title"
+    tabindex="-1"
+    on:click={(e) => e.target === e.currentTarget && closeBuyModal()}
+    on:keydown={(e) => e.key === "Escape" && closeBuyModal()}
   >
-    <div
-      class="bg-white rounded-lg p-6 max-w-md w-full mx-4"
-      on:click|stopPropagation
-    >
-      <h3 class="text-xl font-semibold text-primary mb-4">Confirm Purchase</h3>
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4" role="document">
+      <h3 id="buy-modal-title" class="text-xl font-semibold text-primary mb-4">
+        Confirm Purchase
+      </h3>
 
       <div class="space-y-3 mb-6">
         <div class="flex justify-between">
@@ -230,9 +234,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  .container {
-    max-width: 1400px;
-  }
-</style>

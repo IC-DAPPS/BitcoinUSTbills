@@ -61,35 +61,35 @@
         <ul class="space-y-2">
           <li>
             <a
-              href="#"
+              href="/docs"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">Documentation</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/api-docs"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">API Reference</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/security"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">Security</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/compliance"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">Compliance</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/help"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">Help Center</a
             >
@@ -107,35 +107,35 @@
         <ul class="space-y-2">
           <li>
             <a
-              href="#"
+              href="/privacy"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">Privacy Policy</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/terms"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">Terms of Service</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/disclaimer"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">Disclaimer</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/risk-disclosure"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">Risk Disclosure</a
             >
           </li>
           <li>
             <a
-              href="#"
+              href="/contact"
               class="text-white hover:text-blue-200 transition-colors"
               style="color: white !important;">Contact Us</a
             >

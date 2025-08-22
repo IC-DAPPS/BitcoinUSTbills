@@ -134,6 +134,38 @@ export async function updateKYCStatus(principal: Principal, status: KYCStatus): 
   handleResult(result);
 }
 
+/**
+ * Gets pending KYC reviews for admin (Admin only)
+ */
+export async function adminGetPendingReviews(): Promise<import("$lib/types").FreeKYCSession[]> {
+  const result = await getActor().admin_get_pending_reviews();
+  return handleResult(result);
+}
+
+/**
+ * Admin review of free KYC submission (Admin only)
+ */
+export async function adminReviewFreeKyc(userPrincipal: Principal, approved: boolean, notes: string): Promise<import("$lib/types").FreeKYCSession> {
+  const result = await getActor().admin_review_free_kyc(userPrincipal, approved, notes);
+  return handleResult(result);
+}
+
+/**
+ * Upload document for free KYC verification
+ */
+export async function uploadDocumentFreeKyc(documentBytes: Uint8Array, documentType: string, selfieBytes: Uint8Array): Promise<string> {
+  const result = await getActor().upload_document_free_kyc(documentBytes, documentType, selfieBytes);
+  return handleResult(result);
+}
+
+/**
+ * Get free KYC status for a user
+ */
+export async function getFreeKycStatus(userPrincipal: string): Promise<import("$lib/types").FreeKYCSession> {
+  const result = await getActor().get_free_kyc_status(userPrincipal);
+  return handleResult(result);
+}
+
 // ============= WALLET OPERATIONS =============
 
 /**
