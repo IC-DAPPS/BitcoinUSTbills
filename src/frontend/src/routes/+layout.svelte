@@ -138,11 +138,7 @@
             href="/kyc"
             class="text-secondary hover:text-primary transition-colors">KYC</a
           >
-          <a
-            href="/admin/kyc"
-            class="text-secondary hover:text-primary transition-colors"
-            >Admin KYC</a
-          >
+          
         </div>
 
         <!-- Desktop Auth Section -->
@@ -252,13 +248,7 @@
             >
               KYC
             </a>
-            <a
-              href="/admin/kyc"
-              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-              on:click={closeMobileMenu}
-            >
-              Admin KYC
-            </a>
+            
 
             <!-- Mobile Auth Section -->
             <div class="flex flex-col space-y-3 pt-4 border-t border-light">
