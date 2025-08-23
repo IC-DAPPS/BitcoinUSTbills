@@ -90,7 +90,7 @@
       <p class="text-red-800">{error}</p>
       <button
         class="text-red-600 underline mt-2"
-        on:click={() => (error = null)}
+        onclick={() => (error = null)}
       >
         Dismiss
       </button>
@@ -165,7 +165,7 @@
             <Button
               variant="primary"
               class="w-full"
-              on:click={() => openBuyModal(bill)}
+              onclick={() => openBuyModal(bill)}
             >
               Buy Now - ${bill.purchasePrice.toLocaleString()}
             </Button>
@@ -184,8 +184,8 @@
     aria-modal="true"
     aria-labelledby="buy-modal-title"
     tabindex="-1"
-    on:click={(e) => e.target === e.currentTarget && closeBuyModal()}
-    on:keydown={(e) => e.key === "Escape" && closeBuyModal()}
+    onclick={(e) => e.target === e.currentTarget && closeBuyModal()}
+    onkeydown={(e) => e.key === "Escape" && closeBuyModal()}
   >
     <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4" role="document">
       <h3 id="buy-modal-title" class="text-xl font-semibold text-primary mb-4">
@@ -224,10 +224,10 @@
       </div>
 
       <div class="flex gap-3">
-        <Button variant="secondary" class="flex-1" on:click={closeBuyModal}>
+        <Button variant="secondary" class="flex-1" onclick={closeBuyModal}>
           Cancel
         </Button>
-        <Button variant="primary" class="flex-1" on:click={confirmPurchase}>
+        <Button variant="primary" class="flex-1" onclick={confirmPurchase}>
           Confirm Purchase
         </Button>
       </div>

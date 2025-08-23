@@ -1,12 +1,20 @@
-<script>
+<script lang="ts">
   import { onMount } from "svelte";
 
-  export let loading = false;
-  export let minLoadingTime = 100; // Minimum loading time to prevent flashes
-  export let fadeInDelay = 50; // Delay before fade in starts
+  let {
+    loading = false,
+    minLoadingTime = 100, // Minimum loading time to prevent flashes
+    fadeInDelay = 50, // Delay before fade in starts
+    children,
+  } = $props<{
+    loading?: boolean;
+    minLoadingTime?: number;
+    fadeInDelay?: number;
+    children?: any;
+  }>();
 
-  let isVisible = false;
-  let contentElement;
+  let isVisible = $state(false);
+  let contentElement: HTMLElement | undefined = undefined;
 
   onMount(() => {
     // Ensure minimum loading time to prevent flashing
@@ -38,19 +46,21 @@
     }
   });
 
-  $: if (!loading && contentElement) {
-    // Trigger fade in when loading becomes false
-    setTimeout(() => {
-      isVisible = true;
-    }, fadeInDelay);
-  }
+  $effect(() => {
+    if (!loading && contentElement) {
+      // Trigger fade in when loading becomes false
+      setTimeout(() => {
+        isVisible = true;
+      }, fadeInDelay);
+    }
+  });
 </script>
 
 <div
   class="page-content {isVisible ? 'visible' : 'hidden'}"
   bind:this={contentElement}
 >
-  <slot {isVisible} />
+  {@render children?.({ isVisible })}
 </div>
 
 <style>

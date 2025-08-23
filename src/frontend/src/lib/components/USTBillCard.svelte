@@ -8,14 +8,22 @@
   } from "$lib/api";
   import type { USTBill } from "$lib/types";
 
-  export let ustbill: USTBill;
-  export let onInvest: ((ustbillId: string) => void) | undefined = undefined;
-  export let loading = false;
+  let {
+    ustbill,
+    onInvest = undefined,
+    loading = false,
+  }: {
+    ustbill: USTBill;
+    onInvest?: ((ustbillId: string) => void) | undefined;
+    loading?: boolean;
+  } = $props();
 
-  $: isAvailable =
-    getStatusText(ustbill.status) === "Active" && ustbill.owner.length === 0;
-  $: statusText =
-    ustbill.owner.length > 0 ? "SoldOut" : getStatusText(ustbill.status);
+  const isAvailable = $derived(
+    getStatusText(ustbill.status) === "Active" && ustbill.owner.length === 0
+  );
+  const statusText = $derived(
+    ustbill.owner.length > 0 ? "SoldOut" : getStatusText(ustbill.status)
+  );
 
   function handleInvest() {
     if (onInvest && isAvailable) {
@@ -81,7 +89,7 @@
     fullWidth
     {loading}
     disabled={!isAvailable || loading}
-    on:click={handleInvest}
+    onclick={handleInvest}
   >
     {#if statusText === "SoldOut"}
       Sold Out

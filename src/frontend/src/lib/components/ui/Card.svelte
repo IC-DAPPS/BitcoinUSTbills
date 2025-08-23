@@ -1,6 +1,13 @@
+<script lang="ts">
+  let { start, children } = $props<{
+    start?: any;
+    children?: any;
+  }>();
+</script>
+
 <div class="card">
-  <slot name="start"></slot>
-  <slot></slot>
+  {@render start?.()}
+  {@render children?.()}
 </div>
 
 <style>

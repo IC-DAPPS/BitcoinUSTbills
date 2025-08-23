@@ -1,13 +1,18 @@
 <script lang="ts">
-  export let status:
-    | "Available"
-    | "SoldOut"
-    | "Matured"
-    | "Cancelled"
-    | "Pending"
-    | "Completed"
-    | string;
-  export let size: "sm" | "md" = "md";
+  let {
+    status,
+    size = "md",
+  }: {
+    status:
+      | "Available"
+      | "SoldOut"
+      | "Matured"
+      | "Cancelled"
+      | "Pending"
+      | "Completed"
+      | string;
+    size?: "sm" | "md";
+  } = $props();
 
   const statusConfig: Record<string, { class: string; text: string }> = {
     Available: { class: "badge-available", text: "Available" },
@@ -20,15 +25,15 @@
     pending: { class: "badge-pending", text: "pending" },
   };
 
-  $: config = statusConfig[status] || { class: "badge-pending", text: status };
+  const config = $derived(
+    statusConfig[status] || { class: "badge-pending", text: status }
+  );
 
-  $: classes = [
-    "badge",
-    config.class,
-    size === "sm" ? "px-2 py-0.5 text-xs" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const classes = $derived(
+    ["badge", config.class, size === "sm" ? "px-2 py-0.5 text-xs" : ""]
+      .filter(Boolean)
+      .join(" ")
+  );
 </script>
 
 <span class={classes}>

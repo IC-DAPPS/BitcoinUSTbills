@@ -1,10 +1,17 @@
 <script lang="ts">
-  export let intent = "default";
-  export let testId = "";
+  let {
+    intent = "default",
+    testId = "",
+    children,
+  }: {
+    intent?: string;
+    testId?: string;
+    children?: any;
+  } = $props();
 </script>
 
 <span class="tag tag-{intent}" data-testid={testId}>
-  <slot></slot>
+  {@render children?.()}
 </span>
 
 <style>

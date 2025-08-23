@@ -71,7 +71,7 @@
         Error Loading Purchase History
       </h2>
       <p class="text-red-500 mb-4">{error}</p>
-      <Button variant="primary" on:click={() => window.location.reload()}>
+      <Button variant="primary" onclick={() => window.location.reload()}>
         Try Again
       </Button>
     </div>
@@ -83,7 +83,7 @@
         You haven't purchased any Treasury Bills yet. Start investing to see
         your purchase history here.
       </p>
-      <Button variant="primary" on:click={() => goto("/marketplace")}>
+      <Button variant="primary" onclick={() => goto("/marketplace")}>
         Browse Treasury Bills
       </Button>
     </div>

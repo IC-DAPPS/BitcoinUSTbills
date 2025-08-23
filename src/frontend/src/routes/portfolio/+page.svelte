@@ -76,7 +76,7 @@
         Error Loading Portfolio
       </h2>
       <p class="text-red-500 mb-4">{error}</p>
-      <Button variant="primary" on:click={() => window.location.reload()}>
+      <Button variant="primary" onclick={() => window.location.reload()}>
         Try Again
       </Button>
     </div>
@@ -187,7 +187,7 @@
         <h2 class="text-xl font-semibold text-primary">My Holdings</h2>
         <Button
           variant="outline"
-          on:click={() => (window.location.href = "/marketplace")}
+          onclick={() => (window.location.href = "/marketplace")}
         >
           Browse More Bills
         </Button>
@@ -203,7 +203,7 @@
           </p>
           <Button
             variant="primary"
-            on:click={() => (window.location.href = "/marketplace")}
+            onclick={() => (window.location.href = "/marketplace")}
           >
             Browse Treasury Bills
           </Button>

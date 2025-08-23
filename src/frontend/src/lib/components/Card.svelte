@@ -1,11 +1,19 @@
 <script lang="ts">
   import Card from "./ui/Card.svelte";
 
-  export let principal = "";
-  export let string = "";
+  let {
+    principal = "",
+    string = "",
+  }: {
+    principal?: string;
+    string?: string;
+  } = $props();
 </script>
 
 <Card>
-  <h3 data-testid="principal" slot="start">{principal}</h3>
+  {#snippet start()}
+    <h3 data-testid="principal">{principal}</h3>
+  {/snippet}
+
   <p data-testid="string">{string}</p>
 </Card>

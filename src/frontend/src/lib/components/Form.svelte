@@ -3,15 +3,19 @@
   import Tag from "./ui/Tag.svelte";
   import IconCheck from "./ui/IconCheck.svelte";
 
-  // api function
-  export let set: (name: string) => Promise<void>;
+  // Props with Svelte 5 syntax
+  let {
+    set,
+  }: {
+    set: (name: string) => Promise<void>;
+  } = $props();
 
   // Form input
-  let input: string = "";
+  let input = $state("");
 
   // Visibility
-  let inputDisabled = false;
-  let successVisible = false;
+  let inputDisabled = $state(false);
+  let successVisible = $state(false);
 
   const submit = async () => {
     inputDisabled = true;
@@ -25,14 +29,15 @@
 </script>
 
 <Input
+  id="input"
   name="input"
-  inputType="text"
+  type="text"
   bind:value={input}
   disabled={inputDisabled}
   placeholder="Enter your name"
 />
 
-<button data-testid="button" class="primary" on:click={submit} type="button"
+<button data-testid="button" class="primary" onclick={submit} type="button"
   >Send</button
 >
 

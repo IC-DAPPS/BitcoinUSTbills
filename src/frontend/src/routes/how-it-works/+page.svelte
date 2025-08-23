@@ -316,7 +316,7 @@
     <Button
       variant="secondary"
       size="lg"
-      on:click={handleGetStarted}
+      onclick={handleGetStarted}
       class="bg-white text-blue hover:bg-gray-100"
     >
       Get Started Today →

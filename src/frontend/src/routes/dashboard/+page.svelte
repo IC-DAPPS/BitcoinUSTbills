@@ -18,12 +18,12 @@
   import type { User, TokenHolding, USTBill, TradingMetrics } from "$lib/types";
   import { goto } from "$app/navigation";
 
-  let user: User | null = null;
-  let holdings: TokenHolding[] = [];
-  let ustbills: USTBill[] = [];
-  let tradingMetrics: TradingMetrics | null = null;
-  let loading = true;
-  let error: string | null = null;
+  let user = $state<User | null>(null);
+  let holdings = $state<TokenHolding[]>([]);
+  let ustbills = $state<USTBill[]>([]);
+  let tradingMetrics = $state<TradingMetrics | null>(null);
+  let loading = $state(true);
+  let error = $state<string | null>(null);
 
   // Mock data for transactions and yield payments (until implemented)
   let recentTransactions = [
@@ -60,9 +60,9 @@
     },
   ];
 
-  $: portfolioValue = user ? user.total_invested : 0;
-  $: totalYieldEarned = user ? user.total_yield_earned : 0;
-  $: walletBalance = user ? user.wallet_balance : 0;
+  const portfolioValue = $derived(user ? user.total_invested : 0);
+  const totalYieldEarned = $derived(user ? user.total_yield_earned : 0);
+  const walletBalance = $derived(user ? user.wallet_balance : 0);
 
   // Mock data for demo
   const mockUser = {
@@ -186,7 +186,7 @@
           Error Loading Dashboard
         </h2>
         <p class="text-red-500 mb-4">{error}</p>
-        <Button variant="primary" on:click={() => window.location.reload()}
+        <Button variant="primary" onclick={() => window.location.reload()}
           >Try Again</Button
         >
       </div>
@@ -305,7 +305,7 @@
               <h3 class="text-lg font-semibold text-primary">
                 Recent Transactions
               </h3>
-              <Button variant="outline" size="sm" on:click={goToTransactions}
+              <Button variant="outline" size="sm" onclick={goToTransactions}
                 >View All</Button
               >
             </div>
@@ -375,7 +375,7 @@
           <button
             type="button"
             class="card p-6 text-center cursor-pointer hover:bg-gray-50 h-32 flex flex-col justify-center border-0 w-full"
-            on:click={handleBuyTokens}
+            onclick={handleBuyTokens}
             aria-label="Buy Treasury Bill Tokens"
           >
             <div
@@ -401,7 +401,7 @@
           <button
             type="button"
             class="card p-6 text-center cursor-pointer hover:bg-gray-50 h-32 flex flex-col justify-center border-0 w-full"
-            on:click={handleSellTokens}
+            onclick={handleSellTokens}
             aria-label="Sell Treasury Bill Tokens"
           >
             <div
@@ -427,7 +427,7 @@
           <button
             type="button"
             class="card p-6 text-center cursor-pointer hover:bg-gray-50 h-32 flex flex-col justify-center border-0 w-full"
-            on:click={handleViewAnalytics}
+            onclick={handleViewAnalytics}
             aria-label="View Portfolio Analytics"
           >
             <div
