@@ -82,42 +82,15 @@ export type KYCStatus = { 'Rejected' : null } |
   { 'Verified' : null } |
   { 'Expired' : null } |
   { 'Pending' : null };
-export interface PaginatedResponse {
-  'per_page' : bigint,
-  'total' : bigint,
-  'data' : Array<USTBill>,
-  'page' : bigint,
-  'has_next' : boolean,
-}
-export interface PlatformConfig {
-  'minimum_investment' : bigint,
-  'kyc_expiry_days' : bigint,
-  'platform_fee_percentage' : number,
-  'yield_distribution_frequency' : bigint,
-  'maximum_investment' : bigint,
-  'treasury_api_refresh_interval' : bigint,
-}
-export type Result = { 'Ok' : null } |
+export type Result = { 'Ok' : Array<UserAndFreeKYCSession> } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_1 = { 'Ok' : Array<UserAndFreeKYCSession> } |
+export type Result_1 = { 'Ok' : null } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_10 = { 'Ok' : string } |
+export type Result_2 = { 'Ok' : FreeKYCSession } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_2 = { 'Ok' : TokenHolding } |
+export type Result_3 = { 'Ok' : User } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_3 = { 'Ok' : bigint } |
-  { 'Err' : BitcoinUSTBillsError };
-export type Result_4 = { 'Ok' : USTBill } |
-  { 'Err' : BitcoinUSTBillsError };
-export type Result_5 = { 'Ok' : Array<TreasuryRate> } |
-  { 'Err' : BitcoinUSTBillsError };
-export type Result_6 = { 'Ok' : FreeKYCSession } |
-  { 'Err' : BitcoinUSTBillsError };
-export type Result_7 = { 'Ok' : User } |
-  { 'Err' : BitcoinUSTBillsError };
-export type Result_8 = { 'Ok' : PaginatedResponse } |
-  { 'Err' : BitcoinUSTBillsError };
-export type Result_9 = { 'Ok' : YieldProjection } |
+export type Result_4 = { 'Ok' : string } |
   { 'Err' : BitcoinUSTBillsError };
 export interface TokenHolding {
   'id' : string,
@@ -142,14 +115,6 @@ export interface TransformArgs {
   'context' : Uint8Array | number[],
   'response' : HttpResponse,
 }
-export interface TreasuryRate {
-  'record_date' : string,
-  'rate' : number,
-  'cusip' : string,
-  'security_desc' : string,
-  'security_type' : string,
-  'rate_date' : string,
-}
 export interface USTBill {
   'id' : string,
   'status' : USTBillStatus,
@@ -159,15 +124,6 @@ export interface USTBill {
   'face_value' : bigint,
   'cusip' : string,
   'created_at' : bigint,
-  'annual_yield' : number,
-  'maturity_date' : bigint,
-  'issuer' : string,
-  'bill_type' : string,
-}
-export interface USTBillCreateRequest {
-  'purchase_price' : bigint,
-  'face_value' : bigint,
-  'cusip' : string,
   'annual_yield' : number,
   'maturity_date' : bigint,
   'issuer' : string,
@@ -206,62 +162,22 @@ export interface UserRegistrationRequest {
   'email' : string,
   'phone_number' : [] | [string],
 }
-export interface VerifiedBrokerPurchase {
-  'ustbill_type' : string,
-  'broker_txn_id' : string,
-  'timestamp' : bigint,
-  'price' : bigint,
-  'amount' : bigint,
-}
-export interface YieldProjection {
-  'days_to_maturity' : bigint,
-  'holding_id' : string,
-  'annual_yield_rate' : number,
-  'current_value' : bigint,
-  'projected_yield' : bigint,
-  'yield_percentage' : number,
-}
 export interface _SERVICE {
-  'admin_add_broker_purchase_record' : ActorMethod<
-    [bigint, bigint, string, string],
-    Result
-  >,
-  'admin_get_pending_reviews' : ActorMethod<[], Result_1>,
+  'admin_get_pending_reviews' : ActorMethod<[], Result>,
   'admin_review_free_kyc' : ActorMethod<
     [string, boolean, [] | [string]],
-    Result
+    Result_1
   >,
-  'buy_ustbill' : ActorMethod<[string], Result_2>,
-  'calculate_current_value' : ActorMethod<[string], Result_3>,
-  'calculate_maturity_yield' : ActorMethod<[string], Result_3>,
-  'calculate_purchase_cost' : ActorMethod<[string, bigint], Result_3>,
-  'create_ustbill' : ActorMethod<[USTBillCreateRequest], Result_4>,
-  'deposit_funds' : ActorMethod<[bigint], Result_3>,
-  'fetch_treasury_rates' : ActorMethod<[], Result_5>,
   'get_active_ustbills' : ActorMethod<[], Array<USTBill>>,
-  'get_all_verified_broker_purchases' : ActorMethod<
-    [],
-    Array<VerifiedBrokerPurchase>
-  >,
   'get_authorized_principals' : ActorMethod<[], Array<Principal>>,
-  'get_free_kyc_status' : ActorMethod<[string], Result_6>,
-  'get_platform_config' : ActorMethod<[], PlatformConfig>,
-  'get_storage_stats' : ActorMethod<[], Array<[string, bigint]>>,
+  'get_free_kyc_status' : ActorMethod<[string], Result_2>,
   'get_trading_metrics' : ActorMethod<[], TradingMetrics>,
   'get_user_holdings' : ActorMethod<[Principal], Array<TokenHolding>>,
-  'get_user_profile' : ActorMethod<[], Result_7>,
-  'get_ustbill' : ActorMethod<[string], Result_4>,
-  'get_ustbill_availability' : ActorMethod<[string], Result_3>,
-  'get_ustbills_paginated' : ActorMethod<[bigint, bigint], Result_8>,
-  'get_yield_projection' : ActorMethod<[string], Result_9>,
+  'get_user_profile' : ActorMethod<[], Result_3>,
   'is_user_registered' : ActorMethod<[], boolean>,
-  'register_user' : ActorMethod<[UserRegistrationRequest], Result_7>,
+  'register_user' : ActorMethod<[UserRegistrationRequest], Result_3>,
   'transform_treasury_response' : ActorMethod<[TransformArgs], HttpResponse>,
-  'update_kyc_status' : ActorMethod<[Principal, KYCStatus], Result>,
-  'update_platform_config' : ActorMethod<[PlatformConfig], Result>,
-  'update_ustbill_market_data' : ActorMethod<[], Result>,
-  'upload_document_free_kyc' : ActorMethod<[string, string, string], Result_10>,
-  'withdraw_funds' : ActorMethod<[bigint], Result_3>,
+  'upload_document_free_kyc' : ActorMethod<[string, string, string], Result_4>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

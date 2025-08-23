@@ -78,35 +78,14 @@ type HttpResponse = record {
   headers : vec HttpHeader;
 };
 type KYCStatus = variant { Rejected; Verified; Expired; Pending };
-type PaginatedResponse = record {
-  per_page : nat64;
-  total : nat64;
-  data : vec USTBill;
-  page : nat64;
-  has_next : bool;
-};
-type PlatformConfig = record {
-  minimum_investment : nat64;
-  kyc_expiry_days : nat64;
-  platform_fee_percentage : float64;
-  yield_distribution_frequency : nat64;
-  maximum_investment : nat64;
-  treasury_api_refresh_interval : nat64;
-};
-type Result = variant { Ok; Err : BitcoinUSTBillsError };
-type Result_1 = variant {
+type Result = variant {
   Ok : vec UserAndFreeKYCSession;
   Err : BitcoinUSTBillsError;
 };
-type Result_10 = variant { Ok : text; Err : BitcoinUSTBillsError };
-type Result_2 = variant { Ok : TokenHolding; Err : BitcoinUSTBillsError };
-type Result_3 = variant { Ok : nat64; Err : BitcoinUSTBillsError };
-type Result_4 = variant { Ok : USTBill; Err : BitcoinUSTBillsError };
-type Result_5 = variant { Ok : vec TreasuryRate; Err : BitcoinUSTBillsError };
-type Result_6 = variant { Ok : FreeKYCSession; Err : BitcoinUSTBillsError };
-type Result_7 = variant { Ok : User; Err : BitcoinUSTBillsError };
-type Result_8 = variant { Ok : PaginatedResponse; Err : BitcoinUSTBillsError };
-type Result_9 = variant { Ok : YieldProjection; Err : BitcoinUSTBillsError };
+type Result_1 = variant { Ok; Err : BitcoinUSTBillsError };
+type Result_2 = variant { Ok : FreeKYCSession; Err : BitcoinUSTBillsError };
+type Result_3 = variant { Ok : User; Err : BitcoinUSTBillsError };
+type Result_4 = variant { Ok : text; Err : BitcoinUSTBillsError };
 type TokenHolding = record {
   id : text;
   status : HoldingStatus;
@@ -127,14 +106,6 @@ type TradingMetrics = record {
   highest_price : nat64;
 };
 type TransformArgs = record { context : blob; response : HttpResponse };
-type TreasuryRate = record {
-  record_date : text;
-  rate : float64;
-  cusip : text;
-  security_desc : text;
-  security_type : text;
-  rate_date : text;
-};
 type USTBill = record {
   id : text;
   status : USTBillStatus;
@@ -144,15 +115,6 @@ type USTBill = record {
   face_value : nat64;
   cusip : text;
   created_at : nat64;
-  annual_yield : float64;
-  maturity_date : nat64;
-  issuer : text;
-  bill_type : text;
-};
-type USTBillCreateRequest = record {
-  purchase_price : nat64;
-  face_value : nat64;
-  cusip : text;
   annual_yield : float64;
   maturity_date : nat64;
   issuer : text;
@@ -188,51 +150,17 @@ type UserRegistrationRequest = record {
   email : text;
   phone_number : opt text;
 };
-type VerifiedBrokerPurchase = record {
-  ustbill_type : text;
-  broker_txn_id : text;
-  timestamp : nat64;
-  price : nat64;
-  amount : nat64;
-};
-type YieldProjection = record {
-  days_to_maturity : nat64;
-  holding_id : text;
-  annual_yield_rate : float64;
-  current_value : nat64;
-  projected_yield : nat64;
-  yield_percentage : float64;
-};
 service : {
-  admin_add_broker_purchase_record : (nat64, nat64, text, text) -> (Result);
-  admin_get_pending_reviews : () -> (Result_1) query;
-  admin_review_free_kyc : (text, bool, opt text) -> (Result);
-  buy_ustbill : (text) -> (Result_2);
-  calculate_current_value : (text) -> (Result_3) query;
-  calculate_maturity_yield : (text) -> (Result_3);
-  calculate_purchase_cost : (text, nat64) -> (Result_3) query;
-  create_ustbill : (USTBillCreateRequest) -> (Result_4);
-  deposit_funds : (nat64) -> (Result_3);
-  fetch_treasury_rates : () -> (Result_5);
+  admin_get_pending_reviews : () -> (Result) query;
+  admin_review_free_kyc : (text, bool, opt text) -> (Result_1);
   get_active_ustbills : () -> (vec USTBill) query;
-  get_all_verified_broker_purchases : () -> (vec VerifiedBrokerPurchase) query;
   get_authorized_principals : () -> (vec principal) query;
-  get_free_kyc_status : (text) -> (Result_6) query;
-  get_platform_config : () -> (PlatformConfig) query;
-  get_storage_stats : () -> (vec record { text; nat64 }) query;
+  get_free_kyc_status : (text) -> (Result_2) query;
   get_trading_metrics : () -> (TradingMetrics) query;
   get_user_holdings : (principal) -> (vec TokenHolding) query;
-  get_user_profile : () -> (Result_7) query;
-  get_ustbill : (text) -> (Result_4) query;
-  get_ustbill_availability : (text) -> (Result_3) query;
-  get_ustbills_paginated : (nat64, nat64) -> (Result_8) query;
-  get_yield_projection : (text) -> (Result_9) query;
+  get_user_profile : () -> (Result_3) query;
   is_user_registered : () -> (bool) query;
-  register_user : (UserRegistrationRequest) -> (Result_7);
+  register_user : (UserRegistrationRequest) -> (Result_3);
   transform_treasury_response : (TransformArgs) -> (HttpResponse) query;
-  update_kyc_status : (principal, KYCStatus) -> (Result);
-  update_platform_config : (PlatformConfig) -> (Result);
-  update_ustbill_market_data : () -> (Result);
-  upload_document_free_kyc : (text, text, text) -> (Result_10);
-  withdraw_funds : (nat64) -> (Result_3);
+  upload_document_free_kyc : (text, text, text) -> (Result_4);
 }
