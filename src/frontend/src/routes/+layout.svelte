@@ -144,27 +144,43 @@
 					<span class="text-xl font-semibold text-primary">BitcoinUSTbills</span>
 				</div>
 
-				<!-- Desktop Navigation Links -->
-				<div class="desktop-only flex items-center space-x-8">
-					<a href="/" class="text-secondary hover:text-primary transition-colors">Home</a>
-					<a href="/dashboard" class="text-secondary hover:text-primary transition-colors"
-						>Dashboard</a
-					>
-					<a href="/marketplace" class="text-secondary hover:text-primary transition-colors"
-						>Marketplace</a
-					>
-					<a href="/portfolio" class="text-secondary hover:text-primary transition-colors"
-						>Portfolio</a
-					>
-					<a href="/wallet" class="text-secondary hover:text-primary transition-colors">Wallet</a>
-					<a href="/purchased" class="text-secondary hover:text-primary transition-colors"
-						>Purchased</a
-					>
-					<a href="/kyc" class="text-secondary hover:text-primary transition-colors">KYC</a>
-					<a href="/admin/kyc" class="text-secondary hover:text-primary transition-colors"
-						>Admin KYC</a
-					>
-				</div>
+        <!-- Desktop Navigation Links -->
+        <div class="desktop-only flex items-center space-x-8">
+          <a
+            href="/"
+            class="text-secondary hover:text-primary transition-colors">Home</a
+          >
+          <a
+            href="/dashboard"
+            class="text-secondary hover:text-primary transition-colors"
+            >Dashboard</a
+          >
+          <a
+            href="/marketplace"
+            class="text-secondary hover:text-primary transition-colors"
+            >Marketplace</a
+          >
+          <a
+            href="/portfolio"
+            class="text-secondary hover:text-primary transition-colors"
+            >Portfolio</a
+          >
+          <a
+            href="/wallet"
+            class="text-secondary hover:text-primary transition-colors"
+            >Wallet</a
+          >
+          <a
+            href="/purchased"
+            class="text-secondary hover:text-primary transition-colors"
+            >Purchased</a
+          >
+          <a
+            href="/kyc"
+            class="text-secondary hover:text-primary transition-colors">KYC</a
+          >
+          
+        </div>
 
 				<!-- Desktop Auth Section -->
 				<div class="desktop-only flex items-center space-x-4">
@@ -206,67 +222,61 @@
 				</div>
 			</div>
 
-			<!-- Mobile Menu Drawer -->
-			{#if isMobileMenuOpen}
-				<div class="mobile-only mt-4 pb-4 border-t border-light">
-					<div class="flex flex-col space-y-4 pt-4">
-						<!-- Mobile Navigation Links -->
-						<a
-							href="/"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Home
-						</a>
-						<a
-							href="/dashboard"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Dashboard
-						</a>
-						<a
-							href="/marketplace"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Marketplace
-						</a>
-						<a
-							href="/portfolio"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Portfolio
-						</a>
-						<a
-							href="/wallet"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Wallet
-						</a>
-						<a
-							href="/purchased"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Purchased
-						</a>
-						<a
-							href="/kyc"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							KYC
-						</a>
-						<a
-							href="/admin/kyc"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Admin KYC
-						</a>
+      <!-- Mobile Menu Drawer -->
+      {#if isMobileMenuOpen}
+        <div class="mobile-only mt-4 pb-4 border-t border-light">
+          <div class="flex flex-col space-y-4 pt-4">
+            <!-- Mobile Navigation Links -->
+            <a
+              href="/"
+              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              on:click={closeMobileMenu}
+            >
+              Home
+            </a>
+            <a
+              href="/dashboard"
+              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              on:click={closeMobileMenu}
+            >
+              Dashboard
+            </a>
+            <a
+              href="/marketplace"
+              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              on:click={closeMobileMenu}
+            >
+              Marketplace
+            </a>
+            <a
+              href="/portfolio"
+              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              on:click={closeMobileMenu}
+            >
+              Portfolio
+            </a>
+            <a
+              href="/wallet"
+              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              on:click={closeMobileMenu}
+            >
+              Wallet
+            </a>
+            <a
+              href="/purchased"
+              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              on:click={closeMobileMenu}
+            >
+              Purchased
+            </a>
+            <a
+              href="/kyc"
+              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              on:click={closeMobileMenu}
+            >
+              KYC
+            </a>
+            
 
 						<!-- Mobile Auth Section -->
 						<div class="flex flex-col space-y-3 pt-4 border-t border-light">

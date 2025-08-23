@@ -128,15 +128,15 @@
     <!-- Purchases Table -->
     <div class="card desktop-only mb-12">
       <div class="overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-sm text-left text-gray-500">
+        <table class="w-full text-sm text-left text-gray-500 table-fixed">
           <thead class="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
-              <th scope="col" class="px-6 py-3">Timestamp</th>
-              <th scope="col" class="px-6 py-3">T-Bill Type</th>
-              <th scope="col" class="px-6 py-3">Amount</th>
-              <th scope="col" class="px-6 py-3">Price</th>
-              <th scope="col" class="px-6 py-3">Broker Txn ID</th>
-              <th scope="col" class="px-6 py-3">Status</th>
+              <th scope="col" class="px-6 py-3 w-1/5">Timestamp</th>
+              <th scope="col" class="px-6 py-3 w-1/6">T-Bill Type</th>
+              <th scope="col" class="px-6 py-3 w-1/6">Amount</th>
+              <th scope="col" class="px-6 py-3 w-1/6">Price</th>
+              <th scope="col" class="px-6 py-3 w-1/5">Broker Txn ID</th>
+              <th scope="col" class="px-6 py-3 w-1/6">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -178,22 +178,25 @@
 
     <!-- Mobile Card View -->
     <div class="mobile-only mb-12">
-      <div class="space-y-4">
+      <div class="space-y-6">
         {#each purchases as purchase}
-          <div class="transaction-card card p-4">
-            <div class="transaction-card-header mb-3">
+          <div class="transaction-card card p-5">
+            <!-- Transaction Header with Date and Status -->
+            <div class="transaction-card-header mb-4">
               <div class="flex justify-between items-start">
                 <div class="transaction-timestamp">
-                  <p class="text-xs text-secondary font-medium">
+                  <p
+                    class="text-xs text-secondary font-medium uppercase tracking-wide mb-1"
+                  >
                     Transaction Date
                   </p>
-                  <p class="text-sm font-semibold text-primary">
+                  <p class="text-base font-semibold text-primary">
                     {purchase.timestamp}
                   </p>
                 </div>
                 <div class="transaction-status">
                   <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {purchase.status ===
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {purchase.status ===
                     'completed'
                       ? 'bg-green-100 text-green-800'
                       : purchase.status === 'pending'
@@ -206,35 +209,56 @@
               </div>
             </div>
 
+            <!-- Transaction Details Grid -->
             <div class="transaction-card-body">
               <div class="transaction-details-grid">
                 <div class="transaction-detail-item">
-                  <p class="text-xs text-secondary font-medium">T-Bill Type</p>
-                  <p class="text-sm font-semibold">{purchase.tbillType}</p>
-                </div>
-
-                <div class="transaction-detail-item">
-                  <p class="text-xs text-secondary font-medium">Amount</p>
-                  <p class="text-sm font-semibold">{purchase.amount}</p>
-                </div>
-
-                <div class="transaction-detail-item">
-                  <p class="text-xs text-secondary font-medium">Price</p>
-                  <p class="text-sm font-semibold text-primary">
-                    {purchase.price}
-                  </p>
-                </div>
-
-                <div class="transaction-detail-item transaction-id-item">
-                  <p class="text-xs text-secondary font-medium">
-                    Broker Transaction ID
-                  </p>
-                  <code
-                    class="text-xs bg-gray-100 px-2 py-1 rounded block mt-1"
+                  <p
+                    class="text-xs text-secondary font-medium uppercase tracking-wide"
                   >
-                    {purchase.brokerTxnId}
-                  </code>
+                    T-Bill Type
+                  </p>
+                  <p class="text-sm font-semibold text-gray-900">
+                    {purchase.tbillType}
+                  </p>
                 </div>
+
+                <div class="transaction-detail-item">
+                  <p
+                    class="text-xs text-secondary font-medium uppercase tracking-wide"
+                  >
+                    Amount
+                  </p>
+                  <p class="text-sm font-semibold text-gray-900">
+                    {purchase.amount}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Price - Full Width -->
+              <div class="transaction-detail-item mt-3">
+                <p
+                  class="text-xs text-secondary font-medium uppercase tracking-wide"
+                >
+                  Price
+                </p>
+                <p class="text-lg font-bold text-primary">
+                  {purchase.price}
+                </p>
+              </div>
+
+              <!-- Broker Transaction ID - Full Width -->
+              <div class="transaction-id-item">
+                <p
+                  class="text-xs text-secondary font-medium uppercase tracking-wide mb-2"
+                >
+                  Broker Transaction ID
+                </p>
+                <code
+                  class="text-xs bg-gray-100 px-3 py-2 rounded font-mono block"
+                >
+                  {purchase.brokerTxnId}
+                </code>
               </div>
             </div>
           </div>
