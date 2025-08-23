@@ -16,6 +16,7 @@ export const idlFactory = ({ IDL }) => {
     'USTBillSoldOut' : IDL.Null,
     'SystemError' : IDL.Text,
     'InvalidPrincipal' : IDL.Null,
+    'FileStoreBucketError' : IDL.Text,
     'HTTPRequestError' : IDL.Text,
     'HoldingAlreadySold' : IDL.Null,
     'USTBillMatured' : IDL.Null,
@@ -251,7 +252,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'admin_get_pending_reviews' : IDL.Func([], [Result_1], ['query']),
     'admin_review_free_kyc' : IDL.Func(
-        [IDL.Text, IDL.Bool, IDL.Text],
+        [IDL.Text, IDL.Bool, IDL.Opt(IDL.Text)],
         [Result],
         [],
       ),
@@ -270,6 +271,11 @@ export const idlFactory = ({ IDL }) => {
     'get_all_verified_broker_purchases' : IDL.Func(
         [],
         [IDL.Vec(VerifiedBrokerPurchase)],
+        ['query'],
+      ),
+    'get_authorized_principals' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Principal)],
         ['query'],
       ),
     'get_free_kyc_status' : IDL.Func([IDL.Text], [Result_6], ['query']),

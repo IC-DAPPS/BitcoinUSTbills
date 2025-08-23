@@ -32,7 +32,8 @@ import type {
 
   // Error types
   BitcoinUSTBillsError,
-  FreeKYCSession
+  FreeKYCSession,
+  UserAndFreeKYCSession
 } from "../../../declarations/backend/backend.did";
 import type { GetUserProfileResponse, RegisterUserResponse } from "./types/result";
 
@@ -147,6 +148,24 @@ export async function RequestKycReview(documentFrontPage: string, documentBackPa
   const result = await getActor().upload_document_free_kyc(documentFrontPage, documentBackPage, selfieWithDocument);
   return handleResult(result);
 }
+
+
+// this function is used to get User details and KYC requests documents that are pending review to review by admin
+export async function adminGetPendingReviews(): Promise<UserAndFreeKYCSession[]> {
+  const result = await getActor().admin_get_pending_reviews();
+  return handleResult(result);
+}
+
+// this function is used to review a free KYC request
+export async function adminReviewFreeKyc(uploadId: string, approved: boolean, notes?: string): Promise<void> {
+  console.log('adminReviewFreeKyc', uploadId, approved, notes);
+  const result = await getActor().admin_review_free_kyc(uploadId, approved, notes ? [notes] : []);
+  console.log('adminReviewFreeKyc result', result);
+  handleResult(result);
+}
+
+
+
 
 // ============= WALLET OPERATIONS =============
 
@@ -359,6 +378,14 @@ export function isKYCVerified(kycStatus: KYCStatus): boolean {
 export function getKYCStatusText(kycStatus: KYCStatus): string {
   return getStatusText(kycStatus);
 }
+
+/**
+ * Gets the list of authorized principals
+ */
+export function getAuthorizedPrincipals(): Promise<Principal[]> {
+  return getActor().get_authorized_principals();
+}
+
 
 /**
  * Validates amount input

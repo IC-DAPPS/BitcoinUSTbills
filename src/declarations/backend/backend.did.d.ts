@@ -18,6 +18,7 @@ export type BitcoinUSTBillsError = { 'UserAlreadyExists' : null } |
   { 'USTBillSoldOut' : null } |
   { 'SystemError' : string } |
   { 'InvalidPrincipal' : null } |
+  { 'FileStoreBucketError' : string } |
   { 'HTTPRequestError' : string } |
   { 'HoldingAlreadySold' : null } |
   { 'USTBillMatured' : null } |
@@ -226,7 +227,10 @@ export interface _SERVICE {
     Result
   >,
   'admin_get_pending_reviews' : ActorMethod<[], Result_1>,
-  'admin_review_free_kyc' : ActorMethod<[string, boolean, string], Result>,
+  'admin_review_free_kyc' : ActorMethod<
+    [string, boolean, [] | [string]],
+    Result
+  >,
   'buy_ustbill' : ActorMethod<[string], Result_2>,
   'calculate_current_value' : ActorMethod<[string], Result_3>,
   'calculate_maturity_yield' : ActorMethod<[string], Result_3>,
@@ -239,6 +243,7 @@ export interface _SERVICE {
     [],
     Array<VerifiedBrokerPurchase>
   >,
+  'get_authorized_principals' : ActorMethod<[], Array<Principal>>,
   'get_free_kyc_status' : ActorMethod<[string], Result_6>,
   'get_platform_config' : ActorMethod<[], PlatformConfig>,
   'get_storage_stats' : ActorMethod<[], Array<[string, bigint]>>,

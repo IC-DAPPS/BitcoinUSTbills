@@ -47,7 +47,18 @@
         }
       },
       "frontend": {}
-    }
+    },
+    "ckbtc_ledger": {
+			"type": "custom",
+			"candid": "https://raw.githubusercontent.com/dfinity/ic/5ba1412f9175d987661ae3c0d8dbd1ac3e092b7d/rs/rosetta-api/icrc1/ledger/ledger.did",
+			"wasm": "https://download.dfinity.systems/ic/5ba1412f9175d987661ae3c0d8dbd1ac3e092b7d/canisters/ic-icrc1-ledger.wasm.gz",
+			"specified_id": "mxzaz-hqaaa-aaaar-qaada-cai",
+			"remote": {
+				"id": {
+					"ic": "mxzaz-hqaaa-aaaar-qaada-cai"
+				}
+			}
+		}
   },
   "networks": {
     "local": {

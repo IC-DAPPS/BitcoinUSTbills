@@ -66,7 +66,7 @@ persistent actor {
 	var persistedFilesStored : [(Text, File)] = []; // stable by default in persistent actor
 	var nextBatchId : Nat = 1; // stable by default in persistent actor
 
-	transient let admin : Principal = Principal.fromText("6lzil-lzkgm-twmv5-rz5xg-a5nnm-togvj-mlu6s-p4xyl-5j3zi-6a6jy-yqe");
+	transient let admin : Principal = Principal.fromText("tdlcm-qf6xy-gwvm5-uil6h-ygjte-6e3nq-ni63i-cqbeh-ho4p2-7ga6x-6ae");
 
 	transient let backend : Principal = Principal.fromText("uxrrr-q7777-77774-qaaaq-cai");
 

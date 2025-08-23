@@ -8,8 +8,9 @@ import { goto } from '$app/navigation';
 import { IDENTITY_PROVIDER } from './const';
 import { getAgent } from './actors/agents.ic';
 import { createActor, actor } from './agent';
+import { adminList } from './state/admin-list.svelte';
 
-interface AuthState {
+export interface AuthState {
   isLoggedIn: boolean;
   identity: Identity | null;
   authClient: AuthClient | null;
@@ -48,7 +49,9 @@ export async function login() {
 
       // Now we can safely make API calls
       try {
-        if (await isUserRegistered()) {
+        if (adminList.includes(identity.getPrincipal().toString())) {
+          goto('/admin/kyc');
+        } else if (await isUserRegistered()) {
           goto('/dashboard');
         } else {
           goto('/register');

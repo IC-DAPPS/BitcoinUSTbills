@@ -739,9 +739,19 @@ async fn check_ofac_sanctions_free(full_name: &str) -> Result<bool> {
     Ok(true) // Clear of sanctions
 }
 
+/// Gets the list of authorized principals
+#[query]
+pub fn get_authorized_principals() -> Vec<Principal> {
+    guard::get_list()
+}
+
 /// Manual review functions for admins
 #[update]
-pub async fn admin_review_free_kyc(upload_id: String, approved: bool, notes: String) -> Result<()> {
+pub async fn admin_review_free_kyc(
+    upload_id: String,
+    approved: bool,
+    notes: Option<String>,
+) -> Result<()> {
     guard::assert_admin()?;
 
     let mut kyc_session = FreeKYCStorage::get(&upload_id)?;
@@ -752,7 +762,7 @@ pub async fn admin_review_free_kyc(upload_id: String, approved: bool, notes: Str
         FreeKYCStatus::Rejected
     };
     kyc_session.reviewed_at = Some(get_current_timestamp());
-    kyc_session.reviewer_notes = Some(notes);
+    kyc_session.reviewer_notes = notes;
 
     if approved {
         // VC issuance hata diya; sirf user ko Verified mark kar rahe hain

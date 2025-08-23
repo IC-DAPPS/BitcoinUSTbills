@@ -15,6 +15,7 @@ type BitcoinUSTBillsError = variant {
   USTBillSoldOut;
   SystemError : text;
   InvalidPrincipal;
+  FileStoreBucketError : text;
   HTTPRequestError : text;
   HoldingAlreadySold;
   USTBillMatured;
@@ -205,7 +206,7 @@ type YieldProjection = record {
 service : {
   admin_add_broker_purchase_record : (nat64, nat64, text, text) -> (Result);
   admin_get_pending_reviews : () -> (Result_1) query;
-  admin_review_free_kyc : (text, bool, text) -> (Result);
+  admin_review_free_kyc : (text, bool, opt text) -> (Result);
   buy_ustbill : (text) -> (Result_2);
   calculate_current_value : (text) -> (Result_3) query;
   calculate_maturity_yield : (text) -> (Result_3);
@@ -215,6 +216,7 @@ service : {
   fetch_treasury_rates : () -> (Result_5);
   get_active_ustbills : () -> (vec USTBill) query;
   get_all_verified_broker_purchases : () -> (vec VerifiedBrokerPurchase) query;
+  get_authorized_principals : () -> (vec principal) query;
   get_free_kyc_status : (text) -> (Result_6) query;
   get_platform_config : () -> (PlatformConfig) query;
   get_storage_stats : () -> (vec record { text; nat64 }) query;

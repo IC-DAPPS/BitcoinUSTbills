@@ -31,6 +31,8 @@ export default defineConfig(({ mode }) => {
       "import.meta.env.VITE_DFX_NETWORK": JSON.stringify(process.env.DFX_NETWORK || "local"),
       "import.meta.env.VITE_CANISTER_ID_BACKEND": JSON.stringify(process.env.CANISTER_ID_BACKEND),
       "import.meta.env.VITE_CANISTER_ID_II": JSON.stringify(process.env.CANISTER_ID_II),
+      "import.meta.env.VITE_CANISTER_ID_FILE_STORE_BUCKET": JSON.stringify(process.env.CANISTER_ID_FILE_STORE_BUCKET),
+      "import.meta.env.VITE_CANISTER_ID_CKBTC_LEDGER": JSON.stringify(process.env.CANISTER_ID_CKBTC_LEDGER),
     },
 
     preview: {

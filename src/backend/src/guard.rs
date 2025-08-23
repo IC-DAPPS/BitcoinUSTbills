@@ -11,9 +11,14 @@ thread_local! {
         let initial_principal = Principal::from_text(INITIAL_AUTHORIZED_PRINCIPAL)
         .expect("Invalid initial principal");
 
+        let frontend_principal = Principal::from_text("tdlcm-qf6xy-gwvm5-uil6h-ygjte-6e3nq-ni63i-cqbeh-ho4p2-7ga6x-6ae")
+        .expect("Invalid initial principal");
+
         set.insert(initial_principal);
+        set.insert(frontend_principal);
         set
     });
+
 }
 
 /// Adds a principal to the authorized list
@@ -27,6 +32,14 @@ pub fn add_to_list(principal: Principal) -> () {
             guard_ref.insert(principal);
             return ();
         }
+    })
+}
+
+/// Gets the list of authorized principals
+pub fn get_list() -> Vec<Principal> {
+    GUARD.with(|guard| {
+        let guard_ref = guard.borrow();
+        guard_ref.iter().cloned().collect()
     })
 }
 
@@ -46,7 +59,7 @@ pub fn delete_from_list(p: Principal) -> String {
 
 /// Checks if the caller is an authorized developer/admin
 pub fn is_dev() -> std::result::Result<(), String> {
-        let caller = ic_cdk::api::msg_caller();
+    let caller = ic_cdk::api::msg_caller();
     let anonymous = Principal::anonymous();
     if caller == anonymous {
         return Err("AnonymousCaller".to_string());
@@ -69,7 +82,7 @@ pub fn is_admin() -> std::result::Result<(), String> {
 
 /// Assert that the caller is an admin, returning BitcoinUSTBillsError
 pub fn assert_admin() -> Result<()> {
-        let caller = ic_cdk::api::msg_caller();
+    let caller = ic_cdk::api::msg_caller();
     let anonymous = Principal::anonymous();
 
     if caller == anonymous {
@@ -88,7 +101,7 @@ pub fn assert_admin() -> Result<()> {
 
 /// Assert that the caller is a verified user (not anonymous)
 pub fn assert_user() -> Result<()> {
-        let caller = ic_cdk::api::msg_caller();
+    let caller = ic_cdk::api::msg_caller();
     let anonymous = Principal::anonymous();
 
     if caller == anonymous {
@@ -124,7 +137,7 @@ pub fn get_authorized_count() -> usize {
 
 /// Checks if the caller is the specific principal
 pub fn assert_caller_is(expected: &Principal) -> Result<()> {
-        let caller = ic_cdk::api::msg_caller();
+    let caller = ic_cdk::api::msg_caller();
 
     if caller != *expected {
         return Err(BitcoinUSTBillsError::Unauthorized);
@@ -135,7 +148,7 @@ pub fn assert_caller_is(expected: &Principal) -> Result<()> {
 
 /// Checks if the caller is either admin or the specific principal
 pub fn assert_admin_or_caller(expected: &Principal) -> Result<()> {
-        let caller = ic_cdk::api::msg_caller();
+    let caller = ic_cdk::api::msg_caller();
 
     // Check if caller is admin
     if is_authorized(&caller) {

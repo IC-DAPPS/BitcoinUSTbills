@@ -1,5 +1,5 @@
-import type { BitcoinUSTBillsError } from "$lib/types";
-import type { User } from "../../../../declarations/backend/backend.did";
+
+import type { BitcoinUSTBillsError, User } from "../../../../declarations/backend/backend.did";
 
 export type GetUserProfileResponse = { 'Ok': User } |
 { 'Err': BitcoinUSTBillsError };

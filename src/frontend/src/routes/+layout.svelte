@@ -4,14 +4,17 @@
 	import Button from '$lib/components/ui/Button.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import { onDestroy, onMount, tick } from 'svelte';
-	import { authStore, initAuth, login, logout } from '$lib/auth';
+	import { authStore, initAuth, login, logout, type AuthState } from '$lib/auth';
 	import { fetchUserProfile } from '$lib/state/user.svelte';
-	import { page } from '$app/stores';
-	import { navigating } from '$app/stores';
+	import { page } from '$app/state';
+	import { navigating } from '$app/state';
 	import { Toaster } from 'svelte-sonner';
 	import { fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
 	import { getAgent } from '$lib/actors/agents.ic';
 	import { actor, createActor } from '$lib/agent';
+	import { adminList, fetchAdminList } from '$lib/state/admin-list.svelte';
+	import { goto } from '$app/navigation';
+	import { AnonymousIdentity } from '@dfinity/agent';
 
 	// Mobile menu state - converted to $state()
 	let isMobileMenuOpen = $state(false);
@@ -32,7 +35,7 @@
 
 	// Handle page transitions - converted to $effect()
 	$effect(() => {
-		if ($navigating) {
+		if (navigating) {
 			isPageLoaded = false;
 			isFooterVisible = false;
 		}
@@ -40,7 +43,7 @@
 
 	// Handle page load completion - converted to $effect()
 	$effect(() => {
-		if (!$navigating && !isInitialLoading) {
+		if (!navigating && !isInitialLoading) {
 			// Small delay to ensure content is rendered
 			setTimeout(() => {
 				isPageLoaded = true;
@@ -52,11 +55,41 @@
 		}
 	});
 
+	// Effect to handle admin routing based on authentication and admin status
+	$effect(() => {
+		// Check if user is authenticated
+		if ($authStore.identity) {
+			const principal = $authStore.identity.getPrincipal().toString();
+
+			// Check if authenticated user is an admin
+			if (adminList.includes(principal)) {
+				// Redirect admins to KYC management page if not already there
+				if (page.url.pathname !== '/admin/kyc') {
+					goto('/admin/kyc');
+				}
+			} else {
+				// Redirect non-admins away from admin pages
+				if (page.url.pathname === '/admin/kyc') {
+					goto('/');
+				}
+			}
+		} else {
+			// Redirect unauthenticated users away from admin pages
+			if (page.url.pathname === '/admin/kyc') {
+				goto('/');
+			}
+		}
+	});
+
 	onMount(async () => {
 		await initAuth();
 
 		// Wait for initial render to complete
 		await tick();
+
+		await createActorBasedOnIdentity($authStore);
+
+		await fetchAdminList();
 
 		// Mark initial loading as complete
 		setTimeout(() => {
@@ -70,21 +103,30 @@
 		}, 100);
 	});
 
-	const newActorUnsubscriber = authStore.subscribe(async ({ identity, isLoggedIn }) => {
+	const createActorBasedOnIdentity = async ({ identity, isLoggedIn }: AuthState) => {
 		if (identity && isLoggedIn) {
+			console.log('principal', identity.getPrincipal().toString());
 			const agent = await getAgent({ identity });
 			const newActor = await createActor(agent);
 			actor.set(newActor);
+		} else {
+			console.log('creating new actor with anonymous identity');
+			const agent = await getAgent({ identity: new AnonymousIdentity() });
+			const newActor = await createActor(agent);
+			actor.set(newActor);
+		}
+	};
 
+	const newActorUnsubscriber = authStore.subscribe(async (authState) => {
+		await createActorBasedOnIdentity(authState);
+
+		if (authState.isLoggedIn) {
 			// Only fetch data after actor is initialized
 			await fetchUserProfile();
 			// Temporarily disable ckBTC balance fetch to avoid canister errors
-			// await fetchCkbtcBalance();
-		} else {
-			actor.set(null);
+			await fetchCkbtcBalance();
 		}
 	});
-
 	onDestroy(newActorUnsubscriber);
 </script>
 

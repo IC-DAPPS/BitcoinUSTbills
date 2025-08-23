@@ -25,9 +25,7 @@ export const fetchUserProfile = async () => {
         } else {
 
             const err = response.Err;
-            if ('UserNotFound' in err) {
-                goto('/register')
-            }
+
         }
 
     } catch (error) {
