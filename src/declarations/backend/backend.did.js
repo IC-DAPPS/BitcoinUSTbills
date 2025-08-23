@@ -60,31 +60,49 @@ export const idlFactory = ({ IDL }) => {
     'Processing' : IDL.Null,
     'Expired' : IDL.Null,
   });
-  const OCRResult = IDL.Record({
-    'extracted_country' : IDL.Text,
-    'extracted_name' : IDL.Text,
-    'extracted_dob' : IDL.Text,
-    'raw_text' : IDL.Text,
-    'extracted_document_number' : IDL.Text,
-    'confidence_score' : IDL.Float32,
-  });
   const FreeKYCSession = IDL.Record({
     'status' : FreeKYCStatus,
+    'document_front_page' : IDL.Text,
     'user_principal' : IDL.Principal,
-    'document_type' : IDL.Text,
-    'selfie_bytes' : IDL.Vec(IDL.Nat8),
     'reviewed_at' : IDL.Opt(IDL.Nat64),
     'created_at' : IDL.Nat64,
-    'ofac_clear' : IDL.Bool,
+    'selfie_with_document' : IDL.Text,
     'needs_manual_review' : IDL.Bool,
-    'upload_id' : IDL.Text,
-    'document_bytes' : IDL.Vec(IDL.Nat8),
-    'calculated_age' : IDL.Nat8,
-    'ocr_result' : OCRResult,
+    'document_back_page' : IDL.Text,
     'reviewer_notes' : IDL.Opt(IDL.Text),
   });
+  const KYCStatus = IDL.Variant({
+    'Rejected' : IDL.Null,
+    'Verified' : IDL.Null,
+    'Expired' : IDL.Null,
+    'Pending' : IDL.Null,
+  });
+  const User = IDL.Record({
+    'updated_at' : IDL.Nat64,
+    'principal' : IDL.Principal,
+    'country' : IDL.Text,
+    'kyc_tier' : IDL.Nat8,
+    'last_vc_verification' : IDL.Opt(IDL.Nat64),
+    'created_at' : IDL.Nat64,
+    'verified_adult' : IDL.Bool,
+    'email' : IDL.Text,
+    'total_invested' : IDL.Nat64,
+    'vc_credentials_ref' : IDL.Opt(IDL.Text),
+    'max_investment_limit' : IDL.Nat64,
+    'kyc_status' : KYCStatus,
+    'verified_resident' : IDL.Bool,
+    'is_active' : IDL.Bool,
+    'phone_number' : IDL.Opt(IDL.Text),
+    'accredited_investor' : IDL.Bool,
+    'wallet_balance' : IDL.Nat64,
+    'total_yield_earned' : IDL.Nat64,
+  });
+  const UserAndFreeKYCSession = IDL.Record({
+    'kyc_session' : FreeKYCSession,
+    'user' : User,
+  });
   const Result_1 = IDL.Variant({
-    'Ok' : IDL.Vec(FreeKYCSession),
+    'Ok' : IDL.Vec(UserAndFreeKYCSession),
     'Err' : BitcoinUSTBillsError,
   });
   const HoldingStatus = IDL.Variant({
@@ -181,32 +199,6 @@ export const idlFactory = ({ IDL }) => {
     'total_transactions' : IDL.Nat64,
     'total_volume' : IDL.Nat64,
     'highest_price' : IDL.Nat64,
-  });
-  const KYCStatus = IDL.Variant({
-    'Rejected' : IDL.Null,
-    'Verified' : IDL.Null,
-    'Expired' : IDL.Null,
-    'Pending' : IDL.Null,
-  });
-  const User = IDL.Record({
-    'updated_at' : IDL.Nat64,
-    'principal' : IDL.Principal,
-    'country' : IDL.Text,
-    'kyc_tier' : IDL.Nat8,
-    'last_vc_verification' : IDL.Opt(IDL.Nat64),
-    'created_at' : IDL.Nat64,
-    'verified_adult' : IDL.Bool,
-    'email' : IDL.Text,
-    'total_invested' : IDL.Nat64,
-    'vc_credentials_ref' : IDL.Opt(IDL.Text),
-    'max_investment_limit' : IDL.Nat64,
-    'kyc_status' : KYCStatus,
-    'verified_resident' : IDL.Bool,
-    'is_active' : IDL.Bool,
-    'phone_number' : IDL.Opt(IDL.Text),
-    'accredited_investor' : IDL.Bool,
-    'wallet_balance' : IDL.Nat64,
-    'total_yield_earned' : IDL.Nat64,
   });
   const Result_7 = IDL.Variant({ 'Ok' : User, 'Err' : BitcoinUSTBillsError });
   const PaginatedResponse = IDL.Record({
@@ -313,7 +305,7 @@ export const idlFactory = ({ IDL }) => {
     'update_platform_config' : IDL.Func([PlatformConfig], [Result], []),
     'update_ustbill_market_data' : IDL.Func([], [Result], []),
     'upload_document_free_kyc' : IDL.Func(
-        [IDL.Vec(IDL.Nat8), IDL.Text, IDL.Vec(IDL.Nat8)],
+        [IDL.Text, IDL.Text, IDL.Text],
         [Result_10],
         [],
       ),

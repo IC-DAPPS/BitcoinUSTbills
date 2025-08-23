@@ -78,6 +78,9 @@ pub enum BitcoinUSTBillsError {
     // Legacy errors (keeping for compatibility)
     DidntFindUserData,
     FailedToAddToList,
+
+    // File store bucket errors
+    FileStoreBucketError(String),
 }
 
 impl std::fmt::Display for BitcoinUSTBillsError {
@@ -178,10 +181,15 @@ impl std::fmt::Display for BitcoinUSTBillsError {
             BitcoinUSTBillsError::MaturityDatePassed => {
                 write!(f, "Maturity date has already passed")
             }
-            
+
             // Legacy errors
             BitcoinUSTBillsError::DidntFindUserData => write!(f, "User data not found"),
             BitcoinUSTBillsError::FailedToAddToList => write!(f, "Failed to add to list"),
+
+            // File store bucket errors
+            BitcoinUSTBillsError::FileStoreBucketError(msg) => {
+                write!(f, "File store bucket error: {}", msg)
+            }
         }
     }
 }

@@ -1,6 +1,8 @@
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 
+use crate::User;
+
 // ============= DOCUMENT VERIFICATION TYPES =============
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
@@ -49,16 +51,29 @@ pub enum DocumentProcessingStatus {
 
 // ============= FREE KYC MVP TYPES =============
 
+// #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+// pub struct FreeKYCSession {
+//     pub upload_id: String,
+//     pub user_principal: Principal,
+//     pub document_type: String,
+//     pub document_bytes: Vec<u8>,
+//     pub selfie_bytes: Vec<u8>,
+//     pub ocr_result: OCRResult,
+//     pub calculated_age: u8,
+//     pub ofac_clear: bool,
+//     pub needs_manual_review: bool,
+//     pub status: FreeKYCStatus,
+//     pub created_at: u64,
+//     pub reviewed_at: Option<u64>,
+//     pub reviewer_notes: Option<String>,
+// }
+
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
 pub struct FreeKYCSession {
-    pub upload_id: String,
     pub user_principal: Principal,
-    pub document_type: String,
-    pub document_bytes: Vec<u8>,
-    pub selfie_bytes: Vec<u8>,
-    pub ocr_result: OCRResult,
-    pub calculated_age: u8,
-    pub ofac_clear: bool,
+    pub document_front_page: String,
+    pub document_back_page: String,
+    pub selfie_with_document: String,
     pub needs_manual_review: bool,
     pub status: FreeKYCStatus,
     pub created_at: u64,
@@ -74,6 +89,12 @@ pub enum FreeKYCStatus {
     ManualApproved,
     Rejected,
     Expired,
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+pub struct UserAndFreeKYCSession {
+    pub user: User,
+    pub kyc_session: FreeKYCSession,
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
@@ -93,8 +114,6 @@ pub struct SanctionsCheckResult {
     pub check_date: u64,
     pub details: Option<String>,
 }
-
-
 
 // ============= FREE API CONFIGURATION =============
 

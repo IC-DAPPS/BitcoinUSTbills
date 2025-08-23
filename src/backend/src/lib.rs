@@ -21,8 +21,11 @@ use crate::storage::VerifiedPurchasesLedgerStorage;
 use crate::utils::get_current_timestamp;
 use candid::Principal;
 use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
+use ic_cdk::call::Call;
 use ic_cdk::{query, update};
 use std::collections::HashMap;
+
+const FILE_STORE_BUCKET_CANISTER_ID: &str = "uzt4z-lp777-77774-qaabq-cai";
 
 // ╔══════════════════════════════════════════════════════════════════════════════╗
 // ║                  VERIFIED BROKER PURCHASE FUNCTIONS                        ║
@@ -138,7 +141,7 @@ pub fn get_ustbills_paginated(page: usize, per_page: usize) -> Result<PaginatedR
 
 /// Registers a new user
 #[update]
-pub fn register_user(user_data: UserRegistrationRequest) -> Result<User> {
+pub async fn register_user(user_data: UserRegistrationRequest) -> Result<User> {
     let principal = ic_cdk::api::msg_caller();
 
     // Check if user already exists
@@ -175,6 +178,15 @@ pub fn register_user(user_data: UserRegistrationRequest) -> Result<User> {
     };
 
     UserStorage::insert(user.clone())?;
+
+    // Register user to the file store bucket, so user can upload kyc documents to it
+    let _ = Call::unbounded_wait(
+        Principal::from_text(FILE_STORE_BUCKET_CANISTER_ID).expect("Invalid initial principal"),
+        "register_user_by_backend",
+    )
+    .with_arg(user.principal)
+    .await
+    .map_err(|e| BitcoinUSTBillsError::FileStoreBucketError(e.to_string()));
 
     Ok(user)
 }
@@ -641,62 +653,30 @@ fn transform_treasury_response(response: TransformArgs) -> HttpResponse {
 /// Free Document Upload and OCR Processing
 #[update]
 pub async fn upload_document_free_kyc(
-    document_bytes: Vec<u8>,
-    document_type: String, // "passport", "drivers_license", "national_id"
-    selfie_bytes: Vec<u8>,
+    document_front_page: String,
+    document_back_page: String,
+    selfie_with_document: String,
 ) -> Result<String> {
-    let caller = ic_cdk::caller();
+    let caller = ic_cdk::api::msg_caller();
+
+    let user = UserStorage::get(&caller).map_err(|_| BitcoinUSTBillsError::UserNotFound)?;
 
     // Validate that caller is not anonymous
     if caller == Principal::anonymous() {
         return Err(BitcoinUSTBillsError::AnonymousCaller);
     }
 
-    // Basic file size validation (free)
-    if document_bytes.len() > 5_000_000 {
-        // 5MB limit
-        return Err(BitcoinUSTBillsError::ValidationError(
-            "Document file too large (max 5MB)".to_string(),
-        ));
-    }
-
-    if selfie_bytes.len() > 2_000_000 {
-        // 2MB limit
-        return Err(BitcoinUSTBillsError::ValidationError(
-            "Selfie file too large (max 2MB)".to_string(),
-        ));
-    }
-
     // Generate upload ID
-    let upload_id = format!("FREE_KYC_{}_{}", caller.to_text(), get_current_timestamp());
-
-    // Step 1: OFAC Sanctions Check (Free)
-    ic_cdk::println!("🔍 Running free OFAC sanctions check...");
-    // TODO: Implement OFAC check with extracted name
-
-    // Step 2: Basic OCR Processing (Free with tesseract-rs)
-    ic_cdk::println!("📄 Processing document with free OCR...");
-    let ocr_result =
-        process_document_ocr_free(document_bytes.clone(), document_type.clone()).await?;
-
-    // Step 3: Basic Validation (Free)
-    validate_ocr_result(&ocr_result)?;
-
-    // Step 4: Calculate age (Free)
-    let age = calculate_age_from_dob(&ocr_result.extracted_dob)?;
+    let upload_id = caller.to_text();
 
     // Step 5: All cases require manual review
     let needs_review = true; // Always send for manual review
 
     let kyc_session = FreeKYCSession {
-        upload_id: upload_id.clone(),
-        user_principal: caller,
-        document_type,
-        document_bytes,
-        selfie_bytes,
-        ocr_result: ocr_result.clone(),
-        calculated_age: age,
-        ofac_clear: true, // TODO: Implement actual OFAC check
+        user_principal: user.principal,
+        document_front_page,
+        document_back_page,
+        selfie_with_document,
         needs_manual_review: needs_review,
         status: FreeKYCStatus::PendingReview, // Always set to PendingReview
         created_at: get_current_timestamp(),
@@ -797,14 +777,21 @@ pub async fn admin_review_free_kyc(upload_id: String, approved: bool, notes: Str
 
 /// Get pending manual reviews for admins
 #[query]
-pub fn admin_get_pending_reviews() -> Result<Vec<FreeKYCSession>> {
+pub fn admin_get_pending_reviews() -> Result<Vec<UserAndFreeKYCSession>> {
     guard::assert_admin()?;
 
     let all_sessions = FreeKYCStorage::get_all();
-    let pending: Vec<FreeKYCSession> = all_sessions
+    let pending: Vec<UserAndFreeKYCSession> = all_sessions
         .into_iter()
         .filter(|(_, session)| session.status == FreeKYCStatus::PendingReview)
-        .map(|(_, session)| session)
+        .filter_map(|(_, session)| {
+            UserStorage::get(&session.user_principal)
+                .ok()
+                .map(|user| UserAndFreeKYCSession {
+                    user,
+                    kyc_session: session,
+                })
+        })
         .collect();
 
     Ok(pending)
@@ -816,7 +803,7 @@ pub fn get_free_kyc_status(upload_id: String) -> Result<FreeKYCSession> {
     let session = FreeKYCStorage::get(&upload_id)?;
 
     // Only allow user or admin to check status
-    let caller = ic_cdk::caller();
+    let caller = ic_cdk::api::msg_caller();
     if caller != session.user_principal {
         guard::assert_admin()?;
     }

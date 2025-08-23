@@ -1,0 +1,53 @@
+type UploadChunkArg = 
+ record {
+   batchId: nat;
+   chunk: blob;
+ };
+type FileName = text;
+type FileInfo = 
+ record {
+   content_type: text;
+   file_name: FileName;
+   modified: nat64;
+   nos_chunks: nat;
+   sha256: opt blob;
+   size: nat;
+ };
+type File = 
+ record {
+   content: vec blob;
+   contentType: text;
+   modified: nat64;
+   sha256: opt blob;
+ };
+type BatchId = nat;
+type BatchArg = 
+ record {
+   chunksSha256: vec blob;
+   contentType: text;
+   name: text;
+   sha256: opt blob;
+ };
+service : {
+  create_batch: (args: BatchArg) -> (BatchId);
+  get: (record {file_name: FileName;}) ->
+   (record {
+      chunks_left: nat;
+      content: blob;
+      content_type: text;
+      modified: nat64;
+      sha256: opt blob;
+    }) query;
+  get_chunk: (record {
+                file_name: FileName;
+                index: nat;
+              }) -> (record {content: blob;}) query;
+  get_stored_files: () -> (vec record {
+                                 text;
+                                 File;
+                               }) query;
+  is_user_registered: () -> (bool) query;
+  list: () -> (vec FileInfo) query;
+  register_user_by_backend: (user: principal) -> ();
+  upload_chunk: (UploadChunkArg) -> ();
+}

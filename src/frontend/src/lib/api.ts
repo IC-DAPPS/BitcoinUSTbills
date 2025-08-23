@@ -31,7 +31,8 @@ import type {
   Result_8,
 
   // Error types
-  BitcoinUSTBillsError
+  BitcoinUSTBillsError,
+  FreeKYCSession
 } from "../../../declarations/backend/backend.did";
 import type { GetUserProfileResponse, RegisterUserResponse } from "./types/result";
 
@@ -132,6 +133,19 @@ export async function getUserProfile(): Promise<GetUserProfileResponse
 export async function updateKYCStatus(principal: Principal, status: KYCStatus): Promise<void> {
   const result = await getActor().update_kyc_status(principal, status);
   handleResult(result);
+}
+
+/**
+ * Gets KYC status for user and admin by uploadId = user.principal.toText()
+ */
+export async function getKYCStatus(uploadId: string): Promise<FreeKYCSession> {
+  const result = await getActor().get_free_kyc_status(uploadId);
+  return handleResult(result);
+}
+
+export async function RequestKycReview(documentFrontPage: string, documentBackPage: string, selfieWithDocument: string): Promise<string> {
+  const result = await getActor().upload_document_free_kyc(documentFrontPage, documentBackPage, selfieWithDocument);
+  return handleResult(result);
 }
 
 // ============= WALLET OPERATIONS =============

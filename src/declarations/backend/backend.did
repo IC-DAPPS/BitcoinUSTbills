@@ -52,17 +52,13 @@ type BitcoinUSTBillsError = variant {
 };
 type FreeKYCSession = record {
   status : FreeKYCStatus;
+  document_front_page : text;
   user_principal : principal;
-  document_type : text;
-  selfie_bytes : blob;
   reviewed_at : opt nat64;
   created_at : nat64;
-  ofac_clear : bool;
+  selfie_with_document : text;
   needs_manual_review : bool;
-  upload_id : text;
-  document_bytes : blob;
-  calculated_age : nat8;
-  ocr_result : OCRResult;
+  document_back_page : text;
   reviewer_notes : opt text;
 };
 type FreeKYCStatus = variant {
@@ -81,14 +77,6 @@ type HttpResponse = record {
   headers : vec HttpHeader;
 };
 type KYCStatus = variant { Rejected; Verified; Expired; Pending };
-type OCRResult = record {
-  extracted_country : text;
-  extracted_name : text;
-  extracted_dob : text;
-  raw_text : text;
-  extracted_document_number : text;
-  confidence_score : float32;
-};
 type PaginatedResponse = record {
   per_page : nat64;
   total : nat64;
@@ -105,7 +93,10 @@ type PlatformConfig = record {
   treasury_api_refresh_interval : nat64;
 };
 type Result = variant { Ok; Err : BitcoinUSTBillsError };
-type Result_1 = variant { Ok : vec FreeKYCSession; Err : BitcoinUSTBillsError };
+type Result_1 = variant {
+  Ok : vec UserAndFreeKYCSession;
+  Err : BitcoinUSTBillsError;
+};
 type Result_10 = variant { Ok : text; Err : BitcoinUSTBillsError };
 type Result_2 = variant { Ok : TokenHolding; Err : BitcoinUSTBillsError };
 type Result_3 = variant { Ok : nat64; Err : BitcoinUSTBillsError };
@@ -187,6 +178,10 @@ type User = record {
   wallet_balance : nat64;
   total_yield_earned : nat64;
 };
+type UserAndFreeKYCSession = record {
+  kyc_session : FreeKYCSession;
+  user : User;
+};
 type UserRegistrationRequest = record {
   country : text;
   email : text;
@@ -236,6 +231,6 @@ service : {
   update_kyc_status : (principal, KYCStatus) -> (Result);
   update_platform_config : (PlatformConfig) -> (Result);
   update_ustbill_market_data : () -> (Result);
-  upload_document_free_kyc : (blob, text, blob) -> (Result_10);
+  upload_document_free_kyc : (text, text, text) -> (Result_10);
   withdraw_funds : (nat64) -> (Result_3);
 }

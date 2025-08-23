@@ -14,6 +14,10 @@
         }
       ]
     },
+    "file_store_bucket":{
+       "main": "src/file_store_bucket/main.mo",
+      "type": "motoko"
+    },
     "frontend": {
       "dependencies": [
         "backend",
@@ -51,5 +55,11 @@
       "type": "ephemeral"
     }
   },
-  "output_env_file": ".env"
+  "output_env_file": ".env",
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": "mops sources"
+    }
+  }
 }

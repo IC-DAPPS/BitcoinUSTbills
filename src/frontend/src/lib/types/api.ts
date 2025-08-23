@@ -12,3 +12,17 @@ export enum IcrcMetadataResponseEntries {
 }
 
 export type IcrcTokenMetadataResponse = [string | IcrcMetadataResponseEntries, MetadataValue][];
+
+
+export type GetFileResponse = {
+	'modified': bigint,
+	'content': Uint8Array | number[],
+	'sha256': [] | [Uint8Array | number[]],
+	'chunks_left': bigint,
+	'content_type': string,
+}
+
+export type GetChunkResponse = {
+	'content': Uint8Array | number[],
+}
+

@@ -54,17 +54,13 @@ export type BitcoinUSTBillsError = { 'UserAlreadyExists' : null } |
   { 'HoldingMatured' : null };
 export interface FreeKYCSession {
   'status' : FreeKYCStatus,
+  'document_front_page' : string,
   'user_principal' : Principal,
-  'document_type' : string,
-  'selfie_bytes' : Uint8Array | number[],
   'reviewed_at' : [] | [bigint],
   'created_at' : bigint,
-  'ofac_clear' : boolean,
+  'selfie_with_document' : string,
   'needs_manual_review' : boolean,
-  'upload_id' : string,
-  'document_bytes' : Uint8Array | number[],
-  'calculated_age' : number,
-  'ocr_result' : OCRResult,
+  'document_back_page' : string,
   'reviewer_notes' : [] | [string],
 }
 export type FreeKYCStatus = { 'PendingReview' : null } |
@@ -85,14 +81,6 @@ export type KYCStatus = { 'Rejected' : null } |
   { 'Verified' : null } |
   { 'Expired' : null } |
   { 'Pending' : null };
-export interface OCRResult {
-  'extracted_country' : string,
-  'extracted_name' : string,
-  'extracted_dob' : string,
-  'raw_text' : string,
-  'extracted_document_number' : string,
-  'confidence_score' : number,
-}
 export interface PaginatedResponse {
   'per_page' : bigint,
   'total' : bigint,
@@ -110,7 +98,7 @@ export interface PlatformConfig {
 }
 export type Result = { 'Ok' : null } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_1 = { 'Ok' : Array<FreeKYCSession> } |
+export type Result_1 = { 'Ok' : Array<UserAndFreeKYCSession> } |
   { 'Err' : BitcoinUSTBillsError };
 export type Result_10 = { 'Ok' : string } |
   { 'Err' : BitcoinUSTBillsError };
@@ -208,6 +196,10 @@ export interface User {
   'wallet_balance' : bigint,
   'total_yield_earned' : bigint,
 }
+export interface UserAndFreeKYCSession {
+  'kyc_session' : FreeKYCSession,
+  'user' : User,
+}
 export interface UserRegistrationRequest {
   'country' : string,
   'email' : string,
@@ -263,10 +255,7 @@ export interface _SERVICE {
   'update_kyc_status' : ActorMethod<[Principal, KYCStatus], Result>,
   'update_platform_config' : ActorMethod<[PlatformConfig], Result>,
   'update_ustbill_market_data' : ActorMethod<[], Result>,
-  'upload_document_free_kyc' : ActorMethod<
-    [Uint8Array | number[], string, Uint8Array | number[]],
-    Result_10
-  >,
+  'upload_document_free_kyc' : ActorMethod<[string, string, string], Result_10>,
   'withdraw_funds' : ActorMethod<[bigint], Result_3>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
