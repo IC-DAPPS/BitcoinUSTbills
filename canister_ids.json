@@ -4,5 +4,8 @@
   },
   "frontend": {
     "ic": "lvxyi-siaaa-aaaag-qnifa-cai"
+  },
+  "file_store_bucket": {
+    "ic": "lsttr-myaaa-aaaan-qz3fa-cai"
   }
 }
