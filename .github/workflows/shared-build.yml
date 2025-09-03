@@ -1,0 +1,43 @@
+name: Shared Build for BitcoinUSTbills
+
+on:
+  workflow_call:
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./BitcoinUSTbills
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup DFX
+        run: |
+          sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'BitcoinUSTbills/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint and format check
+        run: npm run lint
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build backend
+        run: dfx build
+
+

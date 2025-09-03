@@ -1,0 +1,16 @@
+name: Publish Docs (Disabled)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish-docs:
+    name: Publish Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Workflow disabled
+        run: |
+          echo "Documentation publishing is currently disabled."
+          echo "Enable this workflow when you have a documentation setup."
+
+

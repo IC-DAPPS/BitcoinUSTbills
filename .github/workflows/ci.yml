@@ -1,0 +1,12 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Release Build
+    uses: ./.github/workflows/shared-build.yml
