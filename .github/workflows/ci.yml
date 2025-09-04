@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  release-build:
+    name: Release Build
+    uses: ./.github/workflows/shared-build.yml
+
+  publish-motoko-package:
+    name: Publish Motoko Package to Mops
+    needs: release-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Mops
+        run: npm install -g mops
+
+      - name: Publish to Mops
+        run: mops publish
+        working-directory: ./BitcoinUSTbills/packages/file-store-bucket
+        env:
+          MOPS_AUTH_TOKEN: ${{ secrets.MOPS_AUTH_TOKEN }}

@@ -1,0 +1,43 @@
+name: Publish Motoko Docs to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  publish-docs:
+    name: Build and publish Motoko docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download mo-doc
+        run: |
+          MODOC_VERSION="0.2.1"
+          wget "https://github.com/dfinity/mo-doc/releases/download/v${MODOC_VERSION}/mo-doc-v${MODOC_VERSION}-linux64.zip"
+          unzip "mo-doc-v${MODOC_VERSION}-linux64.zip"
+          chmod +x mo-doc
+          echo "$(pwd)" >> $GITHUB_PATH
+
+      - name: Build documentation
+        run: mo-doc --source BitcoinUSTbills/packages/file-store-bucket/src --output docs
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload docs to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
