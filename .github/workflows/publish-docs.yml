@@ -26,26 +26,12 @@ jobs:
 
       - name: Build documentation
         run: |
-          # Find mo-doc in DFX installation
-          MO_DOC_PATH=$(find $HOME -name "mo-doc" -type f 2>/dev/null | head -1)
-          if [ -z "$MO_DOC_PATH" ]; then
-            echo "mo-doc not found, trying alternative paths..."
-            # Try common DFX installation paths
-            for path in "$HOME/.local/share/dfx/bin/mo-doc" "$HOME/bin/mo-doc" "/usr/local/bin/mo-doc"; do
-              if [ -f "$path" ]; then
-                MO_DOC_PATH="$path"
-                break
-              fi
-            done
-          fi
+          echo "Using mo-doc from DFX cache..."
+          echo "DFX cache location: $(dfx cache show)"
+          echo "mo-doc path: $(dfx cache show)/mo-doc"
 
-          if [ -z "$MO_DOC_PATH" ]; then
-            echo "Error: mo-doc not found in any expected location"
-            exit 1
-          fi
-
-          echo "Using mo-doc at: $MO_DOC_PATH"
-          "$MO_DOC_PATH" --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
+          # Use the correct mo-doc path from DFX cache
+          "$(dfx cache show)/mo-doc" --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
