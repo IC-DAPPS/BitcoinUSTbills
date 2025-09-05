@@ -36,6 +36,10 @@ jobs:
       - name: Build documentation
         run: |
           echo "Building documentation with mo-doc..."
+          echo "Current directory: $(pwd)"
+          echo "Checking if source directory exists:"
+          ls -la packages/file-store-bucket/src/ || echo "Source directory not found"
+          echo "Running mo-doc..."
           ./motoko-0.16.1-linux64/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
 
       - name: Setup Pages
