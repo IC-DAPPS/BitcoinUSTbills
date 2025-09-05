@@ -19,12 +19,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dfx (includes mo-doc)
-        run: |
-          curl -fsSL https://internetcomputer.org/install.sh | sh
-          echo "$HOME/bin" >> $GITHUB_PATH
-          export PATH="$PATH:$HOME/bin"
-          mo-doc --help
+      - name: Setup DFX
+        uses: dfinity/setup-dfx@main
+        with:
+          dfx-version: 0.28.0
 
       - name: Build documentation
         run: mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
