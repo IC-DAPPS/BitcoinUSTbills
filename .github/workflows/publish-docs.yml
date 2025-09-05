@@ -24,14 +24,19 @@ jobs:
         with:
           dfx-version: 0.28.0
 
+      - name: Download mo-doc
+        run: |
+          echo "Downloading mo-doc from Motoko releases..."
+          # Download the latest Motoko release
+          wget -q https://github.com/dfinity/motoko/releases/download/0.16.1/motoko-0.16.1-linux64.tar.gz
+          tar -xzf motoko-0.16.1-linux64.tar.gz
+          chmod +x motoko-0.16.1-linux64/mo-doc
+          echo "mo-doc downloaded and made executable"
+
       - name: Build documentation
         run: |
-          echo "Using mo-doc from DFX cache..."
-          echo "DFX cache location: $(dfx cache show)"
-          echo "mo-doc path: $(dfx cache show)/mo-doc"
-
-          # Use the correct mo-doc path from DFX cache
-          "$(dfx cache show)/mo-doc" --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
+          echo "Building documentation with mo-doc..."
+          ./motoko-0.16.1-linux64/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
