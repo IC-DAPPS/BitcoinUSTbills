@@ -35,6 +35,12 @@ jobs:
           echo "Attempting download with curl..."
           if curl -L -o motoko-0.16.1-linux64.tar.gz https://github.com/dfinity/motoko/releases/download/0.16.1/motoko-0.16.1-linux64.tar.gz; then
             echo "Download successful with curl"
+            echo "Checking downloaded file..."
+            file motoko-0.16.1-linux64.tar.gz
+            echo "File size: $(ls -la motoko-0.16.1-linux64.tar.gz)"
+            echo "First few lines of file:"
+            head -5 motoko-0.16.1-linux64.tar.gz
+            echo "Attempting to extract..."
             tar -xzf motoko-0.16.1-linux64.tar.gz
             chmod +x motoko-0.16.1-linux64/mo-doc
             echo "mo-doc extracted and made executable"
