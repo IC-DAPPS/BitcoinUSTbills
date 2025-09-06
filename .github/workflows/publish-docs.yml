@@ -27,11 +27,39 @@ jobs:
       - name: Download mo-doc
         run: |
           echo "Downloading mo-doc from Motoko releases..."
-          # Download the latest Motoko release
-          wget -q https://github.com/dfinity/motoko/releases/download/0.16.1/motoko-0.16.1-linux64.tar.gz
-          tar -xzf motoko-0.16.1-linux64.tar.gz
-          chmod +x motoko-0.16.1-linux64/mo-doc
-          echo "mo-doc downloaded and made executable"
+          echo "Checking available tools..."
+          which curl || echo "curl not found"
+          which wget || echo "wget not found"
+
+          # Method 1: Try with curl (more reliable in GitHub Actions)
+          echo "Attempting download with curl..."
+          if curl -L -o motoko-0.16.1-linux64.tar.gz https://github.com/dfinity/motoko/releases/download/0.16.1/motoko-0.16.1-linux64.tar.gz; then
+            echo "Download successful with curl"
+            tar -xzf motoko-0.16.1-linux64.tar.gz
+            chmod +x motoko-0.16.1-linux64/mo-doc
+            echo "mo-doc extracted and made executable"
+          else
+            echo "curl download failed, trying wget..."
+            # Method 2: Try with wget as fallback
+            if wget -q https://github.com/dfinity/motoko/releases/download/0.16.1/motoko-0.16.1-linux64.tar.gz; then
+              echo "Download successful with wget"
+              tar -xzf motoko-0.16.1-linux64.tar.gz
+              chmod +x motoko-0.16.1-linux64/mo-doc
+              echo "mo-doc extracted and made executable"
+            else
+              echo "Both curl and wget failed, trying direct binary download..."
+              # Method 3: Try downloading mo-doc directly
+              mkdir -p motoko-bin
+              cd motoko-bin
+              if curl -L -o mo-doc https://github.com/dfinity/motoko/releases/download/0.16.1/mo-doc; then
+                chmod +x mo-doc
+                echo "mo-doc downloaded directly with curl"
+              else
+                echo "All download methods failed"
+                exit 1
+              fi
+            fi
+          fi
 
       - name: Build documentation
         run: |
@@ -40,7 +68,18 @@ jobs:
           echo "Checking if source directory exists:"
           ls -la packages/file-store-bucket/src/ || echo "Source directory not found"
           echo "Running mo-doc..."
-          ./motoko-0.16.1-linux64/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
+
+          # Try different mo-doc locations
+          if [ -f "./motoko-0.16.1-linux64/mo-doc" ]; then
+            echo "Using mo-doc from tar.gz extraction"
+            ./motoko-0.16.1-linux64/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
+          elif [ -f "./motoko-bin/mo-doc" ]; then
+            echo "Using mo-doc from direct download"
+            ./motoko-bin/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
+          else
+            echo "Error: mo-doc not found in any expected location"
+            exit 1
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
