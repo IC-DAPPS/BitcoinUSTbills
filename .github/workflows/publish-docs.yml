@@ -51,9 +51,25 @@ jobs:
             if file motoko-Linux-x86_64-0.16.1.tar.gz | grep -q "gzip compressed"; then
               echo "Valid tar.gz file found, extracting..."
               tar -xzf motoko-Linux-x86_64-0.16.1.tar.gz
-              chmod +x motoko-Linux-x86_64-0.16.1/mo-doc
-              echo "mo-doc extracted and made executable"
-              DOWNLOAD_SUCCESS=true
+              echo "Extraction complete. Checking directory structure..."
+              echo "Contents of extracted directory:"
+              ls -la motoko-Linux-x86_64-0.16.1/ || echo "Directory not found, checking current directory:"
+              ls -la
+              echo "Looking for mo-doc in various locations..."
+              find . -name "mo-doc" -type f 2>/dev/null || echo "mo-doc not found"
+              echo "Looking for any executable files..."
+              find . -name "*mo*" -type f 2>/dev/null || echo "No mo* files found"
+              
+              # Try to find mo-doc in the extracted structure
+              MO_DOC_PATH=$(find . -name "mo-doc" -type f 2>/dev/null | head -1)
+              if [ -n "$MO_DOC_PATH" ]; then
+                echo "Found mo-doc at: $MO_DOC_PATH"
+                chmod +x "$MO_DOC_PATH"
+                echo "mo-doc made executable"
+                DOWNLOAD_SUCCESS=true
+              else
+                echo "mo-doc not found in extracted files"
+              fi
             else
               echo "Downloaded file is not a valid tar.gz, trying alternative URLs..."
             fi
@@ -99,16 +115,29 @@ jobs:
           echo "Running mo-doc..."
 
           # Try different mo-doc locations
+          MO_DOC_PATH=""
+
+          # Look for mo-doc in various locations
           if [ -f "./motoko-Linux-x86_64-0.16.1/mo-doc" ]; then
+            MO_DOC_PATH="./motoko-Linux-x86_64-0.16.1/mo-doc"
             echo "Using mo-doc from tar.gz extraction"
-            ./motoko-Linux-x86_64-0.16.1/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
           elif [ -f "./motoko-bin/mo-doc" ]; then
+            MO_DOC_PATH="./motoko-bin/mo-doc"
             echo "Using mo-doc from direct download"
-            ./motoko-bin/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
           else
-            echo "Error: mo-doc not found in any expected location"
-            exit 1
+            # Try to find mo-doc anywhere
+            MO_DOC_PATH=$(find . -name "mo-doc" -type f 2>/dev/null | head -1)
+            if [ -n "$MO_DOC_PATH" ]; then
+              echo "Found mo-doc at: $MO_DOC_PATH"
+            else
+              echo "Error: mo-doc not found in any expected location"
+              exit 1
+            fi
           fi
+
+          # Run mo-doc with the found path
+          echo "Running mo-doc: $MO_DOC_PATH"
+          "$MO_DOC_PATH" --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
