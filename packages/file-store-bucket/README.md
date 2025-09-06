@@ -38,6 +38,17 @@ import FileStoreBucket "mo:file-store-bucket";
 // - list(): async [FileInfo]
 ```
 
+## Documentation
+
+📚 **Complete API Documentation**: [View Generated Docs](./docs/index.html)
+
+The generated documentation includes detailed information about all types, functions, and usage examples.
+
+### Quick Links
+- [Main Module](./docs/main.html) - Core file storage functionality
+- [Batch Management](./docs/Batch.html) - Upload batch operations
+- [Utilities](./docs/Utils.html) - Helper functions
+
 ## API Reference
 
 ### Types

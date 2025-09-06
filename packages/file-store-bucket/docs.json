@@ -1,0 +1,36 @@
+{
+    "name": "file-store-bucket",
+    "version": "0.1.0",
+    "description": "A shareable Motoko canister for storing files",
+    "documentation": {
+        "index": "./docs/index.html",
+        "modules": [
+            {
+                "name": "main",
+                "path": "./docs/main.html",
+                "description": "Core file storage functionality"
+            },
+            {
+                "name": "Batch",
+                "path": "./docs/Batch.html",
+                "description": "Upload batch management"
+            },
+            {
+                "name": "Utils",
+                "path": "./docs/Utils.html",
+                "description": "Utility functions"
+            }
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/IC-DAPPS/BitcoinUSTbills"
+    },
+    "keywords": [
+        "motoko",
+        "ic",
+        "file-storage",
+        "canister"
+    ],
+    "license": "MIT"
+}
