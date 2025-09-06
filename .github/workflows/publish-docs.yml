@@ -31,40 +31,63 @@ jobs:
           which curl || echo "curl not found"
           which wget || echo "wget not found"
 
-          # Method 1: Try with curl (more reliable in GitHub Actions)
+          # Method 1: Try different URLs for Motoko releases
           echo "Attempting download with curl..."
-          if curl -L -o motoko-0.16.1-linux64.tar.gz https://github.com/dfinity/motoko/releases/download/0.16.1/motoko-0.16.1-linux64.tar.gz; then
+
+          # Try multiple possible URLs
+          DOWNLOAD_SUCCESS=false
+
+          # URL 1: Try the correct Linux x86_64 tar.gz format
+          echo "Trying URL 1: motoko-Linux-x86_64-0.16.1.tar.gz"
+          if curl -L -o motoko-Linux-x86_64-0.16.1.tar.gz https://github.com/dfinity/motoko/releases/download/0.16.1/motoko-Linux-x86_64-0.16.1.tar.gz; then
             echo "Download successful with curl"
             echo "Checking downloaded file..."
-            file motoko-0.16.1-linux64.tar.gz
-            echo "File size: $(ls -la motoko-0.16.1-linux64.tar.gz)"
+            file motoko-Linux-x86_64-0.16.1.tar.gz
+            echo "File size: $(ls -la motoko-Linux-x86_64-0.16.1.tar.gz)"
             echo "First few lines of file:"
-            head -5 motoko-0.16.1-linux64.tar.gz
-            echo "Attempting to extract..."
-            tar -xzf motoko-0.16.1-linux64.tar.gz
-            chmod +x motoko-0.16.1-linux64/mo-doc
-            echo "mo-doc extracted and made executable"
-          else
-            echo "curl download failed, trying wget..."
-            # Method 2: Try with wget as fallback
-            if wget -q https://github.com/dfinity/motoko/releases/download/0.16.1/motoko-0.16.1-linux64.tar.gz; then
-              echo "Download successful with wget"
-              tar -xzf motoko-0.16.1-linux64.tar.gz
-              chmod +x motoko-0.16.1-linux64/mo-doc
+            head -5 motoko-Linux-x86_64-0.16.1.tar.gz
+            
+            # Check if it's a valid tar.gz file
+            if file motoko-Linux-x86_64-0.16.1.tar.gz | grep -q "gzip compressed"; then
+              echo "Valid tar.gz file found, extracting..."
+              tar -xzf motoko-Linux-x86_64-0.16.1.tar.gz
+              chmod +x motoko-Linux-x86_64-0.16.1/mo-doc
               echo "mo-doc extracted and made executable"
+              DOWNLOAD_SUCCESS=true
             else
-              echo "Both curl and wget failed, trying direct binary download..."
-              # Method 3: Try downloading mo-doc directly
-              mkdir -p motoko-bin
-              cd motoko-bin
-              if curl -L -o mo-doc https://github.com/dfinity/motoko/releases/download/0.16.1/mo-doc; then
-                chmod +x mo-doc
-                echo "mo-doc downloaded directly with curl"
-              else
-                echo "All download methods failed"
-                exit 1
+              echo "Downloaded file is not a valid tar.gz, trying alternative URLs..."
+            fi
+          fi
+
+          # URL 2: Try different naming convention
+          if [ "$DOWNLOAD_SUCCESS" = false ]; then
+            echo "Trying URL 2: motoko-linux64-0.16.1.tar.gz"
+            if curl -L -o motoko-linux64-0.16.1.tar.gz https://github.com/dfinity/motoko/releases/download/0.16.1/motoko-linux64-0.16.1.tar.gz; then
+              echo "Download successful with alternative URL"
+              if file motoko-linux64-0.16.1.tar.gz | grep -q "gzip compressed"; then
+                tar -xzf motoko-linux64-0.16.1.tar.gz
+                chmod +x motoko-linux64-0.16.1/mo-doc
+                echo "mo-doc extracted and made executable"
+                DOWNLOAD_SUCCESS=true
               fi
             fi
+          fi
+
+          # URL 3: Try direct mo-doc binary download
+          if [ "$DOWNLOAD_SUCCESS" = false ]; then
+            echo "Trying URL 3: Direct mo-doc binary download"
+            mkdir -p motoko-bin
+            cd motoko-bin
+            if curl -L -o mo-doc https://github.com/dfinity/motoko/releases/download/0.16.1/mo-doc; then
+              chmod +x mo-doc
+              echo "mo-doc downloaded directly"
+              DOWNLOAD_SUCCESS=true
+            fi
+          fi
+
+          if [ "$DOWNLOAD_SUCCESS" = false ]; then
+            echo "All download methods failed"
+            exit 1
           fi
 
       - name: Build documentation
@@ -76,9 +99,9 @@ jobs:
           echo "Running mo-doc..."
 
           # Try different mo-doc locations
-          if [ -f "./motoko-0.16.1-linux64/mo-doc" ]; then
+          if [ -f "./motoko-Linux-x86_64-0.16.1/mo-doc" ]; then
             echo "Using mo-doc from tar.gz extraction"
-            ./motoko-0.16.1-linux64/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
+            ./motoko-Linux-x86_64-0.16.1/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
           elif [ -f "./motoko-bin/mo-doc" ]; then
             echo "Using mo-doc from direct download"
             ./motoko-bin/mo-doc --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
