@@ -141,12 +141,15 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        continue-on-error: true
 
       - name: Upload docs to Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./packages/file-store-bucket/docs
+        continue-on-error: true
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
