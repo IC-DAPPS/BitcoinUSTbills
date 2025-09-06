@@ -139,6 +139,26 @@ jobs:
           echo "Running mo-doc: $MO_DOC_PATH"
           "$MO_DOC_PATH" --source packages/file-store-bucket/src --output packages/file-store-bucket/docs
 
+      - name: Commit generated docs
+        run: |
+          echo "Checking if docs were generated..."
+          ls -la packages/file-store-bucket/docs/ || echo "No docs directory found"
+          if [ -d "packages/file-store-bucket/docs" ]; then
+            echo "Docs generated successfully!"
+            echo "Contents of docs directory:"
+            ls -la packages/file-store-bucket/docs/
+            echo "Committing docs to repository..."
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add packages/file-store-bucket/docs/
+            git commit -m "docs: generate API documentation for file-store-bucket package" || echo "No changes to commit"
+            git push
+            echo "Docs committed to repository!"
+          else
+            echo "No docs directory found - something went wrong"
+            exit 1
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
         continue-on-error: true
