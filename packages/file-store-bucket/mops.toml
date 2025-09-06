@@ -1,9 +1,8 @@
 [package]
 name = "file-store-bucket"
-version = "0.1.0"
+version = "0.1.1"
 description = "A shareable Motoko canister for storing files."
 repository = "https://github.com/IC-DAPPS/BitcoinUSTbills"
-documentation = "https://github.com/IC-DAPPS/BitcoinUSTbills/tree/main/packages/file-store-bucket/docs"
 
 [dependencies]
 base = "0.11.1"
