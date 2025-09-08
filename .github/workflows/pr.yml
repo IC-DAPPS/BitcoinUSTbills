@@ -3,11 +3,9 @@ name: PR Validation
 on:
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   validate:
     name: PR Validation
     uses: ./.github/workflows/shared-build.yml
-
-
-
