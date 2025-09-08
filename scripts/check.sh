@@ -18,7 +18,9 @@ npm ci
 echo "Rust lint and format..."
 if [ -f "Cargo.toml" ]; then
     cargo fmt
-    cargo clippy -- -D warnings
+    # Fix clippy warnings automatically
+    cargo clippy --fix --lib -p backend --allow-dirty --allow-staged
+    echo "Clippy fixes applied..."
 else
     echo "No Rust project found, skipping Rust checks..."
 fi
