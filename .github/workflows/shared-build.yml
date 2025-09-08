@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./BitcoinUSTbills
+        working-directory: .
 
     steps:
       - name: Checkout code
@@ -34,18 +34,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
           cache: "npm"
-          cache-dependency-path: "BitcoinUSTbills/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
-      - name: Install dependencies
-        run: npm ci --workspaces
-
-      - name: Lint and format check
-        run: npm run lint --workspaces --if-present
-
-      - name: Build packages
-        run: npm run build --workspaces --if-present
-
-      - name: Build backend canisters
-        run: dfx build
+      - name: Run validation and tests
+        run: ./scripts/validate-and-test-all.sh
