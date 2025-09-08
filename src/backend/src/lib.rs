@@ -17,7 +17,6 @@ pub use storage::*;
 pub use store::*;
 pub use types::*;
 
-use crate::storage::VerifiedPurchasesLedgerStorage;
 use crate::utils::get_current_timestamp;
 use candid::Principal;
 use ic_cdk::call::Call;

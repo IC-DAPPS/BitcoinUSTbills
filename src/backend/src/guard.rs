@@ -42,9 +42,9 @@ pub fn assert_admin() -> Result<()> {
     GUARD.with(|guard| {
         let guard_ref = guard.borrow();
         if !guard_ref.contains(&caller) {
-            return Err(BitcoinUSTBillsError::Unauthorized);
+            Err(BitcoinUSTBillsError::Unauthorized)
         } else {
-            return Ok(());
+            Ok(())
         }
     })
 }
