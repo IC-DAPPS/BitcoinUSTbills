@@ -1,7 +1,6 @@
 use crate::errors::{BitcoinUSTBillsError, Result};
 use crate::types::*;
 use candid::Principal;
-use hex;
 use ic_cdk::api::time;
 use sha2::{Digest, Sha256};
 
@@ -37,7 +36,7 @@ fn calculate_cusip_check_digit(base: &str) -> Result<char> {
 
     for (i, c) in base.chars().enumerate() {
         let mut value = if c.is_ascii_digit() {
-            c.to_digit(10).unwrap() as u32
+            c.to_digit(10).unwrap()
         } else {
             (c.to_ascii_uppercase() as u32) - ('A' as u32) + 10
         };
@@ -111,12 +110,10 @@ pub fn validate_phone_number(phone: &str) -> Result<()> {
     }
 
     // Check if starts with + for international numbers
-    if cleaned.starts_with('+') {
-        if cleaned.len() < 11 {
-            return Err(BitcoinUSTBillsError::validation_error(
-                "Invalid international phone number",
-            ));
-        }
+    if cleaned.starts_with('+') && cleaned.len() < 11 {
+        return Err(BitcoinUSTBillsError::validation_error(
+            "Invalid international phone number",
+        ));
     }
 
     Ok(())
@@ -305,7 +302,7 @@ pub fn calculate_fees(amount: u64, fee_rate: f64) -> u64 {
 /// Validates that a string is not empty and doesn't contain only whitespace
 pub fn validate_non_empty_string(value: &str, field_name: &str) -> Result<()> {
     if value.trim().is_empty() {
-        return Err(BitcoinUSTBillsError::validation_error(&format!(
+        return Err(BitcoinUSTBillsError::validation_error(format!(
             "{} cannot be empty",
             field_name
         )));
