@@ -162,16 +162,6 @@ export const idlFactory = ({ IDL }) => {
     'email' : IDL.Text,
     'phone_number' : IDL.Opt(IDL.Text),
   });
-  const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
-  const HttpResponse = IDL.Record({
-    'status' : IDL.Nat,
-    'body' : IDL.Vec(IDL.Nat8),
-    'headers' : IDL.Vec(HttpHeader),
-  });
-  const TransformArgs = IDL.Record({
-    'context' : IDL.Vec(IDL.Nat8),
-    'response' : HttpResponse,
-  });
   const Result_4 = IDL.Variant({
     'Ok' : IDL.Text,
     'Err' : BitcoinUSTBillsError,
@@ -199,11 +189,6 @@ export const idlFactory = ({ IDL }) => {
     'get_user_profile' : IDL.Func([], [Result_3], ['query']),
     'is_user_registered' : IDL.Func([], [IDL.Bool], ['query']),
     'register_user' : IDL.Func([UserRegistrationRequest], [Result_3], []),
-    'transform_treasury_response' : IDL.Func(
-        [TransformArgs],
-        [HttpResponse],
-        ['query'],
-      ),
     'upload_document_free_kyc' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text],
         [Result_4],

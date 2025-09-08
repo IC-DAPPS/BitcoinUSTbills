@@ -20,7 +20,6 @@ pub use types::*;
 use crate::storage::VerifiedPurchasesLedgerStorage;
 use crate::utils::get_current_timestamp;
 use candid::Principal;
-use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
 use ic_cdk::call::Call;
 use ic_cdk::{query, update};
 
@@ -98,36 +97,16 @@ pub fn get_user_profile() -> Result<User> {
     UserStorage::get(&principal)
 }
 
-
 /// Retrieves user holdings
 #[query]
 pub fn get_user_holdings(principal: Principal) -> Vec<TokenHolding> {
     HoldingStorage::get_by_user(&principal)
 }
 
-
 /// Gets trading metrics
 #[query]
 pub fn get_trading_metrics() -> TradingMetrics {
     TradingMetricsStorage::get()
-}
-
-
-pub fn validate_ustbill_data(data: &USTBillCreateRequest) -> Result<()> {
-    if data.cusip.is_empty() {
-        return Err(BitcoinUSTBillsError::InvalidCUSIP);
-    }
-
-    if data.annual_yield < 0.0 || data.annual_yield > 1.0 {
-        return Err(BitcoinUSTBillsError::InvalidYieldRate);
-    }
-
-    let current_time = get_current_timestamp();
-    if data.maturity_date <= current_time {
-        return Err(BitcoinUSTBillsError::InvalidDate);
-    }
-
-    Ok(())
 }
 
 pub fn validate_user_data(data: &UserRegistrationRequest) -> Result<()> {
@@ -145,27 +124,6 @@ pub fn validate_user_data(data: &UserRegistrationRequest) -> Result<()> {
 
     Ok(())
 }
-
-fn parse_treasury_response(response: HttpResponse) -> Result<Vec<TreasuryRate>> {
-    let body = String::from_utf8(response.body)
-        .map_err(|_| BitcoinUSTBillsError::external_api_error("Invalid response body"))?;
-
-    let api_response: TreasuryApiResponse = serde_json::from_str(&body).map_err(|_| {
-        BitcoinUSTBillsError::external_api_error("Failed to parse Treasury API response")
-    })?;
-
-    Ok(api_response.data)
-}
-
-#[query]
-fn transform_treasury_response(response: TransformArgs) -> HttpResponse {
-    let mut res = response.response;
-    res.headers.clear();
-    res
-}
-
-// ============= FREE KYC MVP IMPLEMENTATION =============
-
 
 /// Free Document Upload and OCR Processing
 #[update]
@@ -208,52 +166,6 @@ pub async fn upload_document_free_kyc(
     ic_cdk::println!("⏳ Queued for manual review: {}", upload_id);
 
     Ok(upload_id)
-}
-
-/// Process document with free OCR (using tesseract concept)
-async fn process_document_ocr_free(
-    _document_bytes: Vec<u8>,
-    document_type: String,
-) -> Result<OCRResult> {
-    // TODO: Implement actual OCR using tesseract-rs
-    // For now, return demo OCR result
-
-    // Simulate OCR processing delay
-    ic_cdk::println!("🔄 Running OCR on {} document...", document_type);
-
-    // Demo OCR result (replace with real OCR)
-    let demo_result = OCRResult {
-        extracted_name: "Demo User".to_string(),
-        extracted_dob: "1990-01-01".to_string(),
-        extracted_document_number: "DEMO123456".to_string(),
-        extracted_country: "US".to_string(),
-        confidence_score: 0.85, // 85% confidence
-        raw_text:
-            "DEMO OCR OUTPUT - PASSPORT\nName: Demo User\nDOB: 01/01/1990\nDocument No: DEMO123456"
-                .to_string(),
-    };
-
-    Ok(demo_result)
-}
-
-/// Free OFAC sanctions screening
-async fn check_ofac_sanctions_free(full_name: &str) -> Result<bool> {
-    // TODO: Download and parse OFAC XML file
-    // https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml
-
-    ic_cdk::println!("🔍 Checking OFAC sanctions for: {}", full_name);
-
-    // Demo implementation - in production, parse actual OFAC XML
-    let suspicious_names = vec!["OSAMA", "TERROR", "SANCTION", "BLOCK"];
-    let name_upper = full_name.to_uppercase();
-
-    for suspicious in suspicious_names {
-        if name_upper.contains(suspicious) {
-            return Ok(false); // Found in sanctions list
-        }
-    }
-
-    Ok(true) // Clear of sanctions
 }
 
 /// Gets the list of authorized principals
@@ -336,42 +248,6 @@ pub fn get_free_kyc_status(upload_id: String) -> Result<FreeKYCSession> {
     }
 
     Ok(session)
-}
-
-// ============= HELPER FUNCTIONS =============
-
-fn calculate_age_from_dob(_dob: &str) -> Result<u8> {
-    // TODO: Proper date parsing and age calculation
-    // For demo, assume everyone is 25
-    Ok(25)
-}
-
-fn get_country_name(country_code: &str) -> String {
-    match country_code {
-        "IN" => "India".to_string(),
-        "US" => "United States".to_string(),
-        "UK" => "United Kingdom".to_string(),
-        _ => "Unknown".to_string(),
-    }
-}
-
-fn validate_ocr_result(ocr_result: &OCRResult) -> Result<()> {
-    if ocr_result.confidence_score < 0.5 {
-        return Err(BitcoinUSTBillsError::validation_error(
-            "OCR confidence score too low",
-        ));
-    }
-    if ocr_result.extracted_name.is_empty() {
-        return Err(BitcoinUSTBillsError::validation_error(
-            "Extracted name is empty",
-        ));
-    }
-    if ocr_result.extracted_dob.is_empty() {
-        return Err(BitcoinUSTBillsError::validation_error(
-            "Extracted date of birth is empty",
-        ));
-    }
-    Ok(())
 }
 
 #[test]

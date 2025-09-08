@@ -72,12 +72,6 @@ export type FreeKYCStatus = { 'PendingReview' : null } |
   { 'Expired' : null };
 export type HoldingStatus = { 'Active' : null } |
   { 'Matured' : null };
-export interface HttpHeader { 'value' : string, 'name' : string }
-export interface HttpResponse {
-  'status' : bigint,
-  'body' : Uint8Array | number[],
-  'headers' : Array<HttpHeader>,
-}
 export type KYCStatus = { 'Rejected' : null } |
   { 'Verified' : null } |
   { 'Expired' : null } |
@@ -110,10 +104,6 @@ export interface TradingMetrics {
   'total_transactions' : bigint,
   'total_volume' : bigint,
   'highest_price' : bigint,
-}
-export interface TransformArgs {
-  'context' : Uint8Array | number[],
-  'response' : HttpResponse,
 }
 export interface USTBill {
   'id' : string,
@@ -176,7 +166,6 @@ export interface _SERVICE {
   'get_user_profile' : ActorMethod<[], Result_3>,
   'is_user_registered' : ActorMethod<[], boolean>,
   'register_user' : ActorMethod<[UserRegistrationRequest], Result_3>,
-  'transform_treasury_response' : ActorMethod<[TransformArgs], HttpResponse>,
   'upload_document_free_kyc' : ActorMethod<[string, string, string], Result_4>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
