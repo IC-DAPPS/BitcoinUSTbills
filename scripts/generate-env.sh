@@ -1,24 +1,24 @@
 #!/bin/bash
 set -e
 
-# This script first leverages `dfx deploy` to auto-generate a .env file
-# with the latest canister IDs, and then appends additional frontend-specific
-# environment variables to it.
+# Generates root .env.development and per-app .env.development files.
 
-echo "Ensuring dfx can generate canister IDs..."
-# A simple deploy should be enough to generate the .env file
-# based on the "output_env_file" setting in dfx.json
-dfx deploy
+ROOT_ENV_FILE=".env.development"
 
-echo "Appending additional frontend variables to the .env file..."
+echo "Generating $ROOT_ENV_FILE at repository root..."
+cat > "$ROOT_ENV_FILE" << 'EOF'
+VITE_IDENTITY_PROVIDER=http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:8080
 
-# Append extra variables needed by the Vite frontend
-# Using a temporary file to avoid issues with `cat << EOF >>` syntax
-cat << EOF >> .env
+VITE_HOSTNAME=localhost:8080
+VITE_DFX_PROTOCOL=http
+VITE_DFX_HOSTNAME=localhost
+VITE_DFX_PORT=8080
 
-# Local DFX network host for Vite
-VITE_DFX_HOST=http://localhost:8080
+VITE_BACKEND_CANISTER_ID=rrkah-fqaaa-aaaah-qcujq-cai
+VITE_FILE_STORE_BUCKET_CANISTER_ID=ryjl3-tyaaa-aaaah-qcujq-cai
+VITE_II_CANISTER_ID=rdmx6-jaaaa-aaaaa-aaadq-cai
+VITE_CKBTC_LEDGER_CANISTER_ID=rrkah-fqaaa-aaaah-qcujq-cai
 EOF
+echo "✓ Wrote $ROOT_ENV_FILE"
 
-echo "✓ .env file is ready for the frontend."
-echo "Script finished successfully!"
+echo "✓ Environment files generated"

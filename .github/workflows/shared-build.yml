@@ -38,14 +38,5 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint and format check
-        run: npm run lint --if-present
-
-      - name: Build packages
-        run: npm run build --if-present
-
-      - name: Build backend canisters
-        run: dfx build
+      - name: Run validation and tests
+        run: ./scripts/validate-and-test-all.sh
