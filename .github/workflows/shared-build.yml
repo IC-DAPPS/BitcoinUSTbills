@@ -30,8 +30,15 @@ jobs:
       - name: Install Mops
         run: |
           npm install -g mops
-          which mops
-          mops --version
+          echo "NPM global packages:"
+          npm list -g --depth=0
+          echo "PATH: $PATH"
+          echo "NODE_PATH: $NODE_PATH"
+          echo "Looking for mops:"
+          find /usr -name "mops" 2>/dev/null || echo "mops not found in /usr"
+          find /home -name "mops" 2>/dev/null || echo "mops not found in /home"
+          echo "Trying to run mops:"
+          mops --version || echo "mops command failed"
 
       - name: Prefer IPv4 for localhost on runner
         run: |
