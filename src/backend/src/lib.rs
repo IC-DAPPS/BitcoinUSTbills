@@ -6,7 +6,6 @@ mod errors;
 mod guard;
 mod handlers;
 mod storage;
-mod store;
 mod types;
 mod utils;
 
@@ -14,21 +13,16 @@ mod utils;
 pub use errors::*;
 pub use guard::*;
 pub use storage::*;
-pub use store::*;
 pub use types::*;
 
-use crate::utils::get_current_timestamp;
+// get_current_timestamp is available through storage::* re-export
 use candid::Principal;
 use ic_cdk::call::Call;
 use ic_cdk::{query, update};
 
 const FILE_STORE_BUCKET_CANISTER_ID: &str = "uzt4z-lp777-77774-qaabq-cai";
 
-/// Retrieves all active US Treasury Bills
-#[query]
-pub fn get_active_ustbills() -> Vec<USTBill> {
-    USTBillStorage::get_active()
-}
+// get_active_ustbills removed - USTBill functionality not implemented
 
 /// Registers a new user
 #[update]
@@ -43,7 +37,7 @@ pub async fn register_user(user_data: UserRegistrationRequest) -> Result<User> {
     // Validate user data
     validate_user_data(&user_data)?;
 
-    let current_time = get_current_timestamp();
+    let current_time = crate::storage::get_current_timestamp();
 
     let user = User {
         principal,
@@ -96,17 +90,8 @@ pub fn get_user_profile() -> Result<User> {
     UserStorage::get(&principal)
 }
 
-/// Retrieves user holdings
-#[query]
-pub fn get_user_holdings(principal: Principal) -> Vec<TokenHolding> {
-    HoldingStorage::get_by_user(&principal)
-}
-
-/// Gets trading metrics
-#[query]
-pub fn get_trading_metrics() -> TradingMetrics {
-    TradingMetricsStorage::get()
-}
+// get_user_holdings removed - TokenHolding functionality not implemented
+// get_trading_metrics removed - Trading functionality not implemented
 
 pub fn validate_user_data(data: &UserRegistrationRequest) -> Result<()> {
     if data.email.is_empty() || !data.email.contains('@') {
@@ -153,7 +138,7 @@ pub async fn upload_document_free_kyc(
         selfie_with_document,
         needs_manual_review: needs_review,
         status: FreeKYCStatus::PendingReview, // Always set to PendingReview
-        created_at: get_current_timestamp(),
+        created_at: crate::storage::get_current_timestamp(),
         reviewed_at: None,
         reviewer_notes: None,
     };
@@ -189,7 +174,7 @@ pub async fn admin_review_free_kyc(
     } else {
         FreeKYCStatus::Rejected
     };
-    kyc_session.reviewed_at = Some(get_current_timestamp());
+    kyc_session.reviewed_at = Some(crate::storage::get_current_timestamp());
     kyc_session.reviewer_notes = notes;
 
     if approved {

@@ -19,10 +19,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Rust target
+        run: rustup target add wasm32-unknown-unknown
+
       - name: Setup DFX
         uses: dfinity/setup-dfx@main
         with:
           dfx-version: 0.28.0
+
+      - name: Install Mops
+        run: |
+          echo "Installing Mops CLI from on-chain storage..."
+          curl -fsSL cli.mops.one/install.sh | sh
+          echo "Adding mops to PATH..."
+          export PATH="$HOME/.local/bin:$PATH"
+          echo "Updated PATH: $PATH"
+          echo "Testing mops installation:"
+          mops --version
+          echo "Mops installation successful!"
 
       - name: Prefer IPv4 for localhost on runner
         run: |
@@ -39,4 +53,8 @@ jobs:
           cache-dependency-path: "package-lock.json"
 
       - name: Run validation and tests
-        run: ./scripts/validate-and-test-all.sh
+        run: |
+          pwd
+          which mops
+          mops --version
+          ./scripts/validate-and-test-all.sh

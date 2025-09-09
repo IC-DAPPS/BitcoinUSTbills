@@ -18,5 +18,8 @@ EOF
 
 dfx identity use doxa
 
+# Create minter identity for non-interactive environment
+dfx identity new minter --storage-mode plaintext || true
+
 echo "DFX identity setup complete"
 

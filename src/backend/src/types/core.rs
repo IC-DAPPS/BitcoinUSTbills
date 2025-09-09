@@ -3,29 +3,7 @@ use serde::{Deserialize, Serialize};
 
 // ============= CORE DATA STRUCTURES =============
 
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
-pub struct USTBill {
-    pub id: String,
-    pub cusip: String,
-    pub face_value: u64,          // In cents ($1000 = 100000)
-    pub purchase_price: u64,      // In cents ($950 = 95000)
-    pub maturity_date: u64,       // Unix timestamp
-    pub annual_yield: f64,        // 5.26% = 0.0526
-    pub owner: Option<Principal>, // None = Available, Some(principal) = Sold to that user
-    pub status: USTBillStatus,
-    pub created_at: u64,
-    pub updated_at: u64,
-    pub issuer: String,    // Treasury issuer info
-    pub bill_type: String, // 4-week, 13-week, 26-week, 52-week
-}
-
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
-pub enum USTBillStatus {
-    Active,
-    SoldOut,
-    Matured,
-    Cancelled,
-}
+// USTBill types removed - not used in current implementation
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
 pub struct User {
@@ -51,60 +29,9 @@ pub struct User {
     pub max_investment_limit: u64,          // Based on verification level
 }
 
-// ============= TRANSACTION STRUCTURES =============
-
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
-pub struct Transaction {
-    pub id: String,
-    pub user_principal: Principal,
-    pub transaction_type: TransactionType,
-    pub amount: u64,
-    pub ustbill_id: Option<String>,
-    pub holding_id: Option<String>,
-    pub timestamp: u64,
-    pub status: TransactionStatus,
-    pub fees: u64,
-    pub description: String,
-}
-
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
-pub enum TransactionType {
-    Deposit,
-    Withdrawal,
-    Purchase,
-    Sale,
-    YieldDistribution,
-    Fee,
-}
-
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
-pub enum TransactionStatus {
-    Pending,
-    Completed,
-    Failed,
-    Cancelled,
-}
+// Transaction types removed - not used in current implementation
 
 // ============= CORE IMPLEMENTATIONS =============
-
-impl USTBill {
-    pub fn is_available_for_purchase(&self) -> bool {
-        self.status == USTBillStatus::Active && self.owner.is_none()
-    }
-
-    pub fn is_owned_by(&self, principal: &Principal) -> bool {
-        self.owner.map_or(false, |owner| owner == *principal)
-    }
-
-    pub fn days_to_maturity(&self) -> u64 {
-        let current_time = ic_cdk::api::time() / 1_000_000_000; // Convert to seconds
-        if self.maturity_date > current_time {
-            (self.maturity_date - current_time) / 86400 // Convert to days
-        } else {
-            0
-        }
-    }
-}
 
 impl User {
     pub fn is_eligible_for_trading(&self) -> bool {
