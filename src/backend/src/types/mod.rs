@@ -9,11 +9,9 @@ pub mod kyc;
 pub mod platform;
 pub mod trading;
 
-// Re-export all types for backwards compatibility
+// Re-export only used types
 pub use api::*;
 pub use core::*;
 pub use document::*;
-pub use external::*;
 pub use kyc::*;
-pub use platform::*;
 pub use trading::*;
