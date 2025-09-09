@@ -32,13 +32,16 @@ jobs:
           npm install -g mops
           echo "NPM global packages:"
           npm list -g --depth=0
-          echo "PATH: $PATH"
-          echo "NODE_PATH: $NODE_PATH"
-          echo "Looking for mops:"
-          find /usr -name "mops" 2>/dev/null || echo "mops not found in /usr"
-          find /home -name "mops" 2>/dev/null || echo "mops not found in /home"
-          echo "Trying to run mops:"
-          mops --version || echo "mops command failed"
+          echo "Looking for mops executable:"
+          find /usr -name "mops" -type f 2>/dev/null
+          echo "Adding mops to PATH:"
+          export PATH="/usr/local/lib/node_modules/mops/bin:$PATH"
+          echo "Updated PATH: $PATH"
+          echo "Testing mops:"
+          /usr/local/lib/node_modules/mops/bin/mops --version
+          echo "Creating symlink:"
+          sudo ln -sf /usr/local/lib/node_modules/mops/bin/mops /usr/local/bin/mops
+          mops --version
 
       - name: Prefer IPv4 for localhost on runner
         run: |
