@@ -28,7 +28,10 @@ jobs:
           dfx-version: 0.28.0
 
       - name: Install Mops
-        run: npm install -g mops
+        run: |
+          npm install -g mops
+          which mops
+          mops --version
 
       - name: Prefer IPv4 for localhost on runner
         run: |
@@ -45,4 +48,8 @@ jobs:
           cache-dependency-path: "package-lock.json"
 
       - name: Run validation and tests
-        run: ./scripts/validate-and-test-all.sh
+        run: |
+          pwd
+          which mops
+          mops --version
+          ./scripts/validate-and-test-all.sh
