@@ -1,71 +1,42 @@
 import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
-import { bitcoinUSTbillsDfxUrl } from './tests/helpers';
 
-// Load dfx environment variables from .env.development
-dotenv.config({ path: '.env.development' });
-
+/**
+ * @see https://playwright.dev/docs/test-configuration
+ */
 export default defineConfig({
     testDir: './tests',
+    /* Run tests in files in parallel */
+    fullyParallel: true,
+    /* Fail the build on CI if you accidentally left test.only in the source code. */
+    forbidOnly: !!process.env.CI,
+    /* Retry on CI only */
+    retries: process.env.CI ? 2 : 0,
+    /* Opt out of parallel tests on CI. */
+    workers: process.env.CI ? 1 : undefined,
+    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+    reporter: 'html',
+    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
-        ...devices['Desktop Chrome'],
-        headless: true // Use headless mode for faster execution
+        /* Base URL to use in actions like `await page.goto('/')`. */
+        // baseURL: 'http://127.0.0.1:3000',
+
+        /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+        trace: 'on-first-retry',
     },
+
+    /* Configure projects for major browsers */
     projects: [
         {
-            name: 'authentication',
-            testMatch: /.*authentication.*\.spec\.ts/,
-            use: { ...devices['Desktop Chrome'] },
-        },
-        {
-            name: 'registration',
-            testMatch: /.*registration.*\.spec\.ts/,
-            use: { ...devices['Desktop Chrome'] },
-        },
-        {
-            name: 'kyc-verification',
-            testMatch: /.*kyc-verification.*\.spec\.ts/,
-            use: { ...devices['Desktop Chrome'] },
-        },
-        {
-            name: 'wallet-operations',
-            testMatch: /.*wallet-operations.*\.spec\.ts/,
-            use: { ...devices['Desktop Chrome'] },
-        },
-        {
-            name: 'complete-journey',
-            testMatch: /.*bitcoin-ust-bills-recorded.*\.spec\.ts/,
+            name: 'bitcoin-ust-bills',
+            testMatch: /.*bitcoin-ust-bills.*\.spec\.ts/,
             use: { ...devices['Desktop Chrome'] },
         },
     ],
+
+    /* Run your local dev server before starting the tests */
     webServer: process.env.VITE_DEV_SERVER ? {
         command: 'npm run dev',
         url: 'http://localhost:5173',
         reuseExistingServer: true,
-        timeout: 5000,
     } : undefined,
-    // Global test timeout
-    timeout: 120000,
-    // Retry failed tests
-    retries: 3,
-    // Retry only on certain failures
-    retry: {
-        retries: 3,
-        // Retry on network issues, timeouts, and assertion failures
-        mode: 'retry',
-    },
-    // Parallel execution
-    workers: process.env.CI ? 1 : undefined,
-    // Reporter configuration
-    reporter: [
-        ['html'],
-        ['json', { outputFile: 'test-results/results.json' }],
-        ['junit', { outputFile: 'test-results/results.xml' }]
-    ],
-    // Test output directory
-    outputDir: 'test-results/',
-    // Global setup and teardown
-    globalSetup: './tests/global-setup.ts',
-    globalTeardown: './tests/global-teardown.ts',
 });
-
