@@ -26,7 +26,7 @@ test('BitcoinUSTbills Complete Flow', async ({ page }) => {
     await page.waitForLoadState('networkidle');
 
     // Wait for the registration page to automatically appear after login
-    await page.waitForSelector('textbox[name="Email Address *"]', { timeout: 10000 });
+    await page.waitForSelector('h1:has-text("Complete Your Registration")', { timeout: 10000 });
 
     await page.getByRole('textbox', { name: 'Email Address *' }).click();
     await page.getByRole('textbox', { name: 'Email Address *' }).fill('vv083150');
