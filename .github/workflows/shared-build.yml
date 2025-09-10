@@ -58,3 +58,9 @@ jobs:
           which mops
           mops --version
           ./scripts/validate-and-test-all.sh
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright E2E tests
+        run: ./scripts/run-test-e2e.sh
