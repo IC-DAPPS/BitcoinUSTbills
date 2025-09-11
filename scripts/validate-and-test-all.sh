@@ -47,5 +47,11 @@ if [ "$SKIP_DFX_BOOTSTRAP_FLAG" != "true" ]; then
     ./scripts/deploy-local.sh
 fi
 
+# Run Playwright E2E tests if E2E flag is set
+if [ "$E2E_FLAG" = "true" ]; then
+    echo "Running Playwright E2E tests..."
+    ./scripts/run-test-e2e.sh
+fi
+
 echo "Validation finished correctly!"
 
