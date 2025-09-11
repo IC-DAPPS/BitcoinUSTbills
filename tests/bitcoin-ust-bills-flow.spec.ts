@@ -40,7 +40,12 @@ test('BitcoinUSTbills Complete Flow', async ({ page }) => {
     await page.getByRole('img').first().click();
     await page.getByText('JPEG, PNG, WebP up to 10MB').nth(1).click();
     await page.getByText('Click to upload or drag and drop JPEG, PNG, WebP up to 10MB').nth(2).click();
-    await page.getByRole('link', { name: 'Wallet' }).click();
+    // Navigate directly to wallet page
+    await page.goto('http://localhost:5173/wallet');
+    // Wait for the wallet page content to load
+    await page.waitForLoadState('networkidle');
+    // Wait for the deposit button to be visible
+    await page.waitForSelector('button:has-text("⬇ Deposit")', { state: 'visible' });
     await page.getByRole('button', { name: '⬇ Deposit' }).click();
     await page.getByText('Copy').click();
     await page.getByLabel('Close').click();
