@@ -62,5 +62,11 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium
 
+      - name: Start development server
+        run: |
+          npm run dev &
+          sleep 10
+          curl -f http://localhost:5173/ || exit 1
+
       - name: Run Playwright E2E tests
         run: npx playwright test
