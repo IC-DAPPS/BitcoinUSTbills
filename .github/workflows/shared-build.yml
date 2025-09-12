@@ -59,6 +59,26 @@ jobs:
           mops --version
           ./scripts/validate-and-test-all.sh
 
+      - name: Build frontend
+        run: |
+          echo "Building frontend..."
+          npm run build
+          echo "Frontend build completed successfully!"
+
+      - name: Deploy frontend canister
+        run: |
+          echo "Deploying frontend canister..."
+          dfx deploy frontend
+          echo "Frontend canister deployed successfully!"
+
+      - name: Verify frontend canister
+        run: |
+          echo "Verifying frontend canister..."
+          FRONTEND_URL=$(dfx canister id frontend)
+          echo "Frontend canister ID: $FRONTEND_URL"
+          curl -f "http://$FRONTEND_URL.localhost:8080/" || exit 1
+          echo "Frontend canister is accessible!"
+
       - name: Install Playwright browsers
         run: npx playwright install chromium
 
