@@ -3,6 +3,7 @@
 
 // Module declarations
 mod errors;
+mod evm_rpc;
 mod guard;
 mod handlers;
 mod storage;
@@ -17,10 +18,19 @@ pub use types::*;
 
 // get_current_timestamp is available through storage::* re-export
 use candid::Principal;
+use evm_rpc::*;
+use ic_cdk::api::call::call_with_payment;
 use ic_cdk::call::Call;
 use ic_cdk::{query, update};
 
 const FILE_STORE_BUCKET_CANISTER_ID: &str = "uzt4z-lp777-77774-qaabq-cai";
+
+// EVM RPC service instance - using lazy_static for runtime initialization
+use std::sync::LazyLock;
+
+static EVM_RPC: LazyLock<Service> = LazyLock::new(|| {
+    Service(Principal::from_text("uxrrr-q7777-77774-qaaaq-cai").expect("Invalid EVM RPC principal"))
+});
 
 // get_active_ustbills removed - USTBill functionality not implemented
 
@@ -232,6 +242,95 @@ pub fn get_free_kyc_status(upload_id: String) -> Result<FreeKYCSession> {
     }
 
     Ok(session)
+}
+
+/// Get logs from Ethereum blockchain using EVM RPC
+#[update]
+pub async fn get_logs(get_logs_args: GetLogsArgs) -> Vec<LogEntry> {
+    let rpc_providers = RpcServices::EthMainnet(Some(vec![EthMainnetService::Alchemy]));
+
+    // Add cycles for the EVM RPC call
+    let cycles: u64 = 2_000_000_000_000; // 2T cycles
+    let (result,) = EVM_RPC
+        .eth_get_logs(rpc_providers, None, get_logs_args)
+        .await
+        .expect("Call failed");
+
+    match result {
+        MultiGetLogsResult::Consistent(r) => match r {
+            GetLogsResult::Ok(logs) => logs,
+            GetLogsResult::Err(err) => {
+                ic_cdk::println!("RPC call failed: {:?}", err);
+                vec![] // Return empty vector instead of panicking
+            }
+        },
+        MultiGetLogsResult::Inconsistent(_) => {
+            ic_cdk::println!("RPC providers gave inconsistent results");
+            vec![] // Return empty vector instead of panicking
+        }
+    }
+}
+
+/// Test EVM RPC connection and get providers
+#[update]
+pub async fn test_evm_rpc_connection() -> String {
+    // Add cycles for the EVM RPC call
+    let cycles: u64 = 1_000_000_000_000; // 1T cycles
+    match EVM_RPC.get_providers().await {
+        Ok((providers,)) => {
+            format!("EVM RPC connected! Found {} providers", providers.len())
+        }
+        Err(err) => {
+            format!("EVM RPC connection failed: {:?}", err)
+        }
+    }
+}
+
+/// Get latest block number
+#[update]
+pub async fn get_latest_block_number() -> String {
+    let rpc_providers = RpcServices::EthMainnet(Some(vec![EthMainnetService::Alchemy]));
+
+    // Use ic_cdk::call with cycles
+    let cycles: u64 = 2_000_000_000_000; // 2T cycles
+    match call_with_payment::<_, (MultiGetBlockByNumberResult,)>(
+        EVM_RPC.0,
+        "eth_getBlockByNumber",
+        (rpc_providers, None::<RpcConfig>, BlockTag::Latest),
+        cycles,
+    )
+    .await
+    {
+        Ok((result,)) => match result {
+            MultiGetBlockByNumberResult::Consistent(r) => match r {
+                GetBlockByNumberResult::Ok(block) => {
+                    format!("Latest block: {}", block.number)
+                }
+                GetBlockByNumberResult::Err(err) => {
+                    format!("Failed to get block: {:?}", err)
+                }
+            },
+            MultiGetBlockByNumberResult::Inconsistent(_) => {
+                "RPC providers gave inconsistent results".to_string()
+            }
+        },
+        Err(err) => {
+            format!("Call failed: {:?}", err)
+        }
+    }
+}
+
+/// Test with a popular contract address (USDC)
+#[update]
+pub async fn test_usdc_logs() -> Vec<LogEntry> {
+    let get_logs_args = GetLogsArgs {
+        fromBlock: Some(BlockTag::Latest),
+        toBlock: Some(BlockTag::Latest),
+        addresses: vec!["0xA0b86a33E6441b8C4C8C0C8C0C8C0C8C0C8C0C8C".to_string()],
+        topics: None,
+    };
+
+    get_logs(get_logs_args).await
 }
 
 #[test]

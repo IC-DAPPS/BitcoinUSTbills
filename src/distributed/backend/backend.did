@@ -1,55 +1,24 @@
 type BitcoinUSTBillsError = variant {
   UserAlreadyExists;
-  TradingNotAllowed;
   AccessDenied;
-  InvalidAmount;
-  TransactionCancelled;
-  MinimumInvestmentNotMet;
-  HoldingNotFound;
-  DatabaseError : text;
-  YieldCalculationError;
-  FailedToAddToList;
-  TreasuryDataFetchError;
-  TransactionFailed;
-  MaximumInvestmentExceeded;
-  USTBillSoldOut;
-  SystemError : text;
   InvalidPrincipal;
   FileStoreBucketError : text;
-  HTTPRequestError : text;
-  HoldingAlreadySold;
-  USTBillMatured;
   ValidationError : text;
-  ExternalAPIError : text;
-  InvalidTokenAmount;
-  USTBillCancelled;
-  InsufficientTokens;
-  InvalidDate;
   Unauthorized;
   KYCExpired;
   KYCNotVerified;
-  PlatformConfigurationError;
-  InvalidCUSIP;
-  DidntFindUserData;
-  InvalidHoldingData;
-  USTBillAlreadyExists;
-  InvalidTransactionType;
   InvalidUserData;
-  YieldDistributionError;
-  TransactionNotFound;
-  NotImplemented;
-  USTBillNotFound;
   StorageError : text;
-  InvalidYieldRate;
-  InternalError : text;
-  InvalidUSTBillData;
-  PlatformFeesCalculationError;
-  SerializationError : text;
   UserNotFound;
   AnonymousCaller;
-  MaturityDatePassed;
-  InsufficientFunds;
-  HoldingMatured;
+};
+type BlockTag = variant {
+  Earliest;
+  Safe;
+  Finalized;
+  Latest;
+  Number : nat;
+  Pending;
 };
 type FreeKYCSession = record {
   status : FreeKYCStatus;
@@ -70,8 +39,24 @@ type FreeKYCStatus = variant {
   Processing;
   Expired;
 };
-type HoldingStatus = variant { Active; Matured };
+type GetLogsArgs = record {
+  fromBlock : opt BlockTag;
+  toBlock : opt BlockTag;
+  addresses : vec text;
+  topics : opt vec vec text;
+};
 type KYCStatus = variant { Rejected; Verified; Expired; Pending };
+type LogEntry = record {
+  transactionHash : opt text;
+  blockNumber : opt nat;
+  data : text;
+  blockHash : opt text;
+  transactionIndex : opt nat;
+  topics : vec text;
+  address : text;
+  logIndex : opt nat;
+  removed : bool;
+};
 type Result = variant {
   Ok : vec UserAndFreeKYCSession;
   Err : BitcoinUSTBillsError;
@@ -80,40 +65,6 @@ type Result_1 = variant { Ok; Err : BitcoinUSTBillsError };
 type Result_2 = variant { Ok : FreeKYCSession; Err : BitcoinUSTBillsError };
 type Result_3 = variant { Ok : User; Err : BitcoinUSTBillsError };
 type Result_4 = variant { Ok : text; Err : BitcoinUSTBillsError };
-type TokenHolding = record {
-  id : text;
-  status : HoldingStatus;
-  user_principal : principal;
-  purchase_price : nat64;
-  token_id : nat64;
-  purchase_date : nat64;
-  current_value : nat64;
-  projected_yield : nat64;
-  ustbill_id : text;
-};
-type TradingMetrics = record {
-  average_price : nat64;
-  last_updated : nat64;
-  lowest_price : nat64;
-  total_transactions : nat64;
-  total_volume : nat64;
-  highest_price : nat64;
-};
-type USTBill = record {
-  id : text;
-  status : USTBillStatus;
-  updated_at : nat64;
-  purchase_price : nat64;
-  owner : opt principal;
-  face_value : nat64;
-  cusip : text;
-  created_at : nat64;
-  annual_yield : float64;
-  maturity_date : nat64;
-  issuer : text;
-  bill_type : text;
-};
-type USTBillStatus = variant { Active; SoldOut; Matured; Cancelled };
 type User = record {
   updated_at : nat64;
   "principal" : principal;
@@ -146,13 +97,14 @@ type UserRegistrationRequest = record {
 service : {
   admin_get_pending_reviews : () -> (Result) query;
   admin_review_free_kyc : (text, bool, opt text) -> (Result_1);
-  get_active_ustbills : () -> (vec USTBill) query;
   get_authorized_principals : () -> (vec principal) query;
   get_free_kyc_status : (text) -> (Result_2) query;
-  get_trading_metrics : () -> (TradingMetrics) query;
-  get_user_holdings : (principal) -> (vec TokenHolding) query;
+  get_latest_block_number : () -> (text);
+  get_logs : (GetLogsArgs) -> (vec LogEntry);
   get_user_profile : () -> (Result_3) query;
   is_user_registered : () -> (bool) query;
   register_user : (UserRegistrationRequest) -> (Result_3);
+  test_evm_rpc_connection : () -> (text);
+  test_usdc_logs : () -> (vec LogEntry);
   upload_document_free_kyc : (text, text, text) -> (Result_4);
 }
