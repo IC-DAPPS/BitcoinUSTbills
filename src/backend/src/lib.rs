@@ -244,6 +244,69 @@ pub fn get_free_kyc_status(upload_id: String) -> Result<FreeKYCSession> {
     Ok(session)
 }
 
+use candid::CandidType;
+#[allow(deprecated)]
+use ic_cdk::api::management_canister::ecdsa::{
+    EcdsaPublicKeyArgument, EcdsaCurve, EcdsaKeyId,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(CandidType, Serialize, Deserialize)]
+pub struct PublicKeyReply {
+    pub public_key_hex: String,
+    pub eth_address: String,
+}
+
+#[update]
+#[allow(deprecated)]
+async fn get_eth_address() -> std::result::Result<PublicKeyReply, String> {
+    let request = EcdsaPublicKeyArgument {
+        canister_id: None,
+        derivation_path: vec![], // Use [] for canister root key
+        key_id: EcdsaKeyId {
+            curve: EcdsaCurve::Secp256k1,
+            name: "key_1".to_string(), // Use "key_1" for mainnet, "test_key_1" for testnet
+        },
+    };
+
+    let (response,) = ic_cdk::api::call::call::<
+        _,
+        (ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyResponse,),
+    >(
+        Principal::from_text("aaaaa-aa").expect("Invalid management canister principal"),
+        "ecdsa_public_key",
+        (request,),
+    )
+    .await
+    .map_err(|e| format!("ecdsa_public_key failed: {:?}", e.1))?;
+
+    // Convert SEC1 public key to Ethereum address
+    let pubkey_bytes = &response.public_key;
+    let eth_address = pubkey_bytes_to_address(pubkey_bytes);
+
+    Ok(PublicKeyReply {
+        public_key_hex: hex::encode(pubkey_bytes),
+        eth_address,
+    })
+}
+
+// Helper function: convert SEC1 public key to Ethereum address
+fn pubkey_bytes_to_address(pubkey_bytes: &[u8]) -> String {
+    use ethers_core::k256::elliptic_curve::sec1::ToEncodedPoint;
+    use ethers_core::k256::PublicKey;
+    use ethers_core::types::Address;
+    use ethers_core::utils::{keccak256, to_checksum};
+
+    let key =
+        PublicKey::from_sec1_bytes(pubkey_bytes).expect("failed to parse the public key as SEC1");
+    let point = key.to_encoded_point(false);
+    let point_bytes = point.as_bytes();
+    assert_eq!(point_bytes[0], 0x04);
+
+    let hash = keccak256(&point_bytes[1..]);
+    to_checksum(&Address::from_slice(&hash[12..32]), None)
+}
+
 /// Get logs from Ethereum blockchain using EVM RPC
 #[update]
 pub async fn get_logs(get_logs_args: GetLogsArgs) -> Vec<LogEntry> {
