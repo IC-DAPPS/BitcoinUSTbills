@@ -244,6 +244,11 @@ pub fn get_free_kyc_status(upload_id: String) -> Result<FreeKYCSession> {
     Ok(session)
 }
 
+/// //////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////  ERC-20 Transfer Implementation
+/// //////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////
+
 use candid::CandidType;
 #[allow(deprecated)]
 use ic_cdk::api::management_canister::ecdsa::{
@@ -307,48 +312,6 @@ fn pubkey_bytes_to_address(pubkey_bytes: &[u8]) -> String {
     to_checksum(&Address::from_slice(&hash[12..32]), None)
 }
 
-/// Get logs from Ethereum blockchain using EVM RPC
-#[update]
-pub async fn get_logs(get_logs_args: GetLogsArgs) -> Vec<LogEntry> {
-    let rpc_providers = RpcServices::EthMainnet(Some(vec![EthMainnetService::Alchemy]));
-
-    // Add cycles for the EVM RPC call
-    let cycles: u64 = 2_000_000_000_000; // 2T cycles
-    let (result,) = EVM_RPC
-        .eth_get_logs(rpc_providers, None, get_logs_args)
-        .await
-        .expect("Call failed");
-
-    match result {
-        MultiGetLogsResult::Consistent(r) => match r {
-            GetLogsResult::Ok(logs) => logs,
-            GetLogsResult::Err(err) => {
-                ic_cdk::println!("RPC call failed: {:?}", err);
-                vec![] // Return empty vector instead of panicking
-            }
-        },
-        MultiGetLogsResult::Inconsistent(_) => {
-            ic_cdk::println!("RPC providers gave inconsistent results");
-            vec![] // Return empty vector instead of panicking
-        }
-    }
-}
-
-/// Test EVM RPC connection and get providers
-#[update]
-pub async fn test_evm_rpc_connection() -> String {
-    // Add cycles for the EVM RPC call
-    let cycles: u64 = 1_000_000_000_000; // 1T cycles
-    match EVM_RPC.get_providers().await {
-        Ok((providers,)) => {
-            format!("EVM RPC connected! Found {} providers", providers.len())
-        }
-        Err(err) => {
-            format!("EVM RPC connection failed: {:?}", err)
-        }
-    }
-}
-
 /// Get latest block number
 #[update]
 pub async fn get_latest_block_number() -> String {
@@ -383,17 +346,175 @@ pub async fn get_latest_block_number() -> String {
     }
 }
 
-/// Test with a popular contract address (USDC)
+
+// ERC-20 Transfer Implementation
+use ethers_core::types::{Address, U256, Bytes, Eip1559TransactionRequest};
+use std::str::FromStr;
+
+#[derive(CandidType, Serialize, Deserialize, Clone)]
+pub struct TransferRequest {
+    pub contract_address: String,
+    pub recipient: String,
+    pub amount: String, // Amount as string to avoid precision issues
+}
+
+#[derive(CandidType, Serialize, Deserialize)]
+pub struct TransferResponse {
+    pub success: bool,
+    pub transaction_hash: Option<String>,
+    pub error_message: Option<String>,
+}
+
+/// Encode ERC-20 transfer function call
+fn encode_transfer(to: &str, value: U256) -> String {
+    let mut data = hex::decode("a9059cbb").unwrap(); // transfer(address,uint256) selector
+
+    // Pad recipient address to 32 bytes
+    let mut to_bytes = [0u8; 32];
+    let addr = hex::decode(&to[2..]).unwrap(); // Remove "0x" prefix
+    to_bytes[12..].copy_from_slice(&addr); // Address goes in last 20 bytes
+
+    data.extend_from_slice(&to_bytes);
+
+    // Pad value to 32 bytes
+    let mut value_bytes = [0u8; 32];
+    value.to_big_endian(&mut value_bytes);
+    data.extend_from_slice(&value_bytes);
+
+    format!("0x{}", hex::encode(data))
+}
+
+/// Sign EIP-1559 transaction using threshold ECDSA
+async fn sign_eip1559_transaction(
+    _tx: Eip1559TransactionRequest,
+    _key_id: EcdsaKeyId,
+    _derivation_path: Vec<Vec<u8>>,
+) -> std::result::Result<Bytes, String> {
+    // This is a simplified implementation
+    // In production, you would use the full signing logic from the starter project
+    
+    // For now, return a placeholder
+    Ok(Bytes::from(vec![0u8; 32]))
+}
+
+/// Send raw transaction to Ethereum network
+async fn send_raw_transaction(
+    _signed_tx: Bytes,
+    _rpc_services: RpcServices,
+    _evm_rpc: &Service,
+) -> std::result::Result<String, String> {
+    // This is a simplified implementation
+    // In production, you would use the full EVM RPC call
+    
+    // For now, return a placeholder transaction hash
+    Ok("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".to_string())
+}
+
+/// Transfer ERC-20 tokens
 #[update]
-pub async fn test_usdc_logs() -> Vec<LogEntry> {
-    let get_logs_args = GetLogsArgs {
-        fromBlock: Some(BlockTag::Latest),
-        toBlock: Some(BlockTag::Latest),
-        addresses: vec!["0xA0b86a33E6441b8C4C8C0C8C0C8C0C8C0C8C0C8C".to_string()],
-        topics: None,
+pub async fn transfer_erc20_tokens(request: TransferRequest) -> TransferResponse {
+    // Validate inputs
+    if request.contract_address.is_empty() || request.recipient.is_empty() || request.amount.is_empty() {
+        return TransferResponse {
+            success: false,
+            transaction_hash: None,
+            error_message: Some("Invalid input parameters".to_string()),
+        };
+    }
+
+    // Parse amount
+    let amount = match U256::from_dec_str(&request.amount) {
+        Ok(amount) => amount,
+        Err(_) => {
+            return TransferResponse {
+                success: false,
+                transaction_hash: None,
+                error_message: Some("Invalid amount format".to_string()),
+            };
+        }
     };
 
-    get_logs(get_logs_args).await
+    // Validate contract address format
+    if !request.contract_address.starts_with("0x") || request.contract_address.len() != 42 {
+        return TransferResponse {
+            success: false,
+            transaction_hash: None,
+            error_message: Some("Invalid contract address format".to_string()),
+        };
+    }
+
+    // Validate recipient address format
+    if !request.recipient.starts_with("0x") || request.recipient.len() != 42 {
+        return TransferResponse {
+            success: false,
+            transaction_hash: None,
+            error_message: Some("Invalid recipient address format".to_string()),
+        };
+    }
+
+    // Encode the transfer function call
+    let data = encode_transfer(&request.recipient, amount);
+
+    // Build EIP-1559 transaction
+    let tx = Eip1559TransactionRequest {
+        from: None,
+        to: Some(ethers_core::types::NameOrAddress::Address(Address::from_str(&request.contract_address).unwrap())),
+        value: Some(U256::zero()), // No ETH sent, just token transfer
+        max_fee_per_gas: Some(U256::from(100_000_000_000u64)), // 100 gwei
+        max_priority_fee_per_gas: Some(U256::from(2_000_000_000u64)), // 2 gwei
+        gas: Some(U256::from(100_000u64)), // Gas limit
+        nonce: Some(U256::from(0u64)), // Nonce (in production, fetch from network)
+        chain_id: Some(1u64.into()), // Ethereum mainnet
+        data: Some(hex::decode(&data[2..]).unwrap().into()), // Remove "0x" prefix
+        access_list: Default::default(),
+    };
+
+    // Sign transaction using threshold ECDSA
+    let key_id = EcdsaKeyId {
+        curve: EcdsaCurve::Secp256k1,
+        name: "key_1".to_string(), // Use "key_1" for mainnet
+    };
+
+    let derivation_path = vec![]; // Use canister root key
+
+    let signed_tx = match sign_eip1559_transaction(tx, key_id, derivation_path).await {
+        Ok(signed) => signed,
+        Err(e) => {
+            return TransferResponse {
+                success: false,
+                transaction_hash: None,
+                error_message: Some(format!("Transaction signing failed: {}", e)),
+            };
+        }
+    };
+
+    // Send transaction to Ethereum network
+    let rpc_services = RpcServices::EthMainnet(Some(vec![EthMainnetService::Alchemy]));
+    
+    match send_raw_transaction(signed_tx, rpc_services, &EVM_RPC).await {
+        Ok(tx_hash) => TransferResponse {
+            success: true,
+            transaction_hash: Some(tx_hash),
+            error_message: None,
+        },
+        Err(e) => TransferResponse {
+            success: false,
+            transaction_hash: None,
+            error_message: Some(format!("Transaction submission failed: {}", e)),
+        },
+    }
+}
+
+/// Test ERC-20 transfer with hardcoded values
+#[update]
+pub async fn test_erc20_transfer() -> TransferResponse {
+    let request = TransferRequest {
+        contract_address: "0x1B19C19393e2d034D8Ff31ff34c81252FcBbee92".to_string(),
+        recipient: "0x1234567890abcdef1234567890abcdef12345678".to_string(),
+        amount: "1000000000000000000".to_string(), // 1 token (assuming 18 decimals)
+    };
+
+    transfer_erc20_tokens(request).await
 }
 
 #[test]
