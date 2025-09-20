@@ -8,11 +8,14 @@ export DOXA_ACCOUNT=$(dfx identity get-principal --identity doxa)
 # Get default principal for fee collector
 export DEFAULT_ACCOUNT=$(dfx identity get-principal --identity default)
 
+# Get backend canister ID as minter account
+export MINTER_ACCOUNT=$(dfx canister id backend)
+
 # The archive controller - using doxa principal
 export ARCHIVE_CONTROLLER=$DOXA_ACCOUNT
 
-# doxa principal as minting account
-export MINTER_ACCOUNT=$DOXA_ACCOUNT
+# backend canister as minting account
+export MINTER_ACCOUNT=$MINTER_ACCOUNT
 
 # default principal as Fee collector
 export FEE_COLLECTOR_ACCOUNT=$DEFAULT_ACCOUNT
