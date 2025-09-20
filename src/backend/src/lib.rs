@@ -29,8 +29,10 @@ register_custom_getrandom!(custom_getrandom);
 // Module declarations
 mod errors;
 mod evm_rpc;
+mod exchange_rate_canister;
 mod guard;
 mod handlers;
+mod ousg_ledger;
 mod storage;
 mod types;
 mod utils;
@@ -43,18 +45,25 @@ pub use types::*;
 
 // get_current_timestamp is available through storage::* re-export
 use candid::Principal;
-use evm_rpc::*;
+use evm_rpc::{
+    BlockTag, EthMainnetService, GetBlockByNumberResult, MultiGetBlockByNumberResult, RpcConfig,
+    RpcServices, Service as EvmRpcService,
+};
+use exchange_rate_canister::{Service as ExchangeRateService, *};
 use ic_cdk::api::call::call_with_payment;
 use ic_cdk::call::Call;
 use ic_cdk::{query, update};
+use ousg_ledger::{Service as OusgLedgerService, *};
 
 const FILE_STORE_BUCKET_CANISTER_ID: &str = "uzt4z-lp777-77774-qaabq-cai";
 
 // EVM RPC service instance - using lazy_static for runtime initialization
 use std::sync::LazyLock;
 
-static EVM_RPC: LazyLock<Service> = LazyLock::new(|| {
-    Service(Principal::from_text("uxrrr-q7777-77774-qaaaq-cai").expect("Invalid EVM RPC principal"))
+static EVM_RPC: LazyLock<EvmRpcService> = LazyLock::new(|| {
+    EvmRpcService(
+        Principal::from_text("uxrrr-q7777-77774-qaaaq-cai").expect("Invalid EVM RPC principal"),
+    )
 });
 
 // get_active_ustbills removed - USTBill functionality not implemented
@@ -422,7 +431,7 @@ async fn sign_eip1559_transaction(
 async fn send_raw_transaction(
     _signed_tx: Bytes,
     _rpc_services: RpcServices,
-    _evm_rpc: &Service,
+    _evm_rpc: &EvmRpcService,
 ) -> std::result::Result<String, String> {
     // This is a simplified implementation
     // In production, you would use the full EVM RPC call
@@ -517,7 +526,7 @@ pub async fn transfer_erc20_tokens(request: TransferRequest) -> TransferResponse
     // Send transaction to Ethereum network
     let rpc_services = RpcServices::EthMainnet(Some(vec![EthMainnetService::Alchemy]));
 
-    match send_raw_transaction(signed_tx, rpc_services, &EVM_RPC).await {
+    match send_raw_transaction(signed_tx, rpc_services, &*EVM_RPC).await {
         Ok(tx_hash) => TransferResponse {
             success: true,
             transaction_hash: Some(tx_hash),
@@ -541,6 +550,421 @@ pub async fn test_erc20_transfer() -> TransferResponse {
     };
 
     transfer_erc20_tokens(request).await
+}
+
+/// //////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////  OUSG DEPOSIT AND MINTING SYSTEM
+/// //////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////
+
+// Canister IDs
+const OUSG_LEDGER_CANISTER_ID: &str = "ucwa4-rx777-77774-qaada-cai";
+const CKBTC_LEDGER_CANISTER_ID: &str = "ucwa4-rx777-77774-qaada-cai"; // Using OUSG ledger for now
+const XRC_CANISTER_ID: &str = "uf6dk-hyaaa-aaaaq-qaaaq-cai";
+
+// Minimum deposit amount ($5000 USD worth of ckBTC)
+const MINIMUM_DEPOSIT_USD: f64 = 5000.0; // $5000 USD
+
+/// User deposits ckBTC and gets OUSG minted (similar to DoxaV3 notifyStake)
+#[update]
+pub async fn notify_deposit(request: DepositRequest) -> DepositResponse {
+    let caller = ic_cdk::api::msg_caller();
+
+    // Check if user is registered and eligible
+    let user = match UserStorage::get(&caller) {
+        Ok(user) => user,
+        Err(_) => {
+            return DepositResponse {
+                success: false,
+                deposit_id: None,
+                ousg_minted: None,
+                error_message: Some("User not registered".to_string()),
+            };
+        }
+    };
+
+    // Check if user can make deposit
+    if !user.can_make_deposit(request.ckbtc_amount) {
+        return DepositResponse {
+            success: false,
+            deposit_id: None,
+            ousg_minted: None,
+            error_message: Some(
+                "User not eligible for deposit or amount exceeds limit".to_string(),
+            ),
+        };
+    }
+
+    // Check if this block index has already been processed
+    if ProcessedDepositsStorage::contains(request.block_index) {
+        return DepositResponse {
+            success: false,
+            deposit_id: None,
+            ousg_minted: None,
+            error_message: Some("Deposit already processed".to_string()),
+        };
+    }
+
+    // Get BTC price from XRC
+    let btc_price = match get_btc_price().await {
+        Ok(price) => price,
+        Err(e) => {
+            return DepositResponse {
+                success: false,
+                deposit_id: None,
+                ousg_minted: None,
+                error_message: Some(format!("Failed to get BTC price: {:?}", e)),
+            };
+        }
+    };
+
+    // Calculate USD value of ckBTC deposit
+    let usd_value = convert_ckbtc_to_usd(request.ckbtc_amount, btc_price);
+
+    // Check minimum deposit amount ($5000 USD)
+    if usd_value < MINIMUM_DEPOSIT_USD {
+        return DepositResponse {
+            success: false,
+            deposit_id: None,
+            ousg_minted: None,
+            error_message: Some(format!(
+                "Deposit value ${:.2} below minimum ${:.2}",
+                usd_value, MINIMUM_DEPOSIT_USD
+            )),
+        };
+    }
+
+    // Validate the deposit transaction
+    match validate_ckbtc_deposit_transaction(request.block_index, caller).await {
+        Ok(validated_amount) => {
+            // Create new deposit record
+            let deposit_id = generate_deposit_id();
+            let mut deposit = Deposit::new(
+                deposit_id,
+                caller,
+                validated_amount,
+                usd_value,
+                btc_price,
+                request.block_index,
+            );
+
+            // Store deposit
+            if let Err(e) = DepositStorage::insert(deposit.clone()) {
+                return DepositResponse {
+                    success: false,
+                    deposit_id: None,
+                    ousg_minted: None,
+                    error_message: Some(format!("Failed to store deposit: {:?}", e)),
+                };
+            }
+
+            // Calculate OUSG tokens to mint
+            let ousg_to_mint = deposit.calculate_ousg_to_mint();
+
+            // Mint OUSG tokens
+            match mint_ousg_tokens(caller, ousg_to_mint).await {
+                Ok(_) => {
+                    // Mark deposit as validated
+                    deposit.mark_validated(ousg_to_mint);
+                    if let Err(e) = DepositStorage::update(deposit.clone()) {
+                        return DepositResponse {
+                            success: false,
+                            deposit_id: Some(deposit_id),
+                            ousg_minted: None,
+                            error_message: Some(format!("Failed to update deposit: {:?}", e)),
+                        };
+                    }
+
+                    // Update user balance
+                    let mut updated_user = user;
+                    updated_user.update_after_deposit(ousg_to_mint);
+                    if let Err(e) = UserStorage::update(updated_user) {
+                        return DepositResponse {
+                            success: false,
+                            deposit_id: Some(deposit_id),
+                            ousg_minted: None,
+                            error_message: Some(format!("Failed to update user: {:?}", e)),
+                        };
+                    }
+
+                    // Mark block as processed
+                    if let Err(e) = ProcessedDepositsStorage::insert(request.block_index, caller) {
+                        return DepositResponse {
+                            success: false,
+                            deposit_id: Some(deposit_id),
+                            ousg_minted: None,
+                            error_message: Some(format!(
+                                "Failed to mark block as processed: {:?}",
+                                e
+                            )),
+                        };
+                    }
+
+                    DepositResponse {
+                        success: true,
+                        deposit_id: Some(deposit_id),
+                        ousg_minted: Some(ousg_to_mint),
+                        error_message: None,
+                    }
+                }
+                Err(e) => {
+                    // Mark deposit as failed
+                    deposit.mark_failed();
+                    if let Err(update_err) = DepositStorage::update(deposit) {
+                        return DepositResponse {
+                            success: false,
+                            deposit_id: Some(deposit_id),
+                            ousg_minted: None,
+                            error_message: Some(format!(
+                                "Failed to update deposit and mint OUSG: {:?}, update error: {:?}",
+                                e, update_err
+                            )),
+                        };
+                    }
+
+                    DepositResponse {
+                        success: false,
+                        deposit_id: Some(deposit_id),
+                        ousg_minted: None,
+                        error_message: Some(format!("Failed to mint OUSG: {:?}", e)),
+                    }
+                }
+            }
+        }
+        Err(e) => DepositResponse {
+            success: false,
+            deposit_id: None,
+            ousg_minted: None,
+            error_message: Some(format!("Deposit validation failed: {:?}", e)),
+        },
+    }
+}
+
+/// Get BTC price from XRC canister
+async fn get_btc_price() -> Result<f64> {
+    // Create BTC to USD price request
+    let request = GetExchangeRateRequest {
+        base_asset: Asset {
+            symbol: "BTC".to_string(),
+            class: AssetClass::Cryptocurrency,
+        },
+        quote_asset: Asset {
+            symbol: "USD".to_string(),
+            class: AssetClass::FiatCurrency,
+        },
+        timestamp: None,
+    };
+
+    // Call XRC canister using generated binding
+    let principal = Principal::from_text(XRC_CANISTER_ID).map_err(|e| {
+        BitcoinUSTBillsError::StorageError(format!("Invalid XRC principal: {:?}", e))
+    })?;
+    let service = ExchangeRateService(principal);
+    let result = service.get_exchange_rate(request).await;
+
+    match result {
+        Ok((GetExchangeRateResult::Ok(response),)) => {
+            let price = response.rate as f64 / 100_000_000.0; // Convert from XRC format
+            Ok(price)
+        }
+        Ok((GetExchangeRateResult::Err(e),)) => Err(BitcoinUSTBillsError::StorageError(format!(
+            "XRC error: {:?}",
+            e
+        ))),
+        Err(e) => Err(BitcoinUSTBillsError::StorageError(format!(
+            "Failed to call XRC: {:?}",
+            e
+        ))),
+    }
+}
+
+/// Validate ckBTC deposit transaction
+async fn validate_ckbtc_deposit_transaction(block_index: u64, caller: Principal) -> Result<u64> {
+    // Get transaction details from ckBTC ledger using generated binding
+    let request = GetTransactionsRequest {
+        start: candid::Nat::from(block_index),
+        length: candid::Nat::from(1u64),
+    };
+
+    let principal = Principal::from_text(CKBTC_LEDGER_CANISTER_ID).map_err(|e| {
+        BitcoinUSTBillsError::StorageError(format!("Invalid ckBTC principal: {:?}", e))
+    })?;
+    let service = OusgLedgerService(principal);
+    let result = service.get_transactions(request).await;
+
+    let transactions_response = result
+        .map_err(|e| {
+            BitcoinUSTBillsError::StorageError(format!("Failed to get transactions: {:?}", e))
+        })?
+        .0;
+
+    if block_index >= transactions_response.log_length.0.to_u64_digits()[0] {
+        return Err(BitcoinUSTBillsError::StorageError(format!(
+            "Invalid block index: {}",
+            block_index
+        )));
+    }
+
+    if transactions_response.transactions.is_empty() {
+        return Err(BitcoinUSTBillsError::StorageError(
+            "No transaction found at block index".to_string(),
+        ));
+    }
+
+    let transaction = &transactions_response.transactions[0];
+
+    // Check if it's a transfer transaction
+    let transfer = match &transaction.transfer {
+        Some(transfer) => transfer,
+        None => {
+            return Err(BitcoinUSTBillsError::StorageError(
+                "Transaction is not a transfer".to_string(),
+            ))
+        }
+    };
+
+    // Check if transfer is to this canister
+    let canister_account = Account {
+        owner: ic_cdk::api::id(),
+        subaccount: None,
+    };
+
+    if transfer.to.owner != canister_account.owner
+        || transfer.to.subaccount != canister_account.subaccount
+    {
+        return Err(BitcoinUSTBillsError::StorageError(
+            "Transfer not sent to this canister".to_string(),
+        ));
+    }
+
+    // Check if transfer is from the caller
+    if transfer.from.owner != caller {
+        return Err(BitcoinUSTBillsError::StorageError(
+            "Transfer not from caller".to_string(),
+        ));
+    }
+
+    // Check minimum amount (will be validated against USD value later)
+    let amount = transfer.amount.0.to_u64_digits();
+    if amount.is_empty() || amount[0] == 0 {
+        return Err(BitcoinUSTBillsError::StorageError(
+            "Transfer amount cannot be zero".to_string(),
+        ));
+    }
+
+    Ok(amount[0])
+}
+
+/// Mint OUSG tokens to user account
+async fn mint_ousg_tokens(user: Principal, amount: u64) -> Result<u64> {
+    // Create transfer to user account using generated binding types
+    let transfer_args = TransferArg {
+        from_subaccount: None,
+        to: Account {
+            owner: user,
+            subaccount: None,
+        },
+        amount: candid::Nat::from(amount),
+        fee: None,
+        memo: None,
+        created_at_time: Some(ic_cdk::api::time()),
+    };
+
+    // Execute transfer (minting) via OUSG ledger using generated binding
+    let principal = Principal::from_text(OUSG_LEDGER_CANISTER_ID).map_err(|e| {
+        BitcoinUSTBillsError::StorageError(format!("Invalid OUSG principal: {:?}", e))
+    })?;
+    let service = OusgLedgerService(principal);
+    let result = service.icrc_1_transfer(transfer_args).await;
+
+    match result {
+        Ok((TransferResult::Ok(block_index),)) => Ok(block_index.0.to_u64_digits()[0]),
+        Ok((TransferResult::Err(e),)) => Err(BitcoinUSTBillsError::StorageError(format!(
+            "Transfer failed: {:?}",
+            e
+        ))),
+        Err(e) => Err(BitcoinUSTBillsError::StorageError(format!(
+            "Call failed: {:?}",
+            e
+        ))),
+    }
+}
+
+/// Get user's deposit history
+#[query]
+pub fn get_user_deposits() -> Result<Vec<Deposit>> {
+    let caller = ic_cdk::api::msg_caller();
+    Ok(DepositStorage::get_by_user(&caller))
+}
+
+/// Get deposit by ID
+#[query]
+pub fn get_deposit(deposit_id: u64) -> Result<Deposit> {
+    DepositStorage::get(deposit_id)
+}
+
+/// Get user's OUSG balance
+#[update]
+pub async fn get_ousg_balance() -> Result<u64> {
+    let caller = ic_cdk::api::msg_caller();
+
+    let account = Account {
+        owner: caller,
+        subaccount: None,
+    };
+
+    let principal = Principal::from_text(OUSG_LEDGER_CANISTER_ID).map_err(|e| {
+        BitcoinUSTBillsError::StorageError(format!("Invalid OUSG principal: {:?}", e))
+    })?;
+    let service = OusgLedgerService(principal);
+    let result = service.icrc_1_balance_of(account).await;
+
+    result
+        .map_err(|e| BitcoinUSTBillsError::StorageError(format!("Failed to get balance: {:?}", e)))
+        .map(|(balance,)| balance.0.to_u64_digits()[0])
+}
+
+/// Get current BTC price
+#[update]
+pub async fn get_current_btc_price() -> Result<f64> {
+    get_btc_price().await.map_err(|e| {
+        BitcoinUSTBillsError::StorageError(format!("Failed to get BTC price: {:?}", e))
+    })
+}
+
+/// Calculate USD value of ckBTC amount
+#[query]
+pub fn calculate_ckbtc_usd_value(ckbtc_amount: u64, btc_price_usd: f64) -> f64 {
+    convert_ckbtc_to_usd(ckbtc_amount, btc_price_usd)
+}
+
+/// Calculate OUSG tokens for USD amount
+#[query]
+pub fn calculate_ousg_for_usd(usd_amount: f64) -> u64 {
+    let ousg_tokens = usd_amount / 5000.0; // Each OUSG = $5000
+    (ousg_tokens * 1_000_000.0) as u64 // Convert to OUSG units (6 decimals)
+}
+
+/// Get deposit statistics
+#[query]
+pub fn get_deposit_stats() -> std::collections::HashMap<String, u64> {
+    let mut stats = std::collections::HashMap::new();
+    stats.insert("total_deposits".to_string(), DepositStorage::count());
+    stats.insert(
+        "processed_deposits".to_string(),
+        ProcessedDepositsStorage::count(),
+    );
+
+    let pending_deposits = DepositStorage::get_pending_deposits().len() as u64;
+    stats.insert("pending_deposits".to_string(), pending_deposits);
+
+    stats
+}
+
+/// Generate unique deposit ID
+fn generate_deposit_id() -> u64 {
+    let id_string = generate_id();
+    id_string.parse().unwrap_or(0)
 }
 
 #[test]

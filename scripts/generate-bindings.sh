@@ -19,5 +19,16 @@ fi
 echo "Generating bindings for evm_rpc..."
 didc bind --target rs src/declarations/evm_rpc/evm_rpc.did > src/backend/src/evm_rpc.rs
 
+# Generate bindings for exchange_rate_canister
+echo "Generating bindings for exchange_rate_canister..."
+didc bind --target rs src/declarations/exchange_rate_canister/exchange_rate_canister.did > src/backend/src/exchange_rate_canister.rs
+
+# Generate bindings for OUSG ledger
+echo "Generating bindings for OUSG ledger..."
+didc bind --target rs "src/declarations/OUSG /ledger.did" > src/backend/src/ousg_ledger.rs
+
 echo "✅ Successfully generated Rust bindings!"
-echo "Generated file: src/backend/src/evm_rpc.rs"
+echo "Generated files:"
+echo "  - src/backend/src/evm_rpc.rs"
+echo "  - src/backend/src/exchange_rate_canister.rs"
+echo "  - src/backend/src/ousg_ledger.rs"
