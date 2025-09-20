@@ -28,6 +28,16 @@
       "main": "packages/file-store-bucket/src/main.mo",
       "type": "motoko"
     },
+    "ousg_ledger": {
+			"type": "custom",
+			"candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ledger.did",
+			"wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ic-icrc1-ledger.wasm.gz"
+		},
+		"ousg_index": {
+			"type": "custom",
+			"candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/index-ng.did",
+			"wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ic-icrc1-index-ng.wasm.gz"
+		},
     "frontend": {
       "frontend": {
         "entrypoint": "build/index.html"
