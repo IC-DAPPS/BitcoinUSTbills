@@ -1,6 +1,7 @@
 dfx deploy backend
 dfx deploy file_store_bucket
 dfx deploy ii
+dfx deploy evm_rpc --argument '(record {})'
 
 Decimals=8
 TOKEN_SYMBOL="ckBTC"
