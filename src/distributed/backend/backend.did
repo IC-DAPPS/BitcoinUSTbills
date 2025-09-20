@@ -12,14 +12,6 @@ type BitcoinUSTBillsError = variant {
   UserNotFound;
   AnonymousCaller;
 };
-type BlockTag = variant {
-  Earliest;
-  Safe;
-  Finalized;
-  Latest;
-  Number : nat;
-  Pending;
-};
 type FreeKYCSession = record {
   status : FreeKYCStatus;
   document_front_page : text;
@@ -39,32 +31,27 @@ type FreeKYCStatus = variant {
   Processing;
   Expired;
 };
-type GetLogsArgs = record {
-  fromBlock : opt BlockTag;
-  toBlock : opt BlockTag;
-  addresses : vec text;
-  topics : opt vec vec text;
-};
 type KYCStatus = variant { Rejected; Verified; Expired; Pending };
-type LogEntry = record {
-  transactionHash : opt text;
-  blockNumber : opt nat;
-  data : text;
-  blockHash : opt text;
-  transactionIndex : opt nat;
-  topics : vec text;
-  address : text;
-  logIndex : opt nat;
-  removed : bool;
-};
+type PublicKeyReply = record { eth_address : text; public_key_hex : text };
 type Result = variant {
   Ok : vec UserAndFreeKYCSession;
   Err : BitcoinUSTBillsError;
 };
 type Result_1 = variant { Ok; Err : BitcoinUSTBillsError };
-type Result_2 = variant { Ok : FreeKYCSession; Err : BitcoinUSTBillsError };
-type Result_3 = variant { Ok : User; Err : BitcoinUSTBillsError };
-type Result_4 = variant { Ok : text; Err : BitcoinUSTBillsError };
+type Result_2 = variant { Ok : PublicKeyReply; Err : text };
+type Result_3 = variant { Ok : FreeKYCSession; Err : BitcoinUSTBillsError };
+type Result_4 = variant { Ok : User; Err : BitcoinUSTBillsError };
+type Result_5 = variant { Ok : text; Err : BitcoinUSTBillsError };
+type TransferRequest = record {
+  recipient : text;
+  contract_address : text;
+  amount : text;
+};
+type TransferResponse = record {
+  transaction_hash : opt text;
+  error_message : opt text;
+  success : bool;
+};
 type User = record {
   updated_at : nat64;
   "principal" : principal;
@@ -95,16 +82,27 @@ type UserRegistrationRequest = record {
   phone_number : opt text;
 };
 service : {
+  // Get pending manual reviews for admins
   admin_get_pending_reviews : () -> (Result) query;
+  // Manual review functions for admins
   admin_review_free_kyc : (text, bool, opt text) -> (Result_1);
+  // Gets the list of authorized principals
   get_authorized_principals : () -> (vec principal) query;
-  get_free_kyc_status : (text) -> (Result_2) query;
+  get_eth_address : () -> (Result_2);
+  // Check user's free KYC status
+  get_free_kyc_status : (text) -> (Result_3) query;
+  // Get latest block number
   get_latest_block_number : () -> (text);
-  get_logs : (GetLogsArgs) -> (vec LogEntry);
-  get_user_profile : () -> (Result_3) query;
+  // Retrieves user profile
+  get_user_profile : () -> (Result_4) query;
+  // Checks if a user is registered
   is_user_registered : () -> (bool) query;
-  register_user : (UserRegistrationRequest) -> (Result_3);
-  test_evm_rpc_connection : () -> (text);
-  test_usdc_logs : () -> (vec LogEntry);
-  upload_document_free_kyc : (text, text, text) -> (Result_4);
+  // Registers a new user
+  register_user : (UserRegistrationRequest) -> (Result_4);
+  // Test ERC-20 transfer with hardcoded values
+  test_erc20_transfer : () -> (TransferResponse);
+  // Transfer ERC-20 tokens
+  transfer_erc20_tokens : (TransferRequest) -> (TransferResponse);
+  // Free Document Upload and OCR Processing
+  upload_document_free_kyc : (text, text, text) -> (Result_5);
 }

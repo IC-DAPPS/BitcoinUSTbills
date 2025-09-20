@@ -50,56 +50,17 @@ export const idlFactory = ({ IDL }) => {
   });
   const BitcoinUSTBillsError = IDL.Variant({
     'UserAlreadyExists' : IDL.Null,
-    'TradingNotAllowed' : IDL.Null,
     'AccessDenied' : IDL.Null,
-    'InvalidAmount' : IDL.Null,
-    'TransactionCancelled' : IDL.Null,
-    'MinimumInvestmentNotMet' : IDL.Null,
-    'HoldingNotFound' : IDL.Null,
-    'DatabaseError' : IDL.Text,
-    'YieldCalculationError' : IDL.Null,
-    'FailedToAddToList' : IDL.Null,
-    'TreasuryDataFetchError' : IDL.Null,
-    'TransactionFailed' : IDL.Null,
-    'MaximumInvestmentExceeded' : IDL.Null,
-    'USTBillSoldOut' : IDL.Null,
-    'SystemError' : IDL.Text,
     'InvalidPrincipal' : IDL.Null,
     'FileStoreBucketError' : IDL.Text,
-    'HTTPRequestError' : IDL.Text,
-    'HoldingAlreadySold' : IDL.Null,
-    'USTBillMatured' : IDL.Null,
     'ValidationError' : IDL.Text,
-    'ExternalAPIError' : IDL.Text,
-    'InvalidTokenAmount' : IDL.Null,
-    'USTBillCancelled' : IDL.Null,
-    'InsufficientTokens' : IDL.Null,
-    'InvalidDate' : IDL.Null,
     'Unauthorized' : IDL.Null,
     'KYCExpired' : IDL.Null,
     'KYCNotVerified' : IDL.Null,
-    'PlatformConfigurationError' : IDL.Null,
-    'InvalidCUSIP' : IDL.Null,
-    'DidntFindUserData' : IDL.Null,
-    'InvalidHoldingData' : IDL.Null,
-    'USTBillAlreadyExists' : IDL.Null,
-    'InvalidTransactionType' : IDL.Null,
     'InvalidUserData' : IDL.Null,
-    'YieldDistributionError' : IDL.Null,
-    'TransactionNotFound' : IDL.Null,
-    'NotImplemented' : IDL.Null,
-    'USTBillNotFound' : IDL.Null,
     'StorageError' : IDL.Text,
-    'InvalidYieldRate' : IDL.Null,
-    'InternalError' : IDL.Text,
-    'InvalidUSTBillData' : IDL.Null,
-    'PlatformFeesCalculationError' : IDL.Null,
-    'SerializationError' : IDL.Text,
     'UserNotFound' : IDL.Null,
     'AnonymousCaller' : IDL.Null,
-    'MaturityDatePassed' : IDL.Null,
-    'InsufficientFunds' : IDL.Null,
-    'HoldingMatured' : IDL.Null,
   });
   const Result = IDL.Variant({
     'Ok' : IDL.Vec(UserAndFreeKYCSession),
@@ -109,60 +70,32 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : IDL.Null,
     'Err' : BitcoinUSTBillsError,
   });
-  const USTBillStatus = IDL.Variant({
-    'Active' : IDL.Null,
-    'SoldOut' : IDL.Null,
-    'Matured' : IDL.Null,
-    'Cancelled' : IDL.Null,
+  const PublicKeyReply = IDL.Record({
+    'eth_address' : IDL.Text,
+    'public_key_hex' : IDL.Text,
   });
-  const USTBill = IDL.Record({
-    'id' : IDL.Text,
-    'status' : USTBillStatus,
-    'updated_at' : IDL.Nat64,
-    'purchase_price' : IDL.Nat64,
-    'owner' : IDL.Opt(IDL.Principal),
-    'face_value' : IDL.Nat64,
-    'cusip' : IDL.Text,
-    'created_at' : IDL.Nat64,
-    'annual_yield' : IDL.Float64,
-    'maturity_date' : IDL.Nat64,
-    'issuer' : IDL.Text,
-    'bill_type' : IDL.Text,
-  });
-  const Result_2 = IDL.Variant({
+  const Result_2 = IDL.Variant({ 'Ok' : PublicKeyReply, 'Err' : IDL.Text });
+  const Result_3 = IDL.Variant({
     'Ok' : FreeKYCSession,
     'Err' : BitcoinUSTBillsError,
   });
-  const TradingMetrics = IDL.Record({
-    'average_price' : IDL.Nat64,
-    'last_updated' : IDL.Nat64,
-    'lowest_price' : IDL.Nat64,
-    'total_transactions' : IDL.Nat64,
-    'total_volume' : IDL.Nat64,
-    'highest_price' : IDL.Nat64,
-  });
-  const HoldingStatus = IDL.Variant({
-    'Active' : IDL.Null,
-    'Matured' : IDL.Null,
-  });
-  const TokenHolding = IDL.Record({
-    'id' : IDL.Text,
-    'status' : HoldingStatus,
-    'user_principal' : IDL.Principal,
-    'purchase_price' : IDL.Nat64,
-    'token_id' : IDL.Nat64,
-    'purchase_date' : IDL.Nat64,
-    'current_value' : IDL.Nat64,
-    'projected_yield' : IDL.Nat64,
-    'ustbill_id' : IDL.Text,
-  });
-  const Result_3 = IDL.Variant({ 'Ok' : User, 'Err' : BitcoinUSTBillsError });
+  const Result_4 = IDL.Variant({ 'Ok' : User, 'Err' : BitcoinUSTBillsError });
   const UserRegistrationRequest = IDL.Record({
     'country' : IDL.Text,
     'email' : IDL.Text,
     'phone_number' : IDL.Opt(IDL.Text),
   });
-  const Result_4 = IDL.Variant({
+  const TransferResponse = IDL.Record({
+    'transaction_hash' : IDL.Opt(IDL.Text),
+    'error_message' : IDL.Opt(IDL.Text),
+    'success' : IDL.Bool,
+  });
+  const TransferRequest = IDL.Record({
+    'recipient' : IDL.Text,
+    'contract_address' : IDL.Text,
+    'amount' : IDL.Text,
+  });
+  const Result_5 = IDL.Variant({
     'Ok' : IDL.Text,
     'Err' : BitcoinUSTBillsError,
   });
@@ -173,25 +106,26 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
-    'get_active_ustbills' : IDL.Func([], [IDL.Vec(USTBill)], ['query']),
     'get_authorized_principals' : IDL.Func(
         [],
         [IDL.Vec(IDL.Principal)],
         ['query'],
       ),
-    'get_free_kyc_status' : IDL.Func([IDL.Text], [Result_2], ['query']),
-    'get_trading_metrics' : IDL.Func([], [TradingMetrics], ['query']),
-    'get_user_holdings' : IDL.Func(
-        [IDL.Principal],
-        [IDL.Vec(TokenHolding)],
-        ['query'],
-      ),
-    'get_user_profile' : IDL.Func([], [Result_3], ['query']),
+    'get_eth_address' : IDL.Func([], [Result_2], []),
+    'get_free_kyc_status' : IDL.Func([IDL.Text], [Result_3], ['query']),
+    'get_latest_block_number' : IDL.Func([], [IDL.Text], []),
+    'get_user_profile' : IDL.Func([], [Result_4], ['query']),
     'is_user_registered' : IDL.Func([], [IDL.Bool], ['query']),
-    'register_user' : IDL.Func([UserRegistrationRequest], [Result_3], []),
+    'register_user' : IDL.Func([UserRegistrationRequest], [Result_4], []),
+    'test_erc20_transfer' : IDL.Func([], [TransferResponse], []),
+    'transfer_erc20_tokens' : IDL.Func(
+        [TransferRequest],
+        [TransferResponse],
+        [],
+      ),
     'upload_document_free_kyc' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text],
-        [Result_4],
+        [Result_5],
         [],
       ),
   });

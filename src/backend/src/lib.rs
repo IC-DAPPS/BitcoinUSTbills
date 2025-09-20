@@ -1,6 +1,31 @@
 #![allow(dead_code)]
 #![warn(unused_variables)]
 
+// Custom random number generator for Internet Computer
+use getrandom::register_custom_getrandom;
+
+fn custom_getrandom(buf: &mut [u8]) -> std::result::Result<(), getrandom::Error> {
+    // Use a simple deterministic approach for now
+    // In production, you might want to use ic_cdk::api::time() as a seed
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
+    let mut hasher = DefaultHasher::new();
+    ic_cdk::api::time().hash(&mut hasher);
+    let seed = hasher.finish();
+
+    // Simple linear congruential generator
+    let mut state = seed;
+    for byte in buf.iter_mut() {
+        state = state.wrapping_mul(1103515245).wrapping_add(12345);
+        *byte = (state >> 24) as u8;
+    }
+
+    Ok(())
+}
+
+register_custom_getrandom!(custom_getrandom);
+
 // Module declarations
 mod errors;
 mod evm_rpc;
@@ -248,12 +273,9 @@ pub fn get_free_kyc_status(upload_id: String) -> Result<FreeKYCSession> {
 /// //////////////////////////////////////////////////////////////  ERC-20 Transfer Implementation
 /// //////////////////////////////////////////////////////////////
 /// //////////////////////////////////////////////////////////////
-
 use candid::CandidType;
 #[allow(deprecated)]
-use ic_cdk::api::management_canister::ecdsa::{
-    EcdsaPublicKeyArgument, EcdsaCurve, EcdsaKeyId,
-};
+use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgument};
 use serde::{Deserialize, Serialize};
 
 #[derive(CandidType, Serialize, Deserialize)]
@@ -346,9 +368,8 @@ pub async fn get_latest_block_number() -> String {
     }
 }
 
-
 // ERC-20 Transfer Implementation
-use ethers_core::types::{Address, U256, Bytes, Eip1559TransactionRequest};
+use ethers_core::types::{Address, Bytes, Eip1559TransactionRequest, U256};
 use std::str::FromStr;
 
 #[derive(CandidType, Serialize, Deserialize, Clone)]
@@ -392,7 +413,7 @@ async fn sign_eip1559_transaction(
 ) -> std::result::Result<Bytes, String> {
     // This is a simplified implementation
     // In production, you would use the full signing logic from the starter project
-    
+
     // For now, return a placeholder
     Ok(Bytes::from(vec![0u8; 32]))
 }
@@ -405,7 +426,7 @@ async fn send_raw_transaction(
 ) -> std::result::Result<String, String> {
     // This is a simplified implementation
     // In production, you would use the full EVM RPC call
-    
+
     // For now, return a placeholder transaction hash
     Ok("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".to_string())
 }
@@ -414,7 +435,10 @@ async fn send_raw_transaction(
 #[update]
 pub async fn transfer_erc20_tokens(request: TransferRequest) -> TransferResponse {
     // Validate inputs
-    if request.contract_address.is_empty() || request.recipient.is_empty() || request.amount.is_empty() {
+    if request.contract_address.is_empty()
+        || request.recipient.is_empty()
+        || request.amount.is_empty()
+    {
         return TransferResponse {
             success: false,
             transaction_hash: None,
@@ -458,7 +482,9 @@ pub async fn transfer_erc20_tokens(request: TransferRequest) -> TransferResponse
     // Build EIP-1559 transaction
     let tx = Eip1559TransactionRequest {
         from: None,
-        to: Some(ethers_core::types::NameOrAddress::Address(Address::from_str(&request.contract_address).unwrap())),
+        to: Some(ethers_core::types::NameOrAddress::Address(
+            Address::from_str(&request.contract_address).unwrap(),
+        )),
         value: Some(U256::zero()), // No ETH sent, just token transfer
         max_fee_per_gas: Some(U256::from(100_000_000_000u64)), // 100 gwei
         max_priority_fee_per_gas: Some(U256::from(2_000_000_000u64)), // 2 gwei
@@ -490,7 +516,7 @@ pub async fn transfer_erc20_tokens(request: TransferRequest) -> TransferResponse
 
     // Send transaction to Ethereum network
     let rpc_services = RpcServices::EthMainnet(Some(vec![EthMainnetService::Alchemy]));
-    
+
     match send_raw_transaction(signed_tx, rpc_services, &EVM_RPC).await {
         Ok(tx_hash) => TransferResponse {
             success: true,
