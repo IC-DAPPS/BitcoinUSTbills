@@ -1,23 +1,22 @@
-#########################################################################################
-########################### Deploy local DUSD ledger canister ###########################
-#########################################################################################
+#!/bin/bash
 
-# Get doxa principal
+# Script to deploy OUSG ledger locally for BitcoinUSTBills
+# Similar to deploy-local-dusd.sh but for OUSG
+
+echo "=== Deploying OUSG Ledger Locally for BitcoinUSTBills ==="
+
+# Get principals
 export DOXA_ACCOUNT=$(dfx identity get-principal --identity doxa)
-
-# Get default principal for fee collector
 export DEFAULT_ACCOUNT=$(dfx identity get-principal --identity default)
-
-# Get backend canister ID as minter account
-export MINTER_ACCOUNT=$(dfx canister id backend)
+export BACKEND_CANISTER_ID=$(dfx canister id backend)
 
 # The archive controller - using doxa principal
 export ARCHIVE_CONTROLLER=$DOXA_ACCOUNT
 
-# backend canister as minting account
-export MINTER_ACCOUNT=$MINTER_ACCOUNT
+# Backend canister as minting account
+export MINTER_ACCOUNT=$BACKEND_CANISTER_ID
 
-# default principal as Fee collector
+# Default principal as Fee collector
 export FEE_COLLECTOR_ACCOUNT=$DEFAULT_ACCOUNT
 
 TOKEN_NAME="OUSG"
@@ -26,7 +25,7 @@ Decimals=6
 
 PRE_MINTED_TOKENS=0
 
-# Fee is 0.01 DUSD
+# Fee is 0.01 OUSG
 TRANSFER_FEE=10_000
 
 TRIGGER_THRESHOLD=2000
@@ -46,7 +45,16 @@ METADATA="vec {
     };
   }"
 
-dfx deploy ousg_ledger  --argument "(variant {Init = 
+echo "Deploying OUSG Ledger with:"
+echo "  Token Name: $TOKEN_NAME"
+echo "  Token Symbol: $TOKEN_SYMBOL"
+echo "  Decimals: $Decimals"
+echo "  Minting Account: $MINTER_ACCOUNT"
+echo "  Fee Collector: $FEE_COLLECTOR_ACCOUNT"
+echo "  Archive Controller: $ARCHIVE_CONTROLLER"
+echo
+
+dfx deploy ousg_ledger --argument "(variant {Init = 
 record {
      decimals = opt ${Decimals};
      token_symbol = \"${TOKEN_SYMBOL}\";
@@ -73,5 +81,11 @@ record {
  }
 })"
 
-######################################################################################
-######################################################################################
+echo
+echo "=== OUSG Ledger Deployed Successfully ==="
+echo "OUSG Ledger Canister ID: $(dfx canister id ousg_ledger)"
+echo
+echo "You can now use the minting scripts:"
+echo "  ./scripts/mint-ousg-local.sh <amount>"
+echo "  ./scripts/local-mint-ousg.sh"
+echo "  ./scripts/check-ousg-balances.sh"
