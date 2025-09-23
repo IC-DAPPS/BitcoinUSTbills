@@ -33,7 +33,7 @@
 	const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
 	// Computed states - converted to $derived()
-	let isLoggedIn = $derived($authStore.isLoggedIn);
+	let isAuthenticated = $derived($authStore.isAuthenticated);
 	let userProfile = $derived(userSate.profile);
 	let basicKYCStatus = $derived(userProfile?.kyc_status);
 
@@ -47,7 +47,7 @@
 	let canSubmit = $derived(allFilesUploaded && !submitting);
 
 	onMount(async () => {
-		if (!isLoggedIn) {
+		if (!isAuthenticated) {
 			loading = false;
 			return;
 		}
@@ -310,7 +310,7 @@
 			</p>
 		</div>
 
-		{#if !isLoggedIn}
+		{#if !isAuthenticated}
 			<!-- Not logged in -->
 			<div class="card p-8 text-center">
 				<div class="w-16 h-16 bg-blue rounded-full flex items-center justify-center mx-auto mb-4">

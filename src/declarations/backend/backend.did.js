@@ -70,16 +70,61 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : IDL.Null,
     'Err' : BitcoinUSTBillsError,
   });
+  const Result_2 = IDL.Variant({
+    'Ok' : IDL.Float64,
+    'Err' : BitcoinUSTBillsError,
+  });
+  const DepositStatus = IDL.Variant({
+    'Failed' : IDL.Null,
+    'Processed' : IDL.Null,
+    'Validated' : IDL.Null,
+    'Pending' : IDL.Null,
+  });
+  const Deposit = IDL.Record({
+    'id' : IDL.Nat64,
+    'status' : DepositStatus,
+    'user_principal' : IDL.Principal,
+    'updated_at' : IDL.Nat64,
+    'block_index' : IDL.Nat64,
+    'deposit_time' : IDL.Nat64,
+    'ousg_minted' : IDL.Nat64,
+    'created_at' : IDL.Nat64,
+    'btc_price_usd' : IDL.Float64,
+    'usd_value' : IDL.Float64,
+    'ckbtc_amount' : IDL.Nat64,
+  });
+  const Result_3 = IDL.Variant({
+    'Ok' : Deposit,
+    'Err' : BitcoinUSTBillsError,
+  });
   const PublicKeyReply = IDL.Record({
     'eth_address' : IDL.Text,
     'public_key_hex' : IDL.Text,
   });
-  const Result_2 = IDL.Variant({ 'Ok' : PublicKeyReply, 'Err' : IDL.Text });
-  const Result_3 = IDL.Variant({
+  const Result_4 = IDL.Variant({ 'Ok' : PublicKeyReply, 'Err' : IDL.Text });
+  const Result_5 = IDL.Variant({
     'Ok' : FreeKYCSession,
     'Err' : BitcoinUSTBillsError,
   });
-  const Result_4 = IDL.Variant({ 'Ok' : User, 'Err' : BitcoinUSTBillsError });
+  const Result_6 = IDL.Variant({
+    'Ok' : IDL.Nat64,
+    'Err' : BitcoinUSTBillsError,
+  });
+  const Result_7 = IDL.Variant({
+    'Ok' : IDL.Vec(Deposit),
+    'Err' : BitcoinUSTBillsError,
+  });
+  const Result_8 = IDL.Variant({ 'Ok' : User, 'Err' : BitcoinUSTBillsError });
+  const DepositRequest = IDL.Record({
+    'block_index' : IDL.Nat64,
+    'ckbtc_amount' : IDL.Nat64,
+  });
+  const DepositResponse = IDL.Record({
+    'deposit_id' : IDL.Opt(IDL.Nat64),
+    'ousg_minted' : IDL.Opt(IDL.Nat64),
+    'error_message' : IDL.Opt(IDL.Text),
+    'success' : IDL.Bool,
+  });
   const UserRegistrationRequest = IDL.Record({
     'country' : IDL.Text,
     'email' : IDL.Text,
@@ -95,7 +140,7 @@ export const idlFactory = ({ IDL }) => {
     'contract_address' : IDL.Text,
     'amount' : IDL.Text,
   });
-  const Result_5 = IDL.Variant({
+  const Result_9 = IDL.Variant({
     'Ok' : IDL.Text,
     'Err' : BitcoinUSTBillsError,
   });
@@ -106,17 +151,34 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
+    'calculate_ckbtc_usd_value' : IDL.Func(
+        [IDL.Nat64, IDL.Float64],
+        [IDL.Float64],
+        ['query'],
+      ),
+    'calculate_ousg_for_usd' : IDL.Func([IDL.Float64], [IDL.Nat64], ['query']),
     'get_authorized_principals' : IDL.Func(
         [],
         [IDL.Vec(IDL.Principal)],
         ['query'],
       ),
-    'get_eth_address' : IDL.Func([], [Result_2], []),
-    'get_free_kyc_status' : IDL.Func([IDL.Text], [Result_3], ['query']),
+    'get_current_btc_price' : IDL.Func([], [Result_2], []),
+    'get_deposit' : IDL.Func([IDL.Nat64], [Result_3], ['query']),
+    'get_deposit_stats' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat64))],
+        ['query'],
+      ),
+    'get_eth_address' : IDL.Func([], [Result_4], []),
+    'get_free_kyc_status' : IDL.Func([IDL.Text], [Result_5], ['query']),
     'get_latest_block_number' : IDL.Func([], [IDL.Text], []),
-    'get_user_profile' : IDL.Func([], [Result_4], ['query']),
+    'get_ousg_balance' : IDL.Func([], [Result_6], []),
+    'get_user_deposits' : IDL.Func([], [Result_7], ['query']),
+    'get_user_profile' : IDL.Func([], [Result_8], ['query']),
     'is_user_registered' : IDL.Func([], [IDL.Bool], ['query']),
-    'register_user' : IDL.Func([UserRegistrationRequest], [Result_4], []),
+    'notify_deposit' : IDL.Func([DepositRequest], [DepositResponse], []),
+    'redeem_ousg_tokens' : IDL.Func([IDL.Nat64], [Result_6], []),
+    'register_user' : IDL.Func([UserRegistrationRequest], [Result_8], []),
     'test_erc20_transfer' : IDL.Func([], [TransferResponse], []),
     'transfer_erc20_tokens' : IDL.Func(
         [TransferRequest],
@@ -125,7 +187,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'upload_document_free_kyc' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text],
-        [Result_5],
+        [Result_9],
         [],
       ),
   });

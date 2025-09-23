@@ -14,6 +14,33 @@ export type BitcoinUSTBillsError = { 'UserAlreadyExists' : null } |
   { 'StorageError' : string } |
   { 'UserNotFound' : null } |
   { 'AnonymousCaller' : null };
+export interface Deposit {
+  'id' : bigint,
+  'status' : DepositStatus,
+  'user_principal' : Principal,
+  'updated_at' : bigint,
+  'block_index' : bigint,
+  'deposit_time' : bigint,
+  'ousg_minted' : bigint,
+  'created_at' : bigint,
+  'btc_price_usd' : number,
+  'usd_value' : number,
+  'ckbtc_amount' : bigint,
+}
+export interface DepositRequest {
+  'block_index' : bigint,
+  'ckbtc_amount' : bigint,
+}
+export interface DepositResponse {
+  'deposit_id' : [] | [bigint],
+  'ousg_minted' : [] | [bigint],
+  'error_message' : [] | [string],
+  'success' : boolean,
+}
+export type DepositStatus = { 'Failed' : null } |
+  { 'Processed' : null } |
+  { 'Validated' : null } |
+  { 'Pending' : null };
 export interface FreeKYCSession {
   'status' : FreeKYCStatus,
   'document_front_page' : string,
@@ -43,13 +70,21 @@ export type Result = { 'Ok' : Array<UserAndFreeKYCSession> } |
   { 'Err' : BitcoinUSTBillsError };
 export type Result_1 = { 'Ok' : null } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_2 = { 'Ok' : PublicKeyReply } |
+export type Result_2 = { 'Ok' : number } |
+  { 'Err' : BitcoinUSTBillsError };
+export type Result_3 = { 'Ok' : Deposit } |
+  { 'Err' : BitcoinUSTBillsError };
+export type Result_4 = { 'Ok' : PublicKeyReply } |
   { 'Err' : string };
-export type Result_3 = { 'Ok' : FreeKYCSession } |
+export type Result_5 = { 'Ok' : FreeKYCSession } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_4 = { 'Ok' : User } |
+export type Result_6 = { 'Ok' : bigint } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_5 = { 'Ok' : string } |
+export type Result_7 = { 'Ok' : Array<Deposit> } |
+  { 'Err' : BitcoinUSTBillsError };
+export type Result_8 = { 'Ok' : User } |
+  { 'Err' : BitcoinUSTBillsError };
+export type Result_9 = { 'Ok' : string } |
   { 'Err' : BitcoinUSTBillsError };
 export interface TransferRequest {
   'recipient' : string,
@@ -96,16 +131,25 @@ export interface _SERVICE {
     [string, boolean, [] | [string]],
     Result_1
   >,
+  'calculate_ckbtc_usd_value' : ActorMethod<[bigint, number], number>,
+  'calculate_ousg_for_usd' : ActorMethod<[number], bigint>,
   'get_authorized_principals' : ActorMethod<[], Array<Principal>>,
-  'get_eth_address' : ActorMethod<[], Result_2>,
-  'get_free_kyc_status' : ActorMethod<[string], Result_3>,
+  'get_current_btc_price' : ActorMethod<[], Result_2>,
+  'get_deposit' : ActorMethod<[bigint], Result_3>,
+  'get_deposit_stats' : ActorMethod<[], Array<[string, bigint]>>,
+  'get_eth_address' : ActorMethod<[], Result_4>,
+  'get_free_kyc_status' : ActorMethod<[string], Result_5>,
   'get_latest_block_number' : ActorMethod<[], string>,
-  'get_user_profile' : ActorMethod<[], Result_4>,
+  'get_ousg_balance' : ActorMethod<[], Result_6>,
+  'get_user_deposits' : ActorMethod<[], Result_7>,
+  'get_user_profile' : ActorMethod<[], Result_8>,
   'is_user_registered' : ActorMethod<[], boolean>,
-  'register_user' : ActorMethod<[UserRegistrationRequest], Result_4>,
+  'notify_deposit' : ActorMethod<[DepositRequest], DepositResponse>,
+  'redeem_ousg_tokens' : ActorMethod<[bigint], Result_6>,
+  'register_user' : ActorMethod<[UserRegistrationRequest], Result_8>,
   'test_erc20_transfer' : ActorMethod<[], TransferResponse>,
   'transfer_erc20_tokens' : ActorMethod<[TransferRequest], TransferResponse>,
-  'upload_document_free_kyc' : ActorMethod<[string, string, string], Result_5>,
+  'upload_document_free_kyc' : ActorMethod<[string, string, string], Result_9>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

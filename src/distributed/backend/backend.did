@@ -138,6 +138,8 @@ service : {
   is_user_registered : () -> (bool) query;
   // User deposits ckBTC and gets OUSG minted (similar to DoxaV3 notifyStake)
   notify_deposit : (DepositRequest) -> (DepositResponse);
+  // Redeem OUSG tokens for ckBTC
+  redeem_ousg_tokens : (nat64) -> (Result_6);
   // Registers a new user
   register_user : (UserRegistrationRequest) -> (Result_8);
   // Test ERC-20 transfer with hardcoded values

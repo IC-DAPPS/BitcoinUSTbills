@@ -32,7 +32,7 @@
 	let isSubmittingReview = $state(false);
 
 	onMount(async () => {
-		if (!$authStore.isLoggedIn) {
+		if (!$authStore.isAuthenticated) {
 			errorMessage = 'Please log in as an admin to view this page.';
 			isLoading = false;
 			return;

@@ -1,5 +1,4 @@
-import { getUserProfile } from "$lib/api";
-import { authStore } from "$lib/auth";
+import { authStore } from "$lib/stores/auth.store";
 import type { KYCStatus, Profile, UserSate } from "$lib/types/state";
 import { formatBigIntNanoSecTimestamp } from "$lib/utils/data-time.utils";
 import { get } from "svelte/store";
@@ -9,33 +8,27 @@ import { goto } from "$app/navigation";
 
 export const userSate: UserSate = $state({});
 
-
 export const fetchUserProfile = async () => {
     try {
-        const { isLoggedIn } = get(authStore);
+        const { isAuthenticated, backend } = get(authStore);
 
-        if (!isLoggedIn) return;
+        if (!isAuthenticated || !backend) return;
 
-        const response = await getUserProfile();
+        const response = await backend.getUserProfile();
 
         if ('Ok' in response) {
-
-
-            userSate.profile = transformUserToProfile(response.Ok)
+            userSate.profile = transformUserToProfile(response.Ok);
         } else {
-
             const err = response.Err;
-
+            console.error('Error fetching user profile:', err);
         }
 
     } catch (error) {
-        console.error(error)
+        console.error('Error fetching user profile:', error);
     }
-
-}
+};
 
 function transformUserToProfile(user: User): Profile {
-
     const { updated_at, principal, country, kyc_tier, created_at, email, total_invested, kyc_status, phone_number, is_active, total_yield_earned } = user;
 
     return {
@@ -49,12 +42,8 @@ function transformUserToProfile(user: User): Profile {
         kyc_status: convertKYCStatus(kyc_status),
         is_active,
         phone_number: phone_number[0],
-    }
-
+    };
 }
-
-
-
 
 // Function to convert from discriminated union to simple union
 export function convertKYCStatus(backendStatus: BackendKYCStatus): KYCStatus {

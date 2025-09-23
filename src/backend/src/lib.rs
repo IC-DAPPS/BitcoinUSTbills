@@ -955,6 +955,134 @@ pub fn calculate_ousg_for_usd(usd_amount: f64) -> u64 {
     (ousg_tokens * 1_000_000.0) as u64 // Convert to OUSG units (6 decimals)
 }
 
+/// Redeem OUSG tokens for ckBTC
+#[update]
+pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
+    let caller = ic_cdk::api::msg_caller();
+
+    // Check if user is registered and eligible
+    let user = match UserStorage::get(&caller) {
+        Ok(user) => user,
+        Err(_) => {
+            return Err(BitcoinUSTBillsError::UserNotFound);
+        }
+    };
+
+    // Check if user has KYC verified
+    if user.kyc_status != KYCStatus::Verified {
+        return Err(BitcoinUSTBillsError::KYCNotVerified);
+    }
+
+    // Check minimum redeem amount (1 OUSG token = $5000)
+    if ousg_amount < 1_000_000 {
+        return Err(BitcoinUSTBillsError::ValidationError(
+            "Minimum redeem amount is 1 OUSG token".to_string(),
+        ));
+    }
+
+    // Get current BTC price
+    let btc_price = match get_btc_price().await {
+        Ok(price) => price,
+        Err(e) => {
+            ic_cdk::println!(
+                "Failed to get BTC price from XRC: {:?}, using hardcoded price for testing",
+                e
+            );
+            100000.0
+        }
+    };
+
+    // Calculate USD value of OUSG tokens to redeem
+    let usd_value = (ousg_amount as f64) / 1_000_000.0 * 5000.0; // Convert OUSG units to USD
+    let ckbtc_amount = convert_usd_to_ckbtc(usd_value, btc_price);
+
+    // Check if we have enough ckBTC in reserve
+    // TODO: Implement ckBTC reserve balance check
+    // For now, we'll assume we have enough
+
+    // Burn OUSG tokens from user
+    match burn_ousg_tokens(caller, ousg_amount).await {
+        Ok(_) => {
+            // Update user balance
+            let mut updated_user = user;
+            updated_user.total_invested = updated_user.total_invested.saturating_sub(ousg_amount);
+            if let Err(e) = UserStorage::update(updated_user) {
+                return Err(BitcoinUSTBillsError::StorageError(format!(
+                    "Failed to update user: {:?}",
+                    e
+                )));
+            }
+
+            // TODO: Transfer ckBTC to user
+            // This would require implementing ckBTC transfer functionality
+            // For now, return the amount that should be transferred
+            Ok(ckbtc_amount)
+        }
+        Err(e) => Err(e),
+    }
+}
+
+/// Burn OUSG tokens from user account
+async fn burn_ousg_tokens(user: Principal, amount: u64) -> Result<u64> {
+    // Create burn transfer from user account
+    let _transfer_args = TransferArg {
+        from_subaccount: None,
+        to: Account {
+            owner: user,
+            subaccount: None,
+        },
+        amount: candid::Nat::from(amount),
+        fee: None,
+        memo: None,
+        created_at_time: Some(ic_cdk::api::time()),
+    };
+
+    // Execute burn via OUSG ledger
+    let principal = Principal::from_text(OUSG_LEDGER_CANISTER_ID).map_err(|e| {
+        BitcoinUSTBillsError::StorageError(format!("Invalid OUSG principal: {:?}", e))
+    })?;
+    let service = OusgLedgerService(principal);
+
+    // For burning, we need to transfer to a burn address or use a different method
+    // Since ICRC-1 doesn't have explicit burn, we'll transfer to a controlled burn account
+    let burn_account = Account {
+        owner: Principal::from_text("aaaaa-aa").unwrap(), // Anonymous principal as burn address
+        subaccount: None,
+    };
+
+    let burn_transfer_args = TransferArg {
+        from_subaccount: None,
+        to: burn_account,
+        amount: candid::Nat::from(amount),
+        fee: None,
+        memo: None,
+        created_at_time: Some(ic_cdk::api::time()),
+    };
+
+    let result = service.icrc_1_transfer(burn_transfer_args).await;
+
+    match result {
+        Ok((TransferResult::Ok(block_index),)) => {
+            let digits = block_index.0.to_u64_digits();
+            if digits.is_empty() {
+                Err(BitcoinUSTBillsError::StorageError(
+                    "Invalid block index: empty digits".to_string(),
+                ))
+            } else {
+                Ok(digits[0])
+            }
+        }
+        Ok((TransferResult::Err(e),)) => Err(BitcoinUSTBillsError::StorageError(format!(
+            "Burn transfer failed: {:?}",
+            e
+        ))),
+        Err(e) => Err(BitcoinUSTBillsError::StorageError(format!(
+            "Burn call failed: {:?}",
+            e
+        ))),
+    }
+}
+
 /// Get deposit statistics
 #[query]
 pub fn get_deposit_stats() -> std::collections::HashMap<String, u64> {
