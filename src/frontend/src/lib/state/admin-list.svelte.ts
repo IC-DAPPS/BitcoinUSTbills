@@ -12,7 +12,7 @@ export const fetchAdminList = async () => {
             return;
         }
 
-        const response = await backend.getAuthorizedPrincipals();
+        const response = await backend.get_authorized_principals();
         adminList.push(...response.map(principal => principal.toString()));
 
         console.log('adminList', response);

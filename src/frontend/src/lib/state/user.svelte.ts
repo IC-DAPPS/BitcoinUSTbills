@@ -14,7 +14,7 @@ export const fetchUserProfile = async () => {
 
         if (!isAuthenticated || !backend) return;
 
-        const response = await backend.getUserProfile();
+        const response = await backend.get_user_profile();
 
         if ('Ok' in response) {
             userSate.profile = transformUserToProfile(response.Ok);

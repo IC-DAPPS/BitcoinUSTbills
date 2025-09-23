@@ -1,6 +1,6 @@
-import { actor } from '$lib/agent';
 import { get } from 'svelte/store';
 import { toast } from 'svelte-sonner';
+import { authStore } from '$lib/stores/auth.store';
 
 export interface RedeemingResult {
     success: boolean;
@@ -9,8 +9,8 @@ export interface RedeemingResult {
 }
 
 export const redeemOUSG = async (ousgAmount: bigint): Promise<RedeemingResult> => {
-    const backendActor = get(actor);
-    if (!backendActor) {
+    const { backend } = get(authStore);
+    if (!backend) {
         toast.error('Not authenticated');
         return { success: false, errorMessage: 'Not authenticated' };
     }
@@ -20,7 +20,7 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<RedeemingResult> =
             duration: 30000
         });
 
-        const response = await backendActor.redeem_ousg_tokens(ousgAmount);
+        const response = await backend.redeem_ousg_tokens(ousgAmount);
 
         if ('Ok' in response) {
             toast.success('OUSG tokens redeemed successfully!', {

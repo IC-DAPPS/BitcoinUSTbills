@@ -1,21 +1,12 @@
-import { Actor, type Identity } from '@dfinity/agent';
+import { Actor, type Identity, type ActorSubclass } from '@dfinity/agent';
 import { idlFactory as backendIdlFactory } from '../../../../declarations/backend';
 import { idlFactory as ousgLedgerIdlFactory } from '../../../../declarations/ustb_token_ledger';
 import { idlFactory as ckbtcLedgerIdlFactory } from '../../../../declarations/ustb_token_ledger';
 import { BACKEND_CANISTER_ID, OUSG_LEDGER_CANISTER_ID, CKBTC_LEDGER_CANISTER_ID } from '$lib/const';
 import { getAgent } from './agents.ic';
+import type { _SERVICE as BackendService } from '../../../../declarations/backend/backend.did';
 
-export interface BackendActor {
-    // Add backend methods here based on your backend.did
-    notify_deposit: (args: { block_index: bigint; amount: bigint }) => Promise<any>;
-    redeem_ousg_tokens: (ousg_amount: bigint) => Promise<any>;
-    get_ousg_balance: () => Promise<bigint>;
-    get_user_deposits: () => Promise<any[]>;
-    get_current_btc_price: () => Promise<number>;
-    calculate_ckbtc_usd_value: (ckbtc_amount: bigint) => Promise<number>;
-    calculate_ousg_for_usd: (usd_amount: number) => Promise<bigint>;
-    get_deposit_stats: () => Promise<any>;
-}
+export type BackendActor = ActorSubclass<BackendService>;
 
 export interface OusgLedgerActor {
     icrc1_balance_of: (args: { owner: any; subaccount?: any }) => Promise<bigint>;

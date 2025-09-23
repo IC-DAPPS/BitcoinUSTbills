@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { actor } from '$lib/agent';
 	import { get } from 'svelte/store';
 	import { authStore } from '$lib/stores/auth.store';
 	import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
@@ -15,19 +14,15 @@
 	});
 
 	const fetchStats = async () => {
-		if (!authStore.isAuthenticated) return;
+		const { isAuthenticated, backend } = get(authStore);
+		if (!isAuthenticated || !backend) return;
 
 		stats.loading = true;
 		stats.error = null;
 
 		try {
-			const backendActor = get(actor);
-			if (!backendActor) {
-				throw new Error('Backend actor not available');
-			}
-
 			// Fetch deposit stats
-			const depositStats = await backendActor.get_deposit_stats();
+			const depositStats = await backend.get_deposit_stats();
 			if (Array.isArray(depositStats)) {
 				const statsMap = new Map(depositStats);
 				stats.totalDeposits = Number(statsMap.get('total_deposits') || 0);
@@ -36,7 +31,7 @@
 			}
 
 			// Fetch BTC price
-			const btcPriceResponse = await backendActor.get_current_btc_price();
+			const btcPriceResponse = await backend.get_current_btc_price();
 			if ('Ok' in btcPriceResponse) {
 				stats.btcPrice = btcPriceResponse.Ok;
 			}
@@ -54,7 +49,7 @@
 
 	// Fetch stats when component mounts
 	$effect(() => {
-		if (authStore.isAuthenticated) {
+		if (get(authStore).isAuthenticated) {
 			fetchStats();
 		}
 	});
@@ -78,7 +73,7 @@
 	<div class="flex items-center justify-between">
 		<h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
 		{#if stats.loading}
-			<LoadingSpinner class="w-6 h-6" />
+			<LoadingSpinner />
 		{/if}
 	</div>
 

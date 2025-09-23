@@ -1,4 +1,3 @@
-import { actor } from '$lib/agent';
 import { get } from 'svelte/store';
 import { authStore } from '$lib/stores/auth.store';
 import type { Deposit } from '../../../declarations/backend/backend.did';
@@ -22,7 +21,8 @@ export const transactions = $state({
 });
 
 export const fetchTransactions = async () => {
-    if (!authStore.isAuthenticated) {
+    const { isAuthenticated, backend } = get(authStore);
+    if (!isAuthenticated || !backend) {
         transactions.list = [];
         transactions.error = null;
         return;
@@ -32,12 +32,7 @@ export const fetchTransactions = async () => {
     transactions.error = null;
 
     try {
-        const backendActor = get(actor);
-        if (!backendActor) {
-            throw new Error('Backend actor not available');
-        }
-
-        const deposits = await backendActor.get_user_deposits();
+        const deposits = await backend.get_user_deposits();
         if ('Ok' in deposits) {
             const depositTransactions: Transaction[] = deposits.Ok.map((deposit: Deposit) => ({
                 id: `deposit-${deposit.id}`,
@@ -71,7 +66,7 @@ function formatOUSGAmount(amount: bigint): string {
 
 // Auto-fetch transactions when authentication state changes
 $effect(() => {
-    if (authStore.isAuthenticated) {
+    if (get(authStore).isAuthenticated) {
         fetchTransactions();
     } else {
         transactions.list = [];
