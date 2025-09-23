@@ -1,6 +1,9 @@
 dfx deploy backend
 dfx deploy file_store_bucket
 dfx deploy ii
+dfx deploy evm_rpc --argument '(record {})'
+dfx deploy xrc
+
 
 Decimals=8
 TOKEN_SYMBOL="ckBTC"
@@ -19,6 +22,11 @@ Amount=2
 if ! dfx identity list | grep -q minter; then
     # If minter is not found, run the command
     dfx identity new minter
+fi
+
+if ! dfx identity list | grep -q doxa; then
+    # If doxa is not found, run the command
+    dfx identity new doxa
 fi
 
 export MINTER_PRINCIPAL=$(dfx identity get-principal --identity minter)
@@ -61,3 +69,4 @@ dfx deploy $CANISTER --argument "( variant { Init = record {
 }
 })"
 
+./scripts/deploy-local-ousg.sh

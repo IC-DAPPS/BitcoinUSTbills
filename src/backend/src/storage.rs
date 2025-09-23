@@ -16,6 +16,8 @@ const TRADING_METRICS_MEMORY_ID: MemoryId = MemoryId::new(6);
 const ID_COUNTER_MEMORY_ID: MemoryId = MemoryId::new(7);
 const VERIFIED_PURCHASES_LEDGER_MEMORY_ID: MemoryId = MemoryId::new(8);
 const FREE_KYC_SESSIONS_MEMORY_ID: MemoryId = MemoryId::new(11);
+const DEPOSITS_MEMORY_ID: MemoryId = MemoryId::new(12);
+const PROCESSED_DEPOSITS_MEMORY_ID: MemoryId = MemoryId::new(13);
 
 // Thread-local storage for memory manager and stable data structures
 thread_local! {
@@ -59,6 +61,20 @@ thread_local! {
     static FREE_KYC_SESSIONS: RefCell<StableBTreeMap<String, FreeKYCSession, Memory>> = RefCell::new(
         StableBTreeMap::init(
             MEMORY_MANAGER.with(|m| m.borrow().get(FREE_KYC_SESSIONS_MEMORY_ID))
+        )
+    );
+
+    // ============= DEPOSIT STORAGE STRUCTURES =============
+
+    static DEPOSITS: RefCell<StableBTreeMap<u64, Deposit, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(DEPOSITS_MEMORY_ID))
+        )
+    );
+
+    static PROCESSED_DEPOSITS: RefCell<StableBTreeMap<u64, Principal, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(PROCESSED_DEPOSITS_MEMORY_ID))
         )
     );
 
@@ -123,6 +139,25 @@ impl Storable for VerifiedBrokerPurchase {
 // ============= FREE KYC STORABLE IMPLEMENTATIONS =============
 
 impl Storable for FreeKYCSession {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(candid::encode_one(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        candid::decode_one(&bytes).unwrap()
+    }
+
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(self).unwrap()
+    }
+
+    const BOUND: ic_stable_structures::storable::Bound =
+        ic_stable_structures::storable::Bound::Unbounded;
+}
+
+// ============= DEPOSIT STORABLE IMPLEMENTATIONS =============
+
+impl Storable for Deposit {
     fn to_bytes(&self) -> Cow<[u8]> {
         Cow::Owned(candid::encode_one(self).unwrap())
     }
@@ -346,6 +381,88 @@ impl FreeKYCStorage {
     }
 }
 
+// ============= DEPOSIT STORAGE INTERFACES =============
+
+// Storage interface for Deposits
+pub struct DepositStorage;
+
+impl DepositStorage {
+    pub fn insert(deposit: Deposit) -> Result<()> {
+        DEPOSITS.with(|deposits| {
+            deposits.borrow_mut().insert(deposit.id, deposit);
+            Ok(())
+        })
+    }
+
+    pub fn get(deposit_id: u64) -> Result<Deposit> {
+        DEPOSITS.with(|deposits| {
+            deposits
+                .borrow()
+                .get(&deposit_id)
+                .ok_or(BitcoinUSTBillsError::StorageError(
+                    "Deposit not found".to_string(),
+                ))
+        })
+    }
+
+    pub fn update(deposit: Deposit) -> Result<()> {
+        DEPOSITS.with(|deposits| {
+            deposits.borrow_mut().insert(deposit.id, deposit);
+            Ok(())
+        })
+    }
+
+    pub fn get_by_user(user_principal: &Principal) -> Vec<Deposit> {
+        DEPOSITS.with(|deposits| {
+            deposits
+                .borrow()
+                .iter()
+                .filter(|entry| entry.value().user_principal == *user_principal)
+                .map(|entry| entry.value().clone())
+                .collect()
+        })
+    }
+
+    pub fn get_pending_deposits() -> Vec<Deposit> {
+        DEPOSITS.with(|deposits| {
+            deposits
+                .borrow()
+                .iter()
+                .filter(|entry| entry.value().status == DepositStatus::Pending)
+                .map(|entry| entry.value().clone())
+                .collect()
+        })
+    }
+
+    pub fn count() -> u64 {
+        DEPOSITS.with(|deposits| deposits.borrow().len())
+    }
+}
+
+// Storage interface for Processed Deposits (to prevent double processing)
+pub struct ProcessedDepositsStorage;
+
+impl ProcessedDepositsStorage {
+    pub fn insert(block_index: u64, principal: Principal) -> Result<()> {
+        PROCESSED_DEPOSITS.with(|processed| {
+            processed.borrow_mut().insert(block_index, principal);
+            Ok(())
+        })
+    }
+
+    pub fn get(block_index: u64) -> Option<Principal> {
+        PROCESSED_DEPOSITS.with(|processed| processed.borrow().get(&block_index))
+    }
+
+    pub fn contains(block_index: u64) -> bool {
+        PROCESSED_DEPOSITS.with(|processed| processed.borrow().contains_key(&block_index))
+    }
+
+    pub fn count() -> u64 {
+        PROCESSED_DEPOSITS.with(|processed| processed.borrow().len())
+    }
+}
+
 // Utility functions for storage operations
 pub fn generate_id() -> String {
     ID_COUNTER.with(|counter| {
@@ -368,6 +485,11 @@ pub fn get_storage_stats() -> std::collections::HashMap<String, u64> {
         VerifiedPurchasesLedgerStorage::count(),
     );
     stats.insert("free_kyc_sessions".to_string(), FreeKYCStorage::count());
+    stats.insert("deposits".to_string(), DepositStorage::count());
+    stats.insert(
+        "processed_deposits".to_string(),
+        ProcessedDepositsStorage::count(),
+    );
 
     stats
 }

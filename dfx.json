@@ -14,9 +14,29 @@
         }
       ]
     },
+    "evm_rpc": {
+      "type": "custom",
+      "candid": "https://github.com/internet-computer-protocol/evm-rpc-canister/releases/latest/download/evm_rpc.did",
+      "wasm": "https://github.com/internet-computer-protocol/evm-rpc-canister/releases/latest/download/evm_rpc.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "7hfb6-caaaa-aaaar-qadga-cai"
+        }
+      }
+    },
     "file_store_bucket": {
       "main": "packages/file-store-bucket/src/main.mo",
       "type": "motoko"
+    },
+    "ousg_ledger": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ledger.did",
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ic-icrc1-ledger.wasm.gz"
+    },
+    "ousg_index": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/index-ng.did",
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ic-icrc1-index-ng.wasm.gz"
     },
     "frontend": {
       "frontend": {
@@ -54,6 +74,12 @@
           "ic": "mxzaz-hqaaa-aaaar-qaada-cai"
         }
       }
+    },
+    "xrc": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/exchange-rate-canister/6dc4a6eb450bc477d6ea09597c992a3ef31d0d88/src/xrc/xrc.did",
+      "wasm": "https://github.com/dfinity/exchange-rate-canister/releases/download/2024.07.12/xrc.wasm.gz",
+      "specified_id": "uf6dk-hyaaa-aaaaq-qaaaq-cai"
     }
   },
   "networks": {
