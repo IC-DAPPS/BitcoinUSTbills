@@ -4,6 +4,7 @@
 	import { adminList } from '$lib/state/admin-list.svelte';
 	import MintingForm from '$lib/components/MintingForm.svelte';
 	import RedeemingForm from '$lib/components/RedeemingForm.svelte';
+	import TestMintingForm from '$lib/components/TestMintingForm.svelte';
 	import OUSGBalance from '$lib/components/OUSGBalance.svelte';
 	import TransactionHistory from '$lib/components/TransactionHistory.svelte';
 	import AdminDashboard from '$lib/components/AdminDashboard.svelte';
@@ -154,7 +155,7 @@
 					</div>
 				{:else if activeTab === 'mint' && canTrade()}
 					<div class="max-w-md mx-auto">
-						<MintingForm />
+						<TestMintingForm />
 					</div>
 				{:else if activeTab === 'redeem' && canTrade()}
 					<div class="max-w-md mx-auto">
