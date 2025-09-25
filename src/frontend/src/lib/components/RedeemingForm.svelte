@@ -11,9 +11,8 @@
 
 	let ousgAmount = $state('');
 	let btcPrice = $state(0);
-	let expectedCKBTC = $state(0n);
+	let expectedCkBTC = $state(0n);
 	let isRedeeming = $state(false);
-	let isLoading = $state(false);
 
 	// Fetch BTC price on component mount
 	$effect(() => {
@@ -31,9 +30,9 @@
 		if (ousgAmount && btcPrice > 0) {
 			const amount = parseFloat(ousgAmount);
 			if (amount > 0) {
-				const usdValue = amount * 5000; // Each OUSG = $5000
-				const ckbtcValue = (usdValue / btcPrice) * 100_000_000; // Convert to satoshis
-				expectedCKBTC = BigInt(Math.floor(ckbtcValue));
+				const usdValue = amount; // OUSG is 1:1 with USD
+				const btcValue = usdValue / btcPrice;
+				expectedCkBTC = BigInt(Math.floor(btcValue * 100_000_000)); // Convert to satoshis
 			}
 		}
 	});
@@ -45,61 +44,44 @@
 		}
 
 		if (!userSate.profile || userSate.profile.kyc_status !== 'Verified') {
-			toast.error('KYC verification required to redeem OUSG tokens');
+			toast.error('KYC verification is required to redeem OUSG tokens');
 			return;
 		}
 
-		if (!ousgAmount || parseFloat(ousgAmount) <= 0) {
+		const amount = parseFloat(ousgAmount);
+		if (!amount || amount <= 0) {
 			toast.error('Please enter a valid OUSG amount');
 			return;
 		}
 
-		if (parseFloat(ousgAmount) < 1) {
-			toast.error('Minimum redeem amount is 1 OUSG token');
-			return;
-		}
+		const ousgAmountBigInt = BigInt(Math.floor(amount * 1_000_000)); // Convert to units
 
-		if (ousgBalance.balance < BigInt(Math.floor(parseFloat(ousgAmount) * 1_000_000))) {
+		if (ousgBalance.balance < ousgAmountBigInt) {
 			toast.error('Insufficient OUSG balance');
 			return;
 		}
 
 		isRedeeming = true;
-		isLoading = true;
 
 		try {
-			// Convert OUSG amount to bigint (assuming 6 decimals)
-			const ousgAmountBigInt = BigInt(Math.floor(parseFloat(ousgAmount) * 1_000_000));
-
 			const result = await redeemOUSG(ousgAmountBigInt);
-
 			if (result.success) {
-				toast.success(`Successfully redeemed ${ousgAmount} OUSG tokens`);
 				ousgAmount = '';
-				expectedCKBTC = 0n;
-				// Refresh balance
-				await fetchOUSGBalance();
-			} else {
-				toast.error(result.errorMessage || 'Failed to redeem OUSG tokens');
+				expectedCkBTC = 0n;
 			}
 		} catch (error) {
-			console.error('Error redeeming OUSG:', error);
+			console.error('Redeeming error:', error);
 			toast.error('Failed to redeem OUSG tokens');
 		} finally {
 			isRedeeming = false;
-			isLoading = false;
 		}
 	};
 
-	function formatOUSGAmount(amount: bigint): string {
-		const formatted = Number(amount) / 1_000_000; // Convert from units to tokens
-		return formatted.toFixed(6);
-	}
-
-	function formatCKBTCAmount(amount: bigint): string {
-		const formatted = Number(amount) / 100_000_000; // Convert from satoshis to BTC
-		return formatted.toFixed(8);
-	}
+	const setMaxAmount = () => {
+		if (ousgBalance.balance > 0n) {
+			ousgAmount = (Number(ousgBalance.balance) / 1_000_000).toString();
+		}
+	};
 
 	const isDisabled = $derived(
 		!$authStore.isAuthenticated ||
@@ -120,47 +102,53 @@
 	});
 </script>
 
-<div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
-	<h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Redeem OUSG Tokens</h2>
+<div class="card p-6">
+	<h2 class="text-xl font-semibold text-primary mb-6">Redeem OUSG Tokens</h2>
 
 	<div class="space-y-4">
-		<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-			<div class="flex justify-between items-center">
-				<span class="text-sm font-medium text-blue-700">Your OUSG Balance:</span>
-				<span class="text-sm text-blue-900 font-semibold">
-					{formatOUSGAmount(ousgBalance.balance)}
-				</span>
-			</div>
-		</div>
-
+		<!-- OUSG Amount Input -->
 		<div>
-			<label for="ousg-amount" class="block text-sm font-medium text-gray-700 mb-2">
+			<label for="ousg-amount" class="block text-sm font-medium text-primary mb-2">
 				OUSG Amount
 			</label>
-			<Input
-				id="ousg-amount"
-				type="number"
-				bind:value={ousgAmount}
-				placeholder="Enter OUSG amount"
-				disabled={isRedeeming}
-				class="w-full"
-			/>
-			<p class="text-sm text-gray-500 mt-1">Minimum: 1 OUSG token</p>
+			<div class="relative">
+				<Input
+					id="ousg-amount"
+					type="number"
+					step="0.000001"
+					min="1"
+					bind:value={ousgAmount}
+					placeholder="Enter OUSG amount (minimum 1)"
+					disabled={isRedeeming}
+					class="pr-20"
+				/>
+				<button
+					type="button"
+					onclick={setMaxAmount}
+					disabled={isRedeeming || ousgBalance.balance === 0n}
+					class="absolute right-2 top-1/2 transform -translate-y-1/2 px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+				>
+					MAX
+				</button>
+			</div>
+			<p class="text-xs text-secondary mt-1">
+				Balance: {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} OUSG
+			</p>
 		</div>
 
-		{#if btcPrice > 0}
-			<div class="bg-gray-50 rounded-lg p-4">
-				<div class="flex justify-between items-center mb-2">
-					<span class="text-sm font-medium text-gray-700">BTC Price:</span>
-					<span class="text-sm text-gray-900">${btcPrice.toLocaleString()}</span>
+		<!-- Expected ckBTC Display -->
+		{#if expectedCkBTC > 0n}
+			<div class="bg-green-50 border border-green-200 rounded-lg p-4">
+				<div class="flex justify-between items-center">
+					<span class="text-sm font-medium text-green-800">Expected ckBTC:</span>
+					<span class="text-lg font-bold text-green-900">
+						{(Number(expectedCkBTC) / 100_000_000).toFixed(8)} ckBTC
+					</span>
 				</div>
-				{#if expectedCKBTC > 0}
-					<div class="flex justify-between items-center">
-						<span class="text-sm font-medium text-gray-700">Expected ckBTC:</span>
-						<span class="text-sm text-green-600 font-semibold">
-							{formatCKBTCAmount(expectedCKBTC)}
-						</span>
-					</div>
+				{#if btcPrice > 0}
+					<p class="text-xs text-green-600 mt-1">
+						Based on BTC price: ${btcPrice.toLocaleString()}
+					</p>
 				{/if}
 			</div>
 		{/if}
@@ -176,7 +164,7 @@
 		{/if}
 
 		<Button onclick={handleRedeem} disabled={isDisabled} class="w-full">
-			{#if isLoading}
+			{#if isRedeeming}
 				<LoadingSpinner />
 			{/if}
 			{buttonText}

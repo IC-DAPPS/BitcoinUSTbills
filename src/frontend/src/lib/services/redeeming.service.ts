@@ -1,75 +1,57 @@
+import { authStore } from '$lib/stores/auth.store';
 import { get } from 'svelte/store';
 import { toast } from 'svelte-sonner';
-import { authStore } from '$lib/stores/auth.store';
+import type { ResultSuccess } from '$lib/types/utils';
+import { fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
+import { fetchOUSGBalance } from '$lib/state/ousg-balance.svelte';
 
-export interface RedeemingResult {
-    success: boolean;
-    ckbtcAmount?: bigint;
-    errorMessage?: string;
-}
+let toastId: string | number;
 
-export const redeemOUSG = async (ousgAmount: bigint): Promise<RedeemingResult> => {
+export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => {
     const { backend } = get(authStore);
+
     if (!backend) {
-        toast.error('Not authenticated');
-        return { success: false, errorMessage: 'Not authenticated' };
+        return { success: false, err: 'Backend actor not available' };
     }
 
     try {
-        const toastId = toast.loading('Redeeming OUSG tokens...', {
-            duration: 30000
+        toastId = toast.loading('Redeeming OUSG tokens...', {
+            id: toastId,
+            duration: 8000
         });
 
+        // Call the backend redeem function
         const response = await backend.redeem_ousg_tokens(ousgAmount);
 
         if ('Ok' in response) {
             toast.success('OUSG tokens redeemed successfully!', {
                 id: toastId,
-                duration: 5000
+                duration: 4000
             });
 
-            return {
-                success: true,
-                ckbtcAmount: response.Ok
-            };
+            // Update balances
+            await fetchCkbtcBalance();
+            await fetchOUSGBalance();
+
+            return { success: true };
         } else {
-            const errorMessage = getErrorMessage(response.Err);
+            const errorMessage = 'Redeeming failed';
             toast.error(errorMessage, {
                 id: toastId,
-                duration: 5000
+                duration: 4000
             });
 
-            return {
-                success: false,
-                errorMessage
-            };
+            return { success: false, err: errorMessage };
         }
     } catch (error) {
         console.error('Error redeeming OUSG:', error);
-        toast.error('Failed to redeem OUSG tokens');
-        return { success: false, errorMessage: 'Failed to redeem OUSG tokens' };
+        const errorMessage = 'Failed to redeem OUSG tokens';
+
+        toast.error(errorMessage, {
+            id: toastId,
+            duration: 4000
+        });
+
+        return { success: false, err: errorMessage };
     }
 };
-
-function getErrorMessage(error: any): string {
-    if (typeof error === 'string') {
-        return error;
-    }
-
-    if (error && typeof error === 'object') {
-        if ('UserNotFound' in error) {
-            return 'User not found';
-        }
-        if ('KYCNotVerified' in error) {
-            return 'KYC verification required';
-        }
-        if ('ValidationError' in error) {
-            return error.ValidationError;
-        }
-        if ('StorageError' in error) {
-            return error.StorageError;
-        }
-    }
-
-    return 'Unknown error occurred';
-}

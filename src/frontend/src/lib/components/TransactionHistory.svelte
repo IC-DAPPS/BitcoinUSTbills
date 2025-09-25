@@ -1,115 +1,108 @@
 <script lang="ts">
-	import { transactions } from '$lib/state/transactions.svelte';
+	import { transactions, fetchTransactions } from '$lib/state/transactions.svelte';
 	import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
 	import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
 
-	function formatOUSGAmount(amount: bigint): string {
-		const formatted = Number(amount) / 1_000_000; // Convert from units to tokens
-		return formatted.toFixed(6);
+	function formatAmount(amount: bigint, decimals: number = 6): string {
+		return (Number(amount) / Math.pow(10, decimals)).toFixed(decimals);
 	}
 
-	function formatCKBTCAmount(amount: bigint): string {
-		const formatted = Number(amount) / 100_000_000; // Convert from satoshis to BTC
-		return formatted.toFixed(8);
-	}
-
-	function formatDate(timestamp: number): string {
-		return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit'
-		});
+	function formatTimestamp(timestamp: number): string {
+		return new Date(timestamp).toLocaleString();
 	}
 
 	function getTransactionIcon(type: string): string {
 		switch (type) {
 			case 'mint':
-				return '🟢';
+				return '⬆️';
 			case 'redeem':
-				return '🔴';
+				return '⬇️';
 			case 'deposit':
-				return '📥';
+				return '💰';
 			case 'withdraw':
-				return '📤';
+				return '💸';
 			default:
-				return '📋';
+				return '📄';
 		}
 	}
 
-	function getStatusColor(status: string): string {
+	function getStatusBadge(status: string): string {
 		switch (status) {
 			case 'completed':
-				return 'green';
+				return 'Completed';
 			case 'pending':
-				return 'yellow';
+				return 'Pending';
 			case 'failed':
-				return 'red';
+				return 'Cancelled';
 			default:
-				return 'gray';
+				return 'Pending';
 		}
 	}
 </script>
 
-<div class="bg-white rounded-lg shadow-lg p-6">
-	<div class="flex items-center justify-between mb-6">
-		<h2 class="text-xl font-bold text-gray-900">Transaction History</h2>
-		{#if transactions.loading}
-			<LoadingSpinner />
-		{/if}
-	</div>
+<div class="card p-6">
+	<h2 class="text-xl font-semibold text-primary mb-6">Transaction History</h2>
 
-	{#if transactions.error}
+	{#if transactions.loading}
+		<div class="flex justify-center py-8">
+			<LoadingSpinner />
+		</div>
+	{:else if transactions.error}
 		<div class="text-center py-8">
-			<div class="text-red-500 text-sm">
-				{transactions.error}
-			</div>
+			<p class="text-red-600 mb-4">{transactions.error}</p>
+			<button
+				onclick={fetchTransactions}
+				class="px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200"
+			>
+				Retry
+			</button>
 		</div>
 	{:else if transactions.list.length === 0}
 		<div class="text-center py-8">
-			<div class="text-gray-500 text-sm">No transactions found</div>
+			<p class="text-secondary">No transactions yet</p>
 		</div>
 	{:else}
 		<div class="space-y-4">
-			{#each transactions.list as transaction (transaction.id)}
-				<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+			{#each transactions.list as transaction}
+				<div class="border border-light rounded-lg p-4 hover:bg-gray-50 transition-colors">
 					<div class="flex items-center justify-between">
 						<div class="flex items-center space-x-3">
-							<span class="text-2xl">
-								{getTransactionIcon(transaction.type)}
-							</span>
+							<span class="text-2xl">{getTransactionIcon(transaction.type)}</span>
 							<div>
-								<div class="font-medium text-gray-900">
-									{transaction.description}
+								<div class="font-semibold text-primary capitalize">
+									{transaction.type}
 								</div>
-								<div class="text-sm text-gray-500">
-									{formatDate(transaction.timestamp)}
+								<div class="text-sm text-secondary">
+									{formatTimestamp(transaction.timestamp)}
 								</div>
 							</div>
 						</div>
+
 						<div class="text-right">
-							<div class="font-semibold text-gray-900">
-								{formatOUSGAmount(transaction.amount)} OUSG
+							<div class="font-semibold text-primary">
+								{formatAmount(transaction.amount, 6)} OUSG
 							</div>
-							<StatusBadge status={transaction.status} size="sm" />
+							<StatusBadge status={getStatusBadge(transaction.status)} size="sm" />
 						</div>
 					</div>
 
-					{#if transaction.ckbtcAmount || transaction.usdValue}
-						<div class="mt-3 pt-3 border-t border-gray-100">
-							<div class="flex justify-between text-sm text-gray-600">
-								{#if transaction.ckbtcAmount}
-									<span>
-										ckBTC: {formatCKBTCAmount(transaction.ckbtcAmount)}
-									</span>
-								{/if}
-								{#if transaction.usdValue}
-									<span>
-										USD Value: ${transaction.usdValue.toLocaleString()}
-									</span>
-								{/if}
-							</div>
+					{#if transaction.description}
+						<div class="mt-2 text-sm text-secondary">
+							{transaction.description}
+						</div>
+					{/if}
+
+					{#if transaction.ousgAmount || transaction.ckbtcAmount}
+						<div class="mt-2 flex space-x-4 text-xs text-muted">
+							{#if transaction.ousgAmount}
+								<span>OUSG: {formatAmount(transaction.ousgAmount, 6)}</span>
+							{/if}
+							{#if transaction.ckbtcAmount}
+								<span>ckBTC: {formatAmount(transaction.ckbtcAmount, 8)}</span>
+							{/if}
+							{#if transaction.usdValue}
+								<span>USD: ${transaction.usdValue.toFixed(2)}</span>
+							{/if}
 						</div>
 					{/if}
 				</div>

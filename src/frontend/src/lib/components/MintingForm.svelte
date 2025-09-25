@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { authStore } from '$lib/stores/auth.store';
 	import { userSate } from '$lib/state/user.svelte';
+	import { ckbtcBalance } from '$lib/state/ckbtc-balance.svelte';
 	import { mintOUSG, getCurrentBTCPrice, calculateOUSGForUSD } from '$lib/services/minting.service';
 	import { toast } from 'svelte-sonner';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -11,7 +12,6 @@
 	let btcPrice = $state(0);
 	let expectedOUSG = $state(0n);
 	let isMinting = $state(false);
-	let isLoading = $state(false);
 
 	// Fetch BTC price on component mount
 	$effect(() => {
@@ -46,54 +46,45 @@
 		}
 
 		if (!userSate.profile || userSate.profile.kyc_status !== 'Verified') {
-			toast.error('KYC verification required to mint OUSG tokens');
+			toast.error('KYC verification is required to mint OUSG tokens');
 			return;
 		}
 
-		if (!ckbtcAmount || parseFloat(ckbtcAmount) <= 0) {
+		const amount = parseFloat(ckbtcAmount);
+		if (!amount || amount <= 0) {
 			toast.error('Please enter a valid ckBTC amount');
 			return;
 		}
 
+		const ckbtcAmountBigInt = BigInt(Math.floor(amount * 100_000_000)); // Convert to satoshis
+
+		const ckbtcBalanceBigInt = BigInt(Math.floor(ckbtcBalance.number * 100_000_000));
+		if (ckbtcBalanceBigInt < ckbtcAmountBigInt) {
+			toast.error('Insufficient ckBTC balance');
+			return;
+		}
+
 		isMinting = true;
-		isLoading = true;
 
 		try {
-			// Convert ckBTC amount to bigint (assuming 8 decimals)
-			const ckbtcAmountBigInt = BigInt(Math.floor(parseFloat(ckbtcAmount) * 100_000_000));
-
-			// For now, we'll use a mock block index. In a real implementation,
-			// this would come from the actual ckBTC deposit transaction
-			const mockBlockIndex = BigInt(Date.now());
-
-			const result = await mintOUSG(ckbtcAmountBigInt, mockBlockIndex);
-
+			const result = await mintOUSG(ckbtcAmountBigInt);
 			if (result.success) {
-				toast.success(`Successfully minted ${formatOUSGAmount(result.ousgMinted!)} OUSG tokens`);
 				ckbtcAmount = '';
 				expectedOUSG = 0n;
-			} else {
-				toast.error(result.errorMessage || 'Failed to mint OUSG tokens');
 			}
 		} catch (error) {
-			console.error('Error minting OUSG:', error);
+			console.error('Minting error:', error);
 			toast.error('Failed to mint OUSG tokens');
 		} finally {
 			isMinting = false;
-			isLoading = false;
 		}
 	};
 
-	function formatOUSGAmount(amount: bigint): string {
-		const formatted = Number(amount) / 1_000_000; // Convert from units to tokens
-		return formatted.toFixed(6);
-	}
-
-	function formatCKBTCAmount(amount: string): string {
-		const num = parseFloat(amount);
-		if (isNaN(num)) return '0';
-		return (num / 100_000_000).toFixed(8); // Convert from satoshis to BTC
-	}
+	const setMaxAmount = () => {
+		if (ckbtcBalance.number > 0) {
+			ckbtcAmount = ckbtcBalance.number.toString();
+		}
+	};
 
 	const isDisabled = $derived(
 		!$authStore.isAuthenticated ||
@@ -112,42 +103,53 @@
 	});
 </script>
 
-<div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
-	<h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Mint OUSG Tokens</h2>
+<div class="card p-6">
+	<h2 class="text-xl font-semibold text-primary mb-6">Mint OUSG Tokens</h2>
 
 	<div class="space-y-4">
+		<!-- ckBTC Amount Input -->
 		<div>
-			<label for="ckbtc-amount" class="block text-sm font-medium text-gray-700 mb-2">
+			<label for="ckbtc-amount" class="block text-sm font-medium text-primary mb-2">
 				ckBTC Amount
 			</label>
-			<Input
-				id="ckbtc-amount"
-				type="number"
-				bind:value={ckbtcAmount}
-				placeholder="Enter ckBTC amount"
-				disabled={isMinting}
-				class="w-full"
-			/>
-			{#if ckbtcAmount}
-				<p class="text-sm text-gray-500 mt-1">
-					≈ {formatCKBTCAmount(ckbtcAmount)} BTC
-				</p>
-			{/if}
+			<div class="relative">
+				<Input
+					id="ckbtc-amount"
+					type="number"
+					step="0.00000001"
+					min="0"
+					bind:value={ckbtcAmount}
+					placeholder="Enter ckBTC amount"
+					disabled={isMinting}
+					class="pr-20"
+				/>
+				<button
+					type="button"
+					onclick={setMaxAmount}
+					disabled={isMinting || ckbtcBalance.number === 0}
+					class="absolute right-2 top-1/2 transform -translate-y-1/2 px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+				>
+					MAX
+				</button>
+			</div>
+			<p class="text-xs text-secondary mt-1">
+				Balance: {ckbtcBalance.format} ckBTC
+			</p>
 		</div>
 
-		{#if btcPrice > 0}
-			<div class="bg-gray-50 rounded-lg p-4">
-				<div class="flex justify-between items-center mb-2">
-					<span class="text-sm font-medium text-gray-700">BTC Price:</span>
-					<span class="text-sm text-gray-900">${btcPrice.toLocaleString()}</span>
+		<!-- Expected OUSG Display -->
+		{#if expectedOUSG > 0n}
+			<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+				<div class="flex justify-between items-center">
+					<span class="text-sm font-medium text-blue-800">Expected OUSG:</span>
+					<span class="text-lg font-bold text-blue-900">
+						{(Number(expectedOUSG) / 1_000_000).toFixed(6)} OUSG
+					</span>
 				</div>
-				{#if expectedOUSG > 0}
-					<div class="flex justify-between items-center">
-						<span class="text-sm font-medium text-gray-700">Expected OUSG:</span>
-						<span class="text-sm text-green-600 font-semibold">
-							{formatOUSGAmount(expectedOUSG)}
-						</span>
-					</div>
+				{#if btcPrice > 0}
+					<p class="text-xs text-blue-600 mt-1">
+						Based on BTC price: ${btcPrice.toLocaleString()}
+					</p>
 				{/if}
 			</div>
 		{/if}
@@ -163,7 +165,7 @@
 		{/if}
 
 		<Button onclick={handleMint} disabled={isDisabled} class="w-full">
-			{#if isLoading}
+			{#if isMinting}
 				<LoadingSpinner />
 			{/if}
 			{buttonText}

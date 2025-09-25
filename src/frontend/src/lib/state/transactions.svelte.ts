@@ -38,8 +38,8 @@ export const fetchTransactions = async () => {
                 id: `deposit-${deposit.id}`,
                 type: 'mint' as const,
                 amount: deposit.ousg_minted,
-                status: deposit.status === 'Validated' ? 'completed' :
-                    deposit.status === 'Failed' ? 'failed' : 'pending',
+                status: 'Validated' in deposit.status ? 'completed' :
+                    'Failed' in deposit.status ? 'failed' : 'pending',
                 timestamp: Number(deposit.created_at),
                 description: `Minted ${formatOUSGAmount(deposit.ousg_minted)} OUSG tokens`,
                 ousgAmount: deposit.ousg_minted,
@@ -65,15 +65,14 @@ function formatOUSGAmount(amount: bigint): string {
 }
 
 // Auto-fetch transactions when authentication state changes
-
-$effect.root(() => {
-    $effect(() => {
-        if (get(authStore).isAuthenticated) {
+// Note: This effect should be called from within components, not at module level
+export const subscribeToAuthChanges = () => {
+    return authStore.subscribe((authState) => {
+        if (authState.isAuthenticated) {
             fetchTransactions();
         } else {
             transactions.list = [];
             transactions.error = null;
         }
     });
-
-});
+};

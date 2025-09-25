@@ -1,46 +1,34 @@
 <script lang="ts">
-	import { ousgBalance } from '$lib/state/ousg-balance.svelte';
+	import { ousgBalance, fetchOUSGBalance } from '$lib/state/ousg-balance.svelte';
 	import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
-
-	function formatOUSGAmount(amount: bigint): string {
-		const formatted = Number(amount) / 1_000_000; // Convert from units to tokens
-		return formatted.toFixed(6);
-	}
-
-	function formatUSDValue(amount: bigint): string {
-		const ousgTokens = Number(amount) / 1_000_000;
-		const usdValue = ousgTokens * 5000; // Each OUSG = $5000
-		return usdValue.toLocaleString('en-US', {
-			style: 'currency',
-			currency: 'USD'
-		});
-	}
 </script>
 
-<div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-	<div class="flex items-center justify-between mb-4">
-		<h3 class="text-lg font-semibold">OUSG Balance</h3>
+<div class="card p-6">
+	<h2 class="text-xl font-semibold text-primary mb-6">OUSG Token Balance</h2>
+
+	<div class="text-center">
 		{#if ousgBalance.loading}
 			<LoadingSpinner />
+		{:else if ousgBalance.error}
+			<div class="text-red-600">
+				<p class="text-sm">{ousgBalance.error}</p>
+				<button
+					onclick={fetchOUSGBalance}
+					class="mt-2 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200"
+				>
+					Retry
+				</button>
+			</div>
+		{:else}
+			<div class="space-y-4">
+				<div class="text-4xl font-bold text-primary">
+					{(Number(ousgBalance.balance) / 1_000_000).toFixed(6)}
+				</div>
+				<div class="text-lg text-secondary">OUSG Tokens</div>
+				<div class="text-sm text-muted">
+					Equivalent to ${(Number(ousgBalance.balance) / 1_000_000).toFixed(2)} USD
+				</div>
+			</div>
 		{/if}
-	</div>
-
-	{#if ousgBalance.error}
-		<div class="text-red-200 text-sm">
-			{ousgBalance.error}
-		</div>
-	{:else}
-		<div class="space-y-2">
-			<div class="text-3xl font-bold">
-				{formatOUSGAmount(ousgBalance.balance)}
-			</div>
-			<div class="text-blue-100 text-sm">
-				{formatUSDValue(ousgBalance.balance)}
-			</div>
-		</div>
-	{/if}
-
-	<div class="mt-4 pt-4 border-t border-blue-400">
-		<p class="text-xs text-blue-100">1 OUSG = $5,000 USD</p>
 	</div>
 </div>

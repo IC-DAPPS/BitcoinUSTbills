@@ -13,7 +13,7 @@
 	}
 
 	function handleLearnMore() {
-		goto('/how-it-works');
+		goto('/dashboard');
 	}
 </script>
 
@@ -173,12 +173,9 @@
 						Quick registration with streamlined KYC verification. Get started in minutes with our
 						secure, user-friendly onboarding process designed for modern investors.
 					</p>
-					<a
-						href="/how-it-works"
-						class="text-blue font-semibold hover:text-primary text-center block"
-					>
+					<Button variant="secondary" size="sm" onclick={handleLearnMore} class="mx-auto">
 						Learn more →
-					</a>
+					</Button>
 				</div>
 			</div>
 
@@ -202,12 +199,9 @@
 						Invest with as little as $10 in US Treasury Bills. Break down traditional barriers and
 						make institutional-grade investments accessible to everyone.
 					</p>
-					<a
-						href="/how-it-works"
-						class="text-blue font-semibold hover:text-primary text-center block"
-					>
+					<Button variant="secondary" size="sm" onclick={handleLearnMore} class="mx-auto">
 						Learn more →
-					</a>
+					</Button>
 				</div>
 			</div>
 
@@ -231,12 +225,9 @@
 						Buy and sell tokens instantly with no waiting periods. Access your investments 24/7 with
 						unprecedented liquidity in the Treasury market.
 					</p>
-					<a
-						href="/how-it-works"
-						class="text-blue font-semibold hover:text-primary text-center block"
-					>
+					<Button variant="secondary" size="sm" onclick={handleLearnMore} class="mx-auto">
 						Learn more →
-					</a>
+					</Button>
 				</div>
 			</div>
 		</div>

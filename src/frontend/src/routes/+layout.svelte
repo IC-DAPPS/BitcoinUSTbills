@@ -12,6 +12,7 @@
 	import { fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
 	import { adminList, fetchAdminList } from '$lib/state/admin-list.svelte';
 	import { subscribeToAuthChanges as subscribeToOUSGBalance } from '$lib/state/ousg-balance.svelte';
+	import { subscribeToAuthChanges as subscribeToTransactions } from '$lib/state/transactions.svelte';
 	import { goto } from '$app/navigation';
 
 	// Mobile menu state - converted to $state()
@@ -108,13 +109,17 @@
 			await fetchCkbtcBalance();
 		}
 	});
-	
+
 	// Subscribe to OUSG balance changes
 	const ousgBalanceUnsubscriber = subscribeToOUSGBalance();
-	
+
+	// Subscribe to transaction changes
+	const transactionsUnsubscriber = subscribeToTransactions();
+
 	onDestroy(() => {
 		authUnsubscriber();
 		ousgBalanceUnsubscriber();
+		transactionsUnsubscriber();
 	});
 </script>
 
@@ -138,16 +143,7 @@
 					<a href="/dashboard" class="text-secondary hover:text-primary transition-colors"
 						>Dashboard</a
 					>
-					<a href="/marketplace" class="text-secondary hover:text-primary transition-colors"
-						>Marketplace</a
-					>
-					<a href="/portfolio" class="text-secondary hover:text-primary transition-colors"
-						>Portfolio</a
-					>
 					<a href="/wallet" class="text-secondary hover:text-primary transition-colors">Wallet</a>
-					<a href="/purchased" class="text-secondary hover:text-primary transition-colors"
-						>Purchased</a
-					>
 					<a href="/kyc" class="text-secondary hover:text-primary transition-colors">KYC</a>
 				</div>
 
@@ -213,32 +209,11 @@
 							Dashboard
 						</a>
 						<a
-							href="/marketplace"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Marketplace
-						</a>
-						<a
-							href="/portfolio"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Portfolio
-						</a>
-						<a
 							href="/wallet"
 							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
 							onclick={closeMobileMenu}
 						>
 							Wallet
-						</a>
-						<a
-							href="/purchased"
-							class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-							onclick={closeMobileMenu}
-						>
-							Purchased
 						</a>
 						<a
 							href="/kyc"

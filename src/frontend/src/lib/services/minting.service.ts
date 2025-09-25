@@ -1,123 +1,120 @@
+import { authStore } from '$lib/stores/auth.store';
 import { get } from 'svelte/store';
 import { toast } from 'svelte-sonner';
-import type { DepositRequest, DepositResponse } from '../../../../declarations/backend/backend.did';
-import { authStore } from '$lib/stores/auth.store';
+import type { ResultSuccess } from '$lib/types/utils';
+import { fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
+import { fetchOUSGBalance } from '$lib/state/ousg-balance.svelte';
 
-export interface MintingResult {
-    success: boolean;
-    depositId?: bigint;
-    ousgMinted?: bigint;
-    errorMessage?: string;
-}
+let toastId: string | number;
 
-export const mintOUSG = async (ckbtcAmount: bigint, blockIndex: bigint): Promise<MintingResult> => {
+export const mintOUSG = async (ckbtcAmount: bigint): Promise<ResultSuccess> => {
     const { backend } = get(authStore);
+
     if (!backend) {
-        toast.error('Not authenticated');
-        return { success: false, errorMessage: 'Not authenticated' };
+        return { success: false, err: 'Backend actor not available' };
     }
 
     try {
-        const toastId = toast.loading('Minting OUSG tokens...', {
-            duration: 30000
+        toastId = toast.loading('Minting OUSG tokens...', {
+            id: toastId,
+            duration: 8000
         });
 
-        const depositRequest: DepositRequest = {
-            ckbtc_amount: ckbtcAmount,
-            block_index: blockIndex
-        };
-
-        const response: DepositResponse = await backend.notify_deposit(depositRequest);
+        // Call the backend minting function
+        const response = await backend.notify_deposit({
+            block_index: 0n, // This should be the actual block index from ckBTC transfer
+            ckbtc_amount: ckbtcAmount
+        });
 
         if (response.success) {
             toast.success('OUSG tokens minted successfully!', {
                 id: toastId,
-                duration: 5000
+                duration: 4000
             });
 
-            return {
-                success: true,
-                depositId: response.deposit_id[0],
-                ousgMinted: response.ousg_minted[0]
-            };
+            // Update balances
+            await fetchCkbtcBalance();
+            await fetchOUSGBalance();
+
+            return { success: true };
         } else {
-            toast.error(response.error_message[0] || 'Failed to mint OUSG tokens', {
+            const errorMessage = response.error_message?.[0] || 'Minting failed';
+            toast.error(errorMessage, {
                 id: toastId,
-                duration: 5000
+                duration: 4000
             });
 
-            return {
-                success: false,
-                errorMessage: response.error_message[0] || 'Failed to mint OUSG tokens'
-            };
+            return { success: false, err: errorMessage };
         }
     } catch (error) {
         console.error('Error minting OUSG:', error);
-        toast.error('Failed to mint OUSG tokens');
-        return { success: false, errorMessage: 'Failed to mint OUSG tokens' };
-    }
-};
+        const errorMessage = 'Failed to mint OUSG tokens';
 
-export const getOUSGBalance = async (): Promise<bigint | null> => {
-    const { backend } = get(authStore);
-    if (!backend) {
-        return null;
-    }
+        toast.error(errorMessage, {
+            id: toastId,
+            duration: 4000
+        });
 
-    try {
-        const response = await backend.get_ousg_balance();
-        if ('Ok' in response) {
-            return response.Ok;
-        }
-        return null;
-    } catch (error) {
-        console.error('Error getting OUSG balance:', error);
-        return null;
+        return { success: false, err: errorMessage };
     }
 };
 
 export const getCurrentBTCPrice = async (): Promise<number | null> => {
     const { backend } = get(authStore);
+
     if (!backend) {
         return null;
     }
 
     try {
         const response = await backend.get_current_btc_price();
+
         if ('Ok' in response) {
             return response.Ok;
+        } else {
+            console.error('Error fetching BTC price:', response.Err);
+            return null;
         }
-        return null;
     } catch (error) {
-        console.error('Error getting BTC price:', error);
+        console.error('Error fetching BTC price:', error);
         return null;
     }
 };
 
 export const calculateOUSGForUSD = async (usdAmount: number): Promise<bigint | null> => {
     const { backend } = get(authStore);
+
     if (!backend) {
         return null;
     }
 
     try {
-        return await backend.calculate_ousg_for_usd(usdAmount);
+        const response = await backend.calculate_ousg_for_usd(usdAmount);
+        return response;
     } catch (error) {
         console.error('Error calculating OUSG for USD:', error);
         return null;
     }
 };
 
-export const calculateCKBTCUSDValue = async (ckbtcAmount: bigint, btcPrice: number): Promise<number | null> => {
+export const getOUSGBalance = async (): Promise<bigint | null> => {
     const { backend } = get(authStore);
+
     if (!backend) {
         return null;
     }
 
     try {
-        return await backend.calculate_ckbtc_usd_value(ckbtcAmount, btcPrice);
+        const response = await backend.get_ousg_balance();
+
+        if ('Ok' in response) {
+            return response.Ok;
+        } else {
+            console.error('Error fetching OUSG balance:', response.Err);
+            return null;
+        }
     } catch (error) {
-        console.error('Error calculating ckBTC USD value:', error);
+        console.error('Error fetching OUSG balance:', error);
         return null;
     }
 };

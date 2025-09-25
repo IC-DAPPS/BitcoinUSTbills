@@ -9,7 +9,7 @@
 	import AdminDashboard from '$lib/components/AdminDashboard.svelte';
 	import { onMount } from 'svelte';
 
-	let activeTab = $state('mint');
+	let activeTab = $state('balance');
 
 	const isAdmin = $derived(() => {
 		if (!$authStore.isAuthenticated || !$authStore.principal) return false;
