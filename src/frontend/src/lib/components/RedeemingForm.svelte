@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { authStore } from '$lib/stores/auth.store';
 	import { userSate } from '$lib/state/user.svelte';
-	import { ousgBalance } from '$lib/state/ousg-balance.svelte';
-	import { redeemOUSG, getCurrentBTCPrice } from '$lib/services/redeeming.service';
+	import { ousgBalance, fetchOUSGBalance } from '$lib/state/ousg-balance.svelte';
+	import { redeemOUSG } from '$lib/services/redeeming.service';
+	import { getCurrentBTCPrice } from '$lib/services/minting.service';
 	import { toast } from 'svelte-sonner';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Input from '$lib/components/ui/Input.svelte';
@@ -15,12 +16,13 @@
 	let isLoading = $state(false);
 
 	// Fetch BTC price on component mount
-	$effect(async () => {
-		if (authStore.isAuthenticated) {
-			const price = await getCurrentBTCPrice();
-			if (price) {
-				btcPrice = price;
-			}
+	$effect(() => {
+		if ($authStore.isAuthenticated) {
+			getCurrentBTCPrice().then((price) => {
+				if (price) {
+					btcPrice = price;
+				}
+			});
 		}
 	});
 
@@ -37,7 +39,7 @@
 	});
 
 	const handleRedeem = async () => {
-		if (!authStore.isAuthenticated) {
+		if (!$authStore.isAuthenticated) {
 			toast.error('Please log in to redeem OUSG tokens');
 			return;
 		}
@@ -100,7 +102,7 @@
 	}
 
 	const isDisabled = $derived(
-		!authStore.isAuthenticated ||
+		!$authStore.isAuthenticated ||
 			!userSate.profile ||
 			userSate.profile.kyc_status !== 'Verified' ||
 			!ousgAmount ||
@@ -111,7 +113,7 @@
 	);
 
 	const buttonText = $derived(() => {
-		if (!authStore.isAuthenticated) return 'Connect to redeem';
+		if (!$authStore.isAuthenticated) return 'Connect to redeem';
 		if (!userSate.profile || userSate.profile.kyc_status !== 'Verified') return 'KYC required';
 		if (isRedeeming) return 'Redeeming...';
 		return 'Redeem OUSG';
@@ -163,7 +165,7 @@
 			</div>
 		{/if}
 
-		{#if !authStore.isAuthenticated}
+		{#if !$authStore.isAuthenticated}
 			<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
 				<p class="text-sm text-yellow-800">Please connect your wallet to redeem OUSG tokens.</p>
 			</div>
@@ -175,7 +177,7 @@
 
 		<Button onclick={handleRedeem} disabled={isDisabled} class="w-full">
 			{#if isLoading}
-				<LoadingSpinner class="w-4 h-4 mr-2" />
+				<LoadingSpinner />
 			{/if}
 			{buttonText}
 		</Button>

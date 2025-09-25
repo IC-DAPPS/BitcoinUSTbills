@@ -12,21 +12,21 @@
 	let activeTab = $state('mint');
 
 	const isAdmin = $derived(() => {
-		if (!authStore.isAuthenticated || !authStore.principal) return false;
-		return adminList.includes(authStore.principal.toString());
+		if (!$authStore.isAuthenticated || !$authStore.principal) return false;
+		return adminList.includes($authStore.principal.toString());
 	});
 
 	const canTrade = $derived(() => {
 		return (
-			authStore.isAuthenticated && userSate.profile && userSate.profile.kyc_status === 'Verified'
+			$authStore.isAuthenticated && userSate.profile && userSate.profile.kyc_status === 'Verified'
 		);
 	});
 
 	onMount(() => {
 		// Set default tab based on user status
-		if (isAdmin) {
+		if (isAdmin()) {
 			activeTab = 'admin';
-		} else if (canTrade) {
+		} else if (canTrade()) {
 			activeTab = 'mint';
 		} else {
 			activeTab = 'balance';
@@ -52,7 +52,7 @@
 					{/if}
 				</div>
 				<div class="flex items-center space-x-4">
-					{#if authStore.isAuthenticated}
+					{#if $authStore.isAuthenticated}
 						<button
 							onclick={() => authStore.signOut()}
 							class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
@@ -67,7 +67,7 @@
 
 	<!-- Main Content -->
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-		{#if !authStore.isAuthenticated}
+		{#if !$authStore.isAuthenticated}
 			<div class="text-center py-12">
 				<h2 class="text-2xl font-bold text-gray-900 mb-4">Please Sign In</h2>
 				<p class="text-gray-600 mb-6">You need to be signed in to access the dashboard.</p>
@@ -93,7 +93,7 @@
 			<!-- Navigation Tabs -->
 			<div class="mb-8">
 				<nav class="flex space-x-8">
-					{#if isAdmin}
+					{#if isAdmin()}
 						<button
 							onclick={() => (activeTab = 'admin')}
 							class="py-2 px-1 border-b-2 font-medium text-sm {activeTab === 'admin'
@@ -113,7 +113,7 @@
 						Balance
 					</button>
 
-					{#if canTrade}
+					{#if canTrade()}
 						<button
 							onclick={() => (activeTab = 'mint')}
 							class="py-2 px-1 border-b-2 font-medium text-sm {activeTab === 'mint'
@@ -146,23 +146,23 @@
 
 			<!-- Tab Content -->
 			<div class="space-y-8">
-				{#if activeTab === 'admin' && isAdmin}
+				{#if activeTab === 'admin' && isAdmin()}
 					<AdminDashboard />
 				{:else if activeTab === 'balance'}
 					<div class="max-w-md mx-auto">
 						<OUSGBalance />
 					</div>
-				{:else if activeTab === 'mint' && canTrade}
+				{:else if activeTab === 'mint' && canTrade()}
 					<div class="max-w-md mx-auto">
 						<MintingForm />
 					</div>
-				{:else if activeTab === 'redeem' && canTrade}
+				{:else if activeTab === 'redeem' && canTrade()}
 					<div class="max-w-md mx-auto">
 						<RedeemingForm />
 					</div>
 				{:else if activeTab === 'transactions'}
 					<TransactionHistory />
-				{:else if !canTrade}
+				{:else if !canTrade()}
 					<div class="text-center py-12">
 						<h2 class="text-2xl font-bold text-gray-900 mb-4">KYC Verification Required</h2>
 						<p class="text-gray-600 mb-6">

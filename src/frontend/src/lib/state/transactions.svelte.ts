@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { authStore } from '$lib/stores/auth.store';
-import type { Deposit } from '../../../declarations/backend/backend.did';
+import type { Deposit } from '../../../../declarations/backend/backend.did';
 
 export interface Transaction {
     id: string;
@@ -65,11 +65,15 @@ function formatOUSGAmount(amount: bigint): string {
 }
 
 // Auto-fetch transactions when authentication state changes
-$effect(() => {
-    if (get(authStore).isAuthenticated) {
-        fetchTransactions();
-    } else {
-        transactions.list = [];
-        transactions.error = null;
-    }
+
+$effect.root(() => {
+    $effect(() => {
+        if (get(authStore).isAuthenticated) {
+            fetchTransactions();
+        } else {
+            transactions.list = [];
+            transactions.error = null;
+        }
+    });
+
 });

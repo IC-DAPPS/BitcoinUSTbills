@@ -33,11 +33,14 @@ export const fetchOUSGBalance = async () => {
 };
 
 // Auto-fetch balance when authentication state changes
-$effect(() => {
-    if (authStore.isAuthenticated) {
-        fetchOUSGBalance();
-    } else {
-        ousgBalance.balance = 0n;
-        ousgBalance.error = null;
-    }
-});
+// Note: This effect should be called from within components, not at module level
+export const subscribeToAuthChanges = () => {
+    return authStore.subscribe((authState) => {
+        if (authState.isAuthenticated) {
+            fetchOUSGBalance();
+        } else {
+            ousgBalance.balance = 0n;
+            ousgBalance.error = null;
+        }
+    });
+};

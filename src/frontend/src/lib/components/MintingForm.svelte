@@ -14,31 +14,33 @@
 	let isLoading = $state(false);
 
 	// Fetch BTC price on component mount
-	$effect(async () => {
-		if (authStore.isAuthenticated) {
-			const price = await getCurrentBTCPrice();
-			if (price) {
-				btcPrice = price;
-			}
+	$effect(() => {
+		if ($authStore.isAuthenticated) {
+			getCurrentBTCPrice().then((price) => {
+				if (price) {
+					btcPrice = price;
+				}
+			});
 		}
 	});
 
 	// Calculate expected OUSG when ckBTC amount changes
-	$effect(async () => {
+	$effect(() => {
 		if (ckbtcAmount && btcPrice > 0) {
 			const amount = parseFloat(ckbtcAmount);
 			if (amount > 0) {
 				const usdValue = (amount * btcPrice) / 100_000_000; // Convert from satoshis to BTC, then to USD
-				const ousgAmount = await calculateOUSGForUSD(usdValue);
-				if (ousgAmount) {
-					expectedOUSG = ousgAmount;
-				}
+				calculateOUSGForUSD(usdValue).then((ousgAmount) => {
+					if (ousgAmount) {
+						expectedOUSG = ousgAmount;
+					}
+				});
 			}
 		}
 	});
 
 	const handleMint = async () => {
-		if (!authStore.isAuthenticated) {
+		if (!$authStore.isAuthenticated) {
 			toast.error('Please log in to mint OUSG tokens');
 			return;
 		}
@@ -94,7 +96,7 @@
 	}
 
 	const isDisabled = $derived(
-		!authStore.isAuthenticated ||
+		!$authStore.isAuthenticated ||
 			!userSate.profile ||
 			userSate.profile.kyc_status !== 'Verified' ||
 			!ckbtcAmount ||
@@ -103,7 +105,7 @@
 	);
 
 	const buttonText = $derived(() => {
-		if (!authStore.isAuthenticated) return 'Connect to mint';
+		if (!$authStore.isAuthenticated) return 'Connect to mint';
 		if (!userSate.profile || userSate.profile.kyc_status !== 'Verified') return 'KYC required';
 		if (isMinting) return 'Minting...';
 		return 'Mint OUSG';
@@ -150,7 +152,7 @@
 			</div>
 		{/if}
 
-		{#if !authStore.isAuthenticated}
+		{#if !$authStore.isAuthenticated}
 			<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
 				<p class="text-sm text-yellow-800">Please connect your wallet to mint OUSG tokens.</p>
 			</div>
@@ -162,7 +164,7 @@
 
 		<Button onclick={handleMint} disabled={isDisabled} class="w-full">
 			{#if isLoading}
-				<LoadingSpinner class="w-4 h-4 mr-2" />
+				<LoadingSpinner />
 			{/if}
 			{buttonText}
 		</Button>

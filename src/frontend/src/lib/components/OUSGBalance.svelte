@@ -21,7 +21,7 @@
 	<div class="flex items-center justify-between mb-4">
 		<h3 class="text-lg font-semibold">OUSG Balance</h3>
 		{#if ousgBalance.loading}
-			<LoadingSpinner class="w-5 h-5" />
+			<LoadingSpinner />
 		{/if}
 	</div>
 

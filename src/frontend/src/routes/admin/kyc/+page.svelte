@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { adminGetPendingReviews, adminReviewFreeKyc, getErrorMessage } from '$lib/api';
 	import { downloadFile } from '$lib/services/file-store.service';
-	import { authStore } from '$lib/auth';
+	import { authStore } from '$lib/stores/auth.store';
 	import { adminList, fetchAdminList } from '$lib/state/admin-list.svelte';
 	import Modal from '$lib/components/ui/Modal.svelte';
 	import Button from '$lib/components/ui/Button.svelte';

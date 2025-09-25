@@ -11,6 +11,7 @@
 	import { Toaster } from 'svelte-sonner';
 	import { fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
 	import { adminList, fetchAdminList } from '$lib/state/admin-list.svelte';
+	import { subscribeToAuthChanges as subscribeToOUSGBalance } from '$lib/state/ousg-balance.svelte';
 	import { goto } from '$app/navigation';
 
 	// Mobile menu state - converted to $state()
@@ -107,7 +108,14 @@
 			await fetchCkbtcBalance();
 		}
 	});
-	onDestroy(authUnsubscriber);
+	
+	// Subscribe to OUSG balance changes
+	const ousgBalanceUnsubscriber = subscribeToOUSGBalance();
+	
+	onDestroy(() => {
+		authUnsubscriber();
+		ousgBalanceUnsubscriber();
+	});
 </script>
 
 <Toaster />

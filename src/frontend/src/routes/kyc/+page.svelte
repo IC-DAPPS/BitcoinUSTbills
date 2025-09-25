@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { authStore } from '$lib/auth';
+	import { authStore } from '$lib/stores/auth.store';
 	import { userSate, fetchUserProfile } from '$lib/state/user.svelte';
 	import { getKYCStatus } from '$lib/api';
 	import Button from '$lib/components/ui/Button.svelte';

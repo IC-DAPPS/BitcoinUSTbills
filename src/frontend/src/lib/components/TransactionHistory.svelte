@@ -56,7 +56,7 @@
 	<div class="flex items-center justify-between mb-6">
 		<h2 class="text-xl font-bold text-gray-900">Transaction History</h2>
 		{#if transactions.loading}
-			<LoadingSpinner class="w-5 h-5" />
+			<LoadingSpinner />
 		{/if}
 	</div>
 
@@ -92,9 +92,7 @@
 							<div class="font-semibold text-gray-900">
 								{formatOUSGAmount(transaction.amount)} OUSG
 							</div>
-							<StatusBadge color={getStatusColor(transaction.status)} class="mt-1">
-								{transaction.status}
-							</StatusBadge>
+							<StatusBadge status={transaction.status} size="sm" />
 						</div>
 					</div>
 
