@@ -5,7 +5,9 @@
     adminReviewFreeKyc,
     getErrorMessage,
   } from "$lib/api";
-  import { downloadFileForAdmin } from "$lib/services/file-store.service";
+  import { downloadFile } from "$lib/services/file-store.service";
+  import { authStore } from "$lib/stores/auth.store";
+  import { adminList, fetchAdminList } from "$lib/state/admin-list.svelte";
   import Modal from "$lib/components/ui/Modal.svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import LoadingSpinner from "$lib/components/ui/LoadingSpinner.svelte";
@@ -16,6 +18,7 @@
   let pendingReviews = $state<UserAndFreeKYCSession[]>([]);
   let isLoading = $state(true);
   let errorMessage = $state<string | null>(null);
+  let isAdmin = $state(false);
   let selectedReview = $state<UserAndFreeKYCSession | null>(null);
   let showModal = $state(false);
 
@@ -33,7 +36,25 @@
   let isSubmittingReview = $state(false);
 
   onMount(async () => {
-    await fetchPendingReviews();
+    if (!$authStore.isAuthenticated) {
+      errorMessage = "Please log in as an admin to view this page.";
+      isLoading = false;
+      return;
+    }
+
+    // Fetch admin list if not already loaded
+    if (adminList.length === 0) {
+      await fetchAdminList();
+    }
+
+    const currentUserPrincipal = $authStore.identity?.getPrincipal().toText();
+    if (currentUserPrincipal && adminList.includes(currentUserPrincipal)) {
+      isAdmin = true;
+      await fetchPendingReviews();
+    } else {
+      errorMessage = "You are not authorized to view this page.";
+    }
+    isLoading = false;
   });
 
   async function fetchPendingReviews() {
@@ -75,7 +96,7 @@
     if (session.document_front_page) {
       imageLoadingStates.front = true;
       imagePromises.push(
-        downloadFileForAdmin(session.document_front_page, (progress) => {
+        downloadFile(session.document_front_page, (progress) => {
           downloadProgress = Math.max(downloadProgress, progress / 3);
         })
           .then((file) => {
@@ -93,7 +114,7 @@
     if (session.document_back_page) {
       imageLoadingStates.back = true;
       imagePromises.push(
-        downloadFileForAdmin(session.document_back_page, (progress) => {
+        downloadFile(session.document_back_page, (progress) => {
           downloadProgress = Math.max(downloadProgress, (progress + 100) / 3);
         })
           .then((file) => {
@@ -111,7 +132,7 @@
     if (session.selfie_with_document) {
       imageLoadingStates.selfie = true;
       imagePromises.push(
-        downloadFileForAdmin(session.selfie_with_document, (progress) => {
+        downloadFile(session.selfie_with_document, (progress) => {
           downloadProgress = Math.max(downloadProgress, (progress + 200) / 3);
         })
           .then((file) => {
