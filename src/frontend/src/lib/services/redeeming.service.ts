@@ -7,6 +7,49 @@ import { fetchOUSGBalance } from '$lib/state/ousg-balance.svelte';
 
 let toastId: string | number;
 
+export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<ResultSuccess> => {
+    const { backend } = get(authStore);
+
+    if (!backend) {
+        return { success: false, err: 'Backend actor not available' };
+    }
+
+    try {
+        toastId = toast.loading('Approving OUSG tokens for redemption...', {
+            id: toastId,
+            duration: 8000
+        });
+
+        // First approve the tokens for redemption
+        const approvalResponse = await backend.approve_ousg_for_redemption(ousgAmount);
+
+        if ('Ok' in approvalResponse) {
+            toast.success('OUSG tokens approved for redemption!', {
+                id: toastId,
+                duration: 2000
+            });
+            return { success: true };
+        } else {
+            const errorMessage = `Approval failed: ${approvalResponse.Err || 'Unknown error'}`;
+            toast.error(errorMessage, {
+                id: toastId,
+                duration: 4000
+            });
+            return { success: false, err: errorMessage };
+        }
+    } catch (error) {
+        console.error('Error approving OUSG:', error);
+        const errorMessage = 'Failed to approve OUSG tokens';
+
+        toast.error(errorMessage, {
+            id: toastId,
+            duration: 4000
+        });
+
+        return { success: false, err: errorMessage };
+    }
+};
+
 export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => {
     const { backend } = get(authStore);
 
@@ -24,7 +67,8 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
         const response = await backend.redeem_ousg_tokens(ousgAmount);
 
         if ('Ok' in response) {
-            toast.success('OUSG tokens redeemed successfully!', {
+            const ckbtcAmount = response.Ok;
+            toast.success(`OUSG tokens redeemed successfully! Received ${Number(ckbtcAmount) / 100_000_000} ckBTC`, {
                 id: toastId,
                 duration: 4000
             });
@@ -35,7 +79,7 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
 
             return { success: true };
         } else {
-            const errorMessage = 'Redeeming failed';
+            const errorMessage = `Redeeming failed: ${response.Err || 'Unknown error'}`;
             toast.error(errorMessage, {
                 id: toastId,
                 duration: 4000

@@ -25,7 +25,7 @@ pub enum MetadataValue {
 }
 
 pub type Subaccount = serde_bytes::ByteBuf;
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Clone)]
 pub struct Account {
     pub owner: Principal,
     pub subaccount: Option<Subaccount>,
@@ -301,7 +301,7 @@ pub struct ApproveArgs {
     pub spender: Account,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug)]
 pub enum ApproveError {
     GenericError {
         message: String,
@@ -346,7 +346,7 @@ pub struct TransferFromArgs {
     pub amount: Tokens,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug)]
 pub enum TransferFromError {
     GenericError {
         message: String,

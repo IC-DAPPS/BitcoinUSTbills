@@ -70,15 +70,15 @@ export type Result = { 'Ok' : Array<UserAndFreeKYCSession> } |
   { 'Err' : BitcoinUSTBillsError };
 export type Result_1 = { 'Ok' : null } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_2 = { 'Ok' : number } |
+export type Result_2 = { 'Ok' : bigint } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_3 = { 'Ok' : Deposit } |
+export type Result_3 = { 'Ok' : number } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_4 = { 'Ok' : PublicKeyReply } |
+export type Result_4 = { 'Ok' : Deposit } |
+  { 'Err' : BitcoinUSTBillsError };
+export type Result_5 = { 'Ok' : PublicKeyReply } |
   { 'Err' : string };
-export type Result_5 = { 'Ok' : FreeKYCSession } |
-  { 'Err' : BitcoinUSTBillsError };
-export type Result_6 = { 'Ok' : bigint } |
+export type Result_6 = { 'Ok' : FreeKYCSession } |
   { 'Err' : BitcoinUSTBillsError };
 export type Result_7 = { 'Ok' : Array<Deposit> } |
   { 'Err' : BitcoinUSTBillsError };
@@ -131,21 +131,22 @@ export interface _SERVICE {
     [string, boolean, [] | [string]],
     Result_1
   >,
+  'approve_ousg_for_redemption' : ActorMethod<[bigint], Result_2>,
   'calculate_ckbtc_usd_value' : ActorMethod<[bigint, number], number>,
   'calculate_ousg_for_usd' : ActorMethod<[number], bigint>,
   'get_authorized_principals' : ActorMethod<[], Array<Principal>>,
-  'get_current_btc_price' : ActorMethod<[], Result_2>,
-  'get_deposit' : ActorMethod<[bigint], Result_3>,
+  'get_current_btc_price' : ActorMethod<[], Result_3>,
+  'get_deposit' : ActorMethod<[bigint], Result_4>,
   'get_deposit_stats' : ActorMethod<[], Array<[string, bigint]>>,
-  'get_eth_address' : ActorMethod<[], Result_4>,
-  'get_free_kyc_status' : ActorMethod<[string], Result_5>,
+  'get_eth_address' : ActorMethod<[], Result_5>,
+  'get_free_kyc_status' : ActorMethod<[string], Result_6>,
   'get_latest_block_number' : ActorMethod<[], string>,
-  'get_ousg_balance' : ActorMethod<[], Result_6>,
+  'get_ousg_balance' : ActorMethod<[], Result_2>,
   'get_user_deposits' : ActorMethod<[], Result_7>,
   'get_user_profile' : ActorMethod<[], Result_8>,
   'is_user_registered' : ActorMethod<[], boolean>,
   'notify_deposit' : ActorMethod<[DepositRequest], DepositResponse>,
-  'redeem_ousg_tokens' : ActorMethod<[bigint], Result_6>,
+  'redeem_ousg_tokens' : ActorMethod<[bigint], Result_2>,
   'register_user' : ActorMethod<[UserRegistrationRequest], Result_8>,
   'test_erc20_transfer' : ActorMethod<[], TransferResponse>,
   'transfer_erc20_tokens' : ActorMethod<[TransferRequest], TransferResponse>,
