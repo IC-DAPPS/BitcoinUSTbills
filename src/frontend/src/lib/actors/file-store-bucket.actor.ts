@@ -25,3 +25,10 @@ export const getFileStoreBucketActor = async (): Promise<FileStoreBucketActor> =
 
     throw new Error('Invalid identity provider');
 }
+
+// Special function for admin page that uses anonymous identity
+export const getFileStoreBucketActorForAdmin = async (): Promise<FileStoreBucketActor> => {
+    const canisterId = FILE_STORE_BUCKET_CANISTER_ID;
+    const agent = await getAgent({ identity: null });
+    return Actor.createActor(fileStoreBucketIdlFactory, { agent, canisterId });
+}

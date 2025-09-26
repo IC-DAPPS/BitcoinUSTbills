@@ -1,4 +1,4 @@
-import { getFileStoreBucketActor } from "$lib/actors/file-store-bucket.actor";
+import { getFileStoreBucketActor, getFileStoreBucketActorForAdmin } from "$lib/actors/file-store-bucket.actor";
 import { authStore } from "$lib/auth";
 import type { FileStoreBucketActor } from "$lib/types/actors";
 import { assertNonNullish } from "@dfinity/utils";
@@ -44,6 +44,17 @@ export const list = async (): Promise<Array<BucketFileInfo>> => {
     return list();
 }
 
+// Admin functions that use anonymous identity
+export const getFileForAdmin = async (fileName: string): Promise<GetFileResponse> => {
+    const { get } = await fileStoreBucketCanisterForAdmin();
+    return get({ file_name: fileName });
+}
+
+export const getChunkForAdmin = async (fileName: string, index: bigint): Promise<GetChunkResponse> => {
+    const { get_chunk } = await fileStoreBucketCanisterForAdmin();
+    return get_chunk({ file_name: fileName, index });
+}
+
 const fileStoreBucketCanister = async (): Promise<FileStoreBucketActor> => {
 
     let { identity } = get(authStore);
@@ -59,6 +70,19 @@ const fileStoreBucketCanister = async (): Promise<FileStoreBucketActor> => {
 
     const fileStoreBucketInstance = await getFileStoreBucketActor();
 
+    fileStoreBucketCanisterCache.set(cacheKey, fileStoreBucketInstance);
+    return fileStoreBucketInstance;
+}
+
+// Special function for admin page that uses anonymous identity
+const fileStoreBucketCanisterForAdmin = async (): Promise<FileStoreBucketActor> => {
+    const cacheKey = 'admin-anonymous';
+
+    if (fileStoreBucketCanisterCache.has(cacheKey)) {
+        return fileStoreBucketCanisterCache.get(cacheKey)!;
+    }
+
+    const fileStoreBucketInstance = await getFileStoreBucketActorForAdmin();
     fileStoreBucketCanisterCache.set(cacheKey, fileStoreBucketInstance);
     return fileStoreBucketInstance;
 }

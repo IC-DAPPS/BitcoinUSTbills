@@ -56,25 +56,19 @@
 
   // Effect to handle admin routing based on authentication and admin status
   $effect(() => {
-    // Check if user is authenticated
-    if ($authStore.principal) {
-      const principal = $authStore.principal.toString();
+    // Only restrict access to /admin/kyc, allow /admin to be open
+    if (page.url.pathname === "/admin/kyc") {
+      // Check if user is authenticated
+      if ($authStore.principal) {
+        const principal = $authStore.principal.toString();
 
-      // Check if authenticated user is an admin
-      if (adminList.includes(principal)) {
-        // Redirect admins to KYC management page if not already there
-        if (page.url.pathname !== "/admin/kyc") {
-          goto("/admin/kyc");
-        }
-      } else {
-        // Redirect non-admins away from admin pages
-        if (page.url.pathname === "/admin/kyc") {
+        // Check if authenticated user is an admin
+        if (!adminList.includes(principal)) {
+          // Redirect non-admins away from admin/kyc page
           goto("/");
         }
-      }
-    } else {
-      // Redirect unauthenticated users away from admin pages
-      if (page.url.pathname === "/admin/kyc") {
+      } else {
+        // Redirect unauthenticated users away from admin/kyc page
         goto("/");
       }
     }
