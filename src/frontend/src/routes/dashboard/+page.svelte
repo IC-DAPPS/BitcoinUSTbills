@@ -33,7 +33,7 @@
   <!-- Header -->
   <div class="bg-white shadow-sm border-b">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="py-6">
+      <div class="py-6 text-center">
         <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
         {#if userSate.profile}
           <p class="text-gray-600 mt-1">
