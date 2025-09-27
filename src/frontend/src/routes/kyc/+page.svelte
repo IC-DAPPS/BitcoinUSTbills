@@ -943,14 +943,15 @@
   .kyc-card {
     background: #2563eb !important;
     border-radius: 0.75rem;
-    padding: 1.5rem;
+    padding: 2rem 3rem;
     box-shadow:
       0 1px 3px 0 rgb(0 0 0 / 0.1),
       0 1px 2px -1px rgb(0 0 0 / 0.1);
     border: 1px solid #2563eb;
     margin-bottom: 1.5rem;
     text-align: center;
-    max-width: 500px;
+    width: 700px;
+    min-height: 180px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -1020,27 +1021,32 @@
   .kyc-status-details {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    max-width: 300px;
+    gap: 1.5rem;
+    max-width: 400px;
     margin: 0 auto;
+    text-align: center;
   }
 
   .kyc-status-item {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    padding: 0.75rem 0;
+    padding: 1rem 0;
+    gap: 0.5rem;
   }
 
   .kyc-status-label {
     color: #000000 !important;
-    font-size: 0.875rem;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
   }
 
   .kyc-status-value {
     color: #000000 !important;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 1.125rem;
+    text-align: center;
   }
 
   .kyc-notes {
