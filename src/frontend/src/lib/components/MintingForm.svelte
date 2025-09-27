@@ -2,8 +2,9 @@
   import { authStore } from "$lib/stores/auth.store";
   import { userSate } from "$lib/state/user.svelte";
   import { ckbtcBalance } from "$lib/state/ckbtc-balance.svelte";
+  import { subscribeToAuthChanges } from "$lib/state/ousg-balance.svelte";
   import {
-    mintOUSG,
+    mintOUSGAutomatic,
     getCurrentBTCPrice,
     calculateOUSGForUSD,
   } from "$lib/services/minting.service";
@@ -16,7 +17,6 @@
   let btcPrice = $state(0);
   let expectedOUSG = $state(0n);
   let isMinting = $state(false);
-  let blockIndex = $state("");
 
   // Fetch BTC price on component mount
   $effect(() => {
@@ -27,6 +27,11 @@
         }
       });
     }
+  });
+
+  // Subscribe to auth changes for OUSG balance
+  $effect(() => {
+    subscribeToAuthChanges();
   });
 
   // Calculate expected OUSG when ckBTC amount changes
@@ -74,10 +79,7 @@
     isMinting = true;
 
     try {
-      const result = await mintOUSG(
-        ckbtcAmountBigInt,
-        BigInt(blockIndex || "0")
-      );
+      const result = await mintOUSGAutomatic(ckbtcAmountBigInt);
       if (result.success) {
         ckbtcAmount = "";
         expectedOUSG = 0n;
@@ -148,27 +150,6 @@
       </div>
       <p class="text-xs text-secondary mt-1">
         Balance: {ckbtcBalance.format} ckBTC
-      </p>
-    </div>
-
-    <!-- Block Index Input -->
-    <div>
-      <label
-        for="block-index"
-        class="block text-sm font-medium text-primary mb-2"
-      >
-        Block Index (Transaction ID)
-      </label>
-      <Input
-        id="block-index"
-        type="number"
-        min="0"
-        bind:value={blockIndex}
-        placeholder="Enter ckBTC transaction block index"
-        disabled={isMinting}
-      />
-      <p class="text-xs text-secondary mt-1">
-        Enter the block index from your ckBTC transfer transaction
       </p>
     </div>
 

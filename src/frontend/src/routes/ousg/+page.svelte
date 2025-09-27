@@ -3,7 +3,10 @@
   import { authStore } from "$lib/stores/auth.store";
   import { userSate } from "$lib/state/user.svelte";
   import { ckbtcBalance } from "$lib/state/ckbtc-balance.svelte";
-  import { ousgBalance } from "$lib/state/ousg-balance.svelte";
+  import {
+    ousgBalance,
+    subscribeToAuthChanges,
+  } from "$lib/state/ousg-balance.svelte";
   import { mintOUSGAutomatic } from "$lib/services/minting.service";
   import {
     redeemOUSG,
@@ -61,6 +64,7 @@
 
   onMount(() => {
     fetchBTCPrice();
+    subscribeToAuthChanges();
   });
 
   const handleMint = async () => {

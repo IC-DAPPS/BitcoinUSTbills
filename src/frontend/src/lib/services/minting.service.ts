@@ -112,8 +112,11 @@ const notifyBackendForMinting = async (blockIndex: BlockIndex, ckbtcAmount: bigi
         });
 
         if (notifyResult.success) {
-            // Update balances
+            // Update balances with a small delay to ensure backend processing is complete
             await fetchCkbtcBalance();
+
+            // Wait a bit for backend to process the minting
+            await new Promise(resolve => setTimeout(resolve, 2000));
             await fetchOUSGBalance();
 
             toast.success('OUSG tokens minted successfully!', {
@@ -166,8 +169,11 @@ export const mintOUSG = async (ckbtcAmount: bigint, blockIndex: bigint): Promise
                 duration: 4000
             });
 
-            // Update balances
+            // Update balances with a small delay to ensure backend processing is complete
             await fetchCkbtcBalance();
+
+            // Wait a bit for backend to process the minting
+            await new Promise(resolve => setTimeout(resolve, 2000));
             await fetchOUSGBalance();
 
             return { success: true };
@@ -242,7 +248,7 @@ export const getOUSGBalance = async (): Promise<bigint | null> => {
         const response = await backend.get_ousg_balance();
 
         if ('Ok' in response) {
-            return response.Ok;
+            return BigInt(response.Ok);
         } else {
             console.error('Error fetching OUSG balance:', response.Err);
             return null;

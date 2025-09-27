@@ -1,5 +1,6 @@
 import { getOUSGBalance } from '$lib/services/minting.service';
 import { authStore } from '$lib/stores/auth.store';
+import { get } from 'svelte/store';
 
 export const ousgBalance = $state({
     balance: 0n,
@@ -8,7 +9,9 @@ export const ousgBalance = $state({
 });
 
 export const fetchOUSGBalance = async () => {
-    if (!authStore.isAuthenticated) {
+    const authState = get(authStore);
+
+    if (!authState.isAuthenticated) {
         ousgBalance.balance = 0n;
         ousgBalance.error = null;
         return;
@@ -19,6 +22,7 @@ export const fetchOUSGBalance = async () => {
 
     try {
         const balance = await getOUSGBalance();
+
         if (balance !== null) {
             ousgBalance.balance = balance;
         } else {
