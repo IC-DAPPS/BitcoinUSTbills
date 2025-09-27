@@ -513,7 +513,7 @@
   }
 
   .ousg-subtitle {
-    color: #1e293b !important;
+    color: #000000 !important;
     margin-bottom: 2rem;
     text-align: center !important;
   }
@@ -642,38 +642,40 @@
     border: none;
   }
 
-  .ousg-btn-primary {
-    background-color: #9ca3af !important;
+  .ousg-btn.ousg-btn-primary {
+    background-color: #000000 !important;
     color: #ffffff !important;
-    border: 1px solid #9ca3af !important;
+    border: 1px solid #000000 !important;
   }
 
-  .ousg-btn-primary:hover:not(:disabled) {
-    background-color: #6b7280 !important;
-    color: #ffffff !important;
-  }
-
-  .ousg-btn-primary:disabled {
-    background-color: #94a3b8 !important;
-    color: #ffffff !important;
-    cursor: not-allowed;
-  }
-
-  .ousg-btn-outline {
+  .ousg-btn.ousg-btn-primary:hover:not(:disabled) {
     background-color: #2563eb !important;
     color: #ffffff !important;
-    border: 1px solid #2563eb !important;
   }
 
-  .ousg-btn-outline:hover:not(:disabled) {
-    background-color: #1d4ed8 !important;
-    color: #ffffff !important;
-  }
-
-  .ousg-btn-outline:disabled {
-    background-color: #94a3b8 !important;
+  .ousg-btn.ousg-btn-primary:disabled {
+    background-color: #000000 !important;
     color: #ffffff !important;
     cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .ousg-btn.ousg-btn-outline {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 1px solid #000000 !important;
+  }
+
+  .ousg-btn.ousg-btn-outline:hover:not(:disabled) {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+  }
+
+  .ousg-btn.ousg-btn-outline:disabled {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 
   .ousg-btn-group {
@@ -717,7 +719,7 @@
     font-size: 1.125rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    color: #1e293b !important;
+    color: #000000 !important;
     text-align: center !important;
   }
 
@@ -730,7 +732,7 @@
 
   .ousg-info-item {
     font-size: 0.875rem;
-    color: #64748b !important;
+    color: #000000 !important;
     text-align: center !important;
     max-width: 600px;
   }

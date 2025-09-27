@@ -208,8 +208,8 @@
   }
 
   .dashboard-status-verified {
-    color: #1e293b !important;
-    background: #10b981;
+    color: #000000 !important;
+    background: #ffffff;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-weight: 600;
@@ -224,8 +224,8 @@
   }
 
   .dashboard-status-enabled {
-    color: #1e293b !important;
-    background: #10b981;
+    color: #000000 !important;
+    background: #ffffff;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-weight: 600;
