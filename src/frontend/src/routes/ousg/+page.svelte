@@ -260,7 +260,7 @@
   </div>
 
   <!-- Balance Overview -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
     <div class="card p-6 text-center">
       <h3 class="text-lg font-semibold mb-2">ckBTC Balance</h3>
       <p class="text-2xl font-bold text-orange-500">
@@ -271,12 +271,6 @@
       <h3 class="text-lg font-semibold mb-2">OUSG Balance</h3>
       <p class="text-2xl font-bold text-blue-500">
         {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} OUSG
-      </p>
-    </div>
-    <div class="card p-6 text-center">
-      <h3 class="text-lg font-semibold mb-2">BTC Price</h3>
-      <p class="text-2xl font-bold text-green-500">
-        ${btcPrice.toLocaleString()}
       </p>
     </div>
   </div>
