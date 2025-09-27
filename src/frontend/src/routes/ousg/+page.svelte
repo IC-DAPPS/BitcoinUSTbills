@@ -4,7 +4,7 @@
   import { userSate } from "$lib/state/user.svelte";
   import { ckbtcBalance } from "$lib/state/ckbtc-balance.svelte";
   import { ousgBalance } from "$lib/state/ousg-balance.svelte";
-  import { mintOUSG } from "$lib/services/minting.service";
+  import { mintOUSGAutomatic } from "$lib/services/minting.service";
   import {
     redeemOUSG,
     approveOUSGForRedemption,
@@ -18,6 +18,9 @@
   let isRedeeming = $state(false);
   let approvalPending = $state(false);
   let btcPrice = $state(100000); // Default BTC price
+  let ckBtcAmount = $state(0.5); // Default value
+  let expectedOusg = $state(0);
+  let isSubmitting = $state(false);
 
   // Calculate expected OUSG tokens for minting
   const expectedOUSG = $derived(() => {
@@ -90,7 +93,8 @@
     isMinting = true;
 
     try {
-      const result = await mintOUSG(ckbtcAmountBigInt);
+      // Use automatic minting - no need for manual block index!
+      const result = await mintOUSGAutomatic(ckbtcAmountBigInt);
       if (result.success) {
         ckbtcAmount = "";
         toast.success("OUSG tokens minted successfully!");
@@ -301,6 +305,9 @@
               MAX
             </button>
           </div>
+          <p class="text-xs text-gray-500 mt-1">
+            ckBTC will be automatically transferred to mint OUSG tokens
+          </p>
         </div>
 
         {#if expectedOUSG() > 0n}
@@ -431,6 +438,10 @@
       <p>• Minimum minting amount: $5,000 USD worth of ckBTC</p>
       <p>• Minimum redemption amount: 1 OUSG token</p>
       <p>• KYC verification is required for both minting and redemption</p>
+      <p>
+        • <strong>Automatic minting:</strong> Just enter ckBTC amount and click mint
+        - no manual transaction needed!
+      </p>
       <p>• Redemption requires two steps: approval and then redemption</p>
       <p>• BTC price is fetched from external sources and may vary</p>
     </div>
