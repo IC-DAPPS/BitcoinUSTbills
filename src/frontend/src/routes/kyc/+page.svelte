@@ -964,7 +964,7 @@
   }
 
   .kyc-card-text {
-    color: #64748b !important;
+    color: #000000 !important;
     margin-bottom: 1.5rem;
   }
 
