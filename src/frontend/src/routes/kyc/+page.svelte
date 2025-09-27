@@ -1029,24 +1029,28 @@
 
   .kyc-status-item {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    padding: 1rem 0;
-    gap: 0.5rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .kyc-status-item:last-child {
+    border-bottom: none;
   }
 
   .kyc-status-label {
     color: #000000 !important;
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 500;
-    text-align: center;
+    text-align: left;
   }
 
   .kyc-status-value {
     color: #000000 !important;
     font-weight: 600;
-    font-size: 1.125rem;
-    text-align: center;
+    font-size: 0.875rem;
+    text-align: right;
   }
 
   .kyc-notes {
