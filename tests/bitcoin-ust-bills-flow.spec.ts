@@ -25,22 +25,71 @@ test('BitcoinUSTbills Complete Flow', async ({ page }) => {
     // Wait for the main page to update after authentication
     await page.waitForLoadState('networkidle');
 
-    // Wait for the registration page to automatically appear after login
+    // Wait for authentication to complete - check if user is logged in
+    await page.waitForSelector('button:has-text("Logout")', { timeout: 15000 });
+
+    // Navigate to dashboard to check registration status
+    await page.goto('http://localhost:5173/dashboard');
+    await page.waitForLoadState('networkidle');
+
+    // Check if user needs to complete registration
+    await page.waitForSelector('a:has-text("Complete Registration")', { timeout: 10000 });
+    await page.getByRole('link', { name: 'Complete Registration' }).click();
+
+    // Wait for the registration page to load
     await page.waitForSelector('h1:has-text("Complete Your Registration")', { timeout: 10000 });
 
+    // Fill registration form
     await page.getByRole('textbox', { name: 'Email Address *' }).click();
-    await page.getByRole('textbox', { name: 'Email Address *' }).fill('vv083150');
-    await page.getByRole('textbox', { name: 'Email Address *' }).press('CapsLock');
-    await page.getByRole('textbox', { name: 'Email Address *' }).fill('vv083150@gmail.com');
-    await page.getByLabel('Country *').selectOption('Other');
+    await page.getByRole('textbox', { name: 'Email Address *' }).fill('vish@gmail.com');
+    await page.getByLabel('Country *').selectOption('United States');
     await page.getByRole('textbox', { name: 'Phone Number (Optional)' }).click();
-    await page.getByRole('textbox', { name: 'Phone Number (Optional)' }).fill('7389345065');
+    await page.getByRole('textbox', { name: 'Phone Number (Optional)' }).fill('8305742710');
     await page.getByRole('button', { name: 'Complete Registration' }).click();
-    await page.getByRole('link', { name: 'KYC' }).click();
-    await page.getByRole('img').first().click();
-    await page.getByText('JPEG, PNG, WebP up to 10MB').nth(1).click();
-    await page.getByText('Click to upload or drag and drop JPEG, PNG, WebP up to 10MB').nth(2).click();
-    // Navigate directly to wallet page
+
+    // Wait for redirect to dashboard after registration
+    await page.waitForLoadState('networkidle');
+
+    // Wait for dashboard to load properly and check if registration is complete
+    await page.waitForSelector('text="Welcome back, vish@gmail.com"', { timeout: 15000 });
+
+    // Navigate to KYC page using direct URL to avoid navigation issues
+    await page.goto('http://localhost:5173/kyc');
+    await page.waitForLoadState('networkidle');
+
+    // Wait for KYC page content
+    await page.waitForSelector('h1:has-text("KYC Verification")', { timeout: 10000 });
+
+    // Check which files are already uploaded and upload missing ones
+    const passportBackUpload = page.locator('text="Click to upload or drag and drop"').first();
+    const selfieUpload = page.locator('text="Click to upload or drag and drop"').nth(1);
+
+    // Upload passport back page if not already uploaded
+    if (await passportBackUpload.isVisible()) {
+        const fileChooserPromise1 = page.waitForEvent('filechooser');
+        await passportBackUpload.click();
+        const fileChooser1 = await fileChooserPromise1;
+        await fileChooser1.setFiles('/home/vishnulinux/ic-projects/BitcoinUSTbills/tests/fixtures/passport-back.png');
+        await page.waitForTimeout(1000);
+    }
+
+    // Upload selfie if not already uploaded
+    if (await selfieUpload.isVisible()) {
+        const fileChooserPromise2 = page.waitForEvent('filechooser');
+        await selfieUpload.click();
+        const fileChooser2 = await fileChooserPromise2;
+        await fileChooser2.setFiles('/home/vishnulinux/ic-projects/BitcoinUSTbills/tests/fixtures/selfie.png');
+        await page.waitForTimeout(1000);
+    }
+
+    // Submit KYC documents (if submit button is available)
+    const submitButton = page.locator('button:has-text("Submit")');
+    if (await submitButton.isVisible()) {
+        await submitButton.click();
+        await page.waitForLoadState('networkidle');
+    }
+
+    // Navigate to wallet page
     await page.goto('http://localhost:5173/wallet');
     // Wait for the wallet page content to load
     await page.waitForLoadState('networkidle');
