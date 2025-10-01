@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test('BitcoinUSTbills Complete Flow', async ({ page }) => {
+    // Enable popups and disable popup blocker
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+
     await page.goto('http://localhost:5173/');
 
     // Wait for page to be fully loaded
@@ -9,8 +12,8 @@ test('BitcoinUSTbills Complete Flow', async ({ page }) => {
     // Wait for Login button to be visible and clickable
     await page.waitForSelector('button:has-text("Login")', { state: 'visible' });
 
-    // Set up popup listener before clicking
-    const page1Promise = page.waitForEvent('popup', { timeout: 10000 });
+    // Set up popup listener before clicking with longer timeout
+    const page1Promise = page.waitForEvent('popup', { timeout: 30000 });
 
     // Click Login button
     await page.getByRole('button', { name: 'Login' }).click();

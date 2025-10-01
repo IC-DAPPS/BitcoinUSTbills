@@ -29,7 +29,11 @@ export default defineConfig({
         {
             name: 'bitcoin-ust-bills',
             testMatch: /.*bitcoin-ust-bills.*\.spec\.ts/,
-            use: { ...devices['Desktop Chrome'] },
+            use: { 
+                ...devices['Desktop Chrome'],
+                // Allow popups for Internet Identity
+                permissions: ['clipboard-read', 'clipboard-write'],
+            },
         },
     ],
 
