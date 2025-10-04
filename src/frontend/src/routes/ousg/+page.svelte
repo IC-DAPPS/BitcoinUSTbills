@@ -250,87 +250,88 @@
   );
 </script>
 
-<div class="ousg-container">
-  <div class="mb-8">
-    <h1 class="ousg-title">OUSG Token Management</h1>
-    <p class="ousg-subtitle">
-      Mint OUSG tokens with ckBTC or redeem them back to ckBTC. Each OUSG token
-      represents $5,000 USD in value.
-    </p>
-  </div>
-
-  <!-- Balance Overview -->
-  <div class="ousg-balance-grid">
-    <div class="ousg-balance-card">
-      <h3 class="ousg-balance-title">ckBTC Balance</h3>
-      <p class="ousg-balance-amount ousg-balance-ckbtc">
-        {ckbtcBalance.number.toFixed(8)} ckBTC
+<div class="min-h-screen bg-slate-50">
+  <div class="container mx-auto px-6 py-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-slate-800 mb-2">OUSG Token Management</h1>
+      <p class="text-slate-600 text-lg">
+        Mint OUSG tokens with ckBTC or redeem them back to ckBTC. Each OUSG token
+        represents $5,000 USD in value.
       </p>
     </div>
-    <div class="ousg-balance-card">
-      <h3 class="ousg-balance-title">OUSG Balance</h3>
-      <p class="ousg-balance-amount ousg-balance-ousg">
-        {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} OUSG
-      </p>
-    </div>
-  </div>
 
-  <div class="ousg-main-grid">
-    <!-- Minting Section -->
-    <div class="ousg-card">
-      <h2 class="ousg-section-title">Mint OUSG Tokens</h2>
-
-      <div>
-        <div class="ousg-input-group">
-          <label for="ckbtc-amount" class="ousg-label"> ckBTC Amount </label>
-          <div class="ousg-input-container">
-            <input
-              id="ckbtc-amount"
-              type="number"
-              step="0.00000001"
-              min="0"
-              bind:value={ckbtcAmount}
-              placeholder="Enter ckBTC amount"
-              class="ousg-input"
-            />
-            <button type="button" onclick={setMaxCkBTC} class="ousg-max-btn">
-              MAX
-            </button>
-          </div>
-          <p class="ousg-info-text">
-            ckBTC will be automatically transferred to mint OUSG tokens
-          </p>
-        </div>
-
-        {#if expectedOUSG() > 0n}
-          <div class="ousg-expected-box ousg-expected-blue">
-            <p class="ousg-expected-text">
-              Expected OUSG: <span class="ousg-expected-strong"
-                >{(Number(expectedOUSG()) / 1_000_000).toFixed(6)} OUSG</span
-              >
-            </p>
-          </div>
-        {/if}
-
-        <button
-          type="button"
-          onclick={handleMint}
-          disabled={mintDisabled}
-          class="ousg-btn ousg-btn-primary"
-        >
-          {#if isMinting}
-            <span class="ousg-loading"></span>
-            Minting...
-          {:else if !$authStore.isAuthenticated}
-            Connect to Mint
-          {:else if !userSate.profile || userSate.profile.kyc_status !== "Verified"}
-            KYC Required
-          {:else}
-            Mint OUSG Tokens
-          {/if}
-        </button>
+    <!-- Balance Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 max-w-4xl mx-auto">
+      <div class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600">
+        <h3 class="text-lg font-semibold mb-2 text-slate-800">ckBTC Balance</h3>
+        <p class="text-2xl font-bold text-slate-800">
+          {ckbtcBalance.number.toFixed(8)} ckBTC
+        </p>
+      </div>
+      <div class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600">
+        <h3 class="text-lg font-semibold mb-2 text-slate-800">OUSG Balance</h3>
+        <p class="text-2xl font-bold text-slate-800">
+          {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} OUSG
+        </p>
       </div>
     </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+      <!-- Minting Section -->
+      <div class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600">
+        <h2 class="text-xl font-semibold text-black mb-6">Mint OUSG Tokens</h2>
+
+        <div>
+          <div class="mb-6">
+            <label for="ckbtc-amount" class="block text-black text-sm font-medium mb-2"> ckBTC Amount </label>
+            <div class="flex gap-2">
+              <input
+                id="ckbtc-amount"
+                type="number"
+                step="0.00000001"
+                min="0"
+                bind:value={ckbtcAmount}
+                placeholder="Enter ckBTC amount"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <button type="button" onclick={setMaxCkBTC} class="px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
+                MAX
+              </button>
+            </div>
+            <p class="text-black text-sm mt-2">
+              ckBTC will be automatically transferred to mint OUSG tokens
+            </p>
+          </div>
+
+          {#if expectedOUSG() > 0n}
+            <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p class="text-black text-sm">
+                Expected OUSG: <span class="font-semibold"
+                  >{(Number(expectedOUSG()) / 1_000_000).toFixed(6)} OUSG</span
+                >
+              </p>
+            </div>
+          {/if}
+
+          <button
+            type="button"
+            onclick={handleMint}
+            disabled={mintDisabled}
+            class="w-full px-6 py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {#if isMinting}
+              <span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+              Minting...
+            {:else if !$authStore.isAuthenticated}
+              Connect to Mint
+            {:else if !userSate.profile || userSate.profile.kyc_status !== "Verified"}
+              KYC Required
+            {:else}
+              Mint OUSG Tokens
+            {/if}
+          </button>
+        </div>
+      </div>
 
     <!-- Redeeming Section -->
     <div class="ousg-card">
@@ -443,352 +444,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  /* Custom CSS for OUSG page - laptop view optimization */
-
-  .ousg-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-    background-color: var(--background-main);
-    min-height: 100vh;
-  }
-
-  .ousg-balance-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  @media (min-width: 768px) {
-    .ousg-balance-grid {
-      grid-template-columns: 1fr 1fr;
-      max-width: 800px;
-      margin: 0 auto 2rem auto;
-    }
-  }
-
-  .ousg-main-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  @media (min-width: 1024px) {
-    .ousg-main-grid {
-      grid-template-columns: 1fr 1fr;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-  }
-
-  .ousg-card {
-    background: #2563eb !important;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    box-shadow:
-      0 1px 3px 0 rgb(0 0 0 / 0.1),
-      0 1px 2px -1px rgb(0 0 0 / 0.1);
-    border: 1px solid #2563eb;
-  }
-
-  .ousg-balance-card {
-    background: #2563eb !important;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    box-shadow:
-      0 1px 3px 0 rgb(0 0 0 / 0.1),
-      0 1px 2px -1px rgb(0 0 0 / 0.1);
-    border: 1px solid #2563eb;
-    text-align: center;
-  }
-
-  .ousg-title {
-    font-size: 1.875rem;
-    font-weight: bold;
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-  }
-
-  .ousg-subtitle {
-    color: #000000 !important;
-    margin-bottom: 2rem;
-    text-align: center !important;
-  }
-
-  .ousg-section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #ffffff !important;
-    margin-bottom: 1.5rem;
-  }
-
-  .ousg-balance-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #ffffff !important;
-  }
-
-  .ousg-balance-amount {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-
-  .ousg-balance-ckbtc {
-    color: #ffffff !important;
-  }
-
-  .ousg-balance-ousg {
-    color: #ffffff !important;
-  }
-
-  .ousg-input-group {
-    margin-bottom: 1rem;
-  }
-
-  .ousg-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    color: #ffffff !important;
-  }
-
-  .ousg-input-container {
-    position: relative;
-  }
-
-  .ousg-input {
-    width: 100%;
-    padding: 0.75rem;
-    padding-right: 4rem;
-    border: 1px solid var(--border-medium);
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    background-color: var(--background-card);
-    color: var(--text-primary);
-    transition: border-color 0.2s;
-  }
-
-  .ousg-input:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-  }
-
-  .ousg-max-btn {
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.875rem;
-    color: var(--primary-blue);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-  }
-
-  .ousg-max-btn:hover {
-    color: var(--primary-blue-dark);
-  }
-
-  .ousg-info-text {
-    font-size: 0.75rem;
-    color: #ffffff !important;
-    margin-top: 0.25rem;
-  }
-
-  .ousg-expected-box {
-    padding: 0.75rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-  }
-
-  .ousg-expected-blue {
-    background-color: var(--primary-blue);
-    color: var(--text-white);
-  }
-
-  .ousg-expected-orange {
-    background-color: var(--primary-blue);
-    color: var(--text-white);
-  }
-
-  .ousg-expected-green {
-    background-color: var(--success-green);
-    color: var(--text-white);
-  }
-
-  .ousg-expected-text {
-    font-size: 0.875rem;
-  }
-
-  .ousg-expected-strong {
-    font-weight: bold;
-  }
-
-  .ousg-btn {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    font-weight: 500;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-  }
-
-  .ousg-btn.ousg-btn-primary {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-    border: 1px solid #000000 !important;
-  }
-
-  .ousg-btn.ousg-btn-primary:hover:not(:disabled) {
-    background-color: #2563eb !important;
-    color: #ffffff !important;
-  }
-
-  .ousg-btn.ousg-btn-primary:disabled {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-
-  .ousg-btn.ousg-btn-outline {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-    border: 1px solid #000000 !important;
-  }
-
-  .ousg-btn.ousg-btn-outline:hover:not(:disabled) {
-    background-color: #2563eb !important;
-    color: #ffffff !important;
-  }
-
-  .ousg-btn.ousg-btn-outline:disabled {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-
-  .ousg-btn-group {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .ousg-btn-flex {
-    flex: 1;
-  }
-
-  .ousg-loading {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid transparent;
-    border-top: 2px solid currentColor;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-right: 0.5rem;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .ousg-info-section {
-    margin-top: 2rem;
-    background: transparent !important;
-    background-color: transparent !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    text-align: center !important;
-  }
-
-  .ousg-info-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #000000 !important;
-    text-align: center !important;
-  }
-
-  .ousg-info-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: center !important;
-  }
-
-  .ousg-info-item {
-    font-size: 0.875rem;
-    color: #000000 !important;
-    text-align: center !important;
-    max-width: 600px;
-  }
-
-  .ousg-info-bold {
-    font-weight: bold;
-  }
-
-  /* Dark mode support */
-  @media (prefers-color-scheme: dark) {
-    .ousg-card,
-    .ousg-balance-card,
-    .ousg-info-section {
-      background: #1f2937;
-      border-color: #374151;
-    }
-
-    .ousg-title,
-    .ousg-section-title,
-    .ousg-balance-title,
-    .ousg-info-title {
-      color: #f9fafb;
-    }
-
-    .ousg-subtitle,
-    .ousg-info-item {
-      color: #d1d5db;
-    }
-
-    .ousg-label {
-      color: #e5e7eb;
-    }
-
-    .ousg-input {
-      background: #374151;
-      border-color: #4b5563;
-      color: #f9fafb;
-    }
-
-    .ousg-input:focus {
-      border-color: #3b82f6;
-    }
-
-    .ousg-expected-blue {
-      background-color: rgba(59, 130, 246, 0.1);
-      color: #93c5fd;
-    }
-
-    .ousg-expected-orange {
-      background-color: rgba(249, 115, 22, 0.1);
-      color: #fdba74;
-    }
-
-    .ousg-expected-green {
-      background-color: rgba(34, 197, 94, 0.1);
-      color: #86efac;
-    }
-  }
-</style>

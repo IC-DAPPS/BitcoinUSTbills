@@ -3,6 +3,7 @@ import { defineConfig, loadEnv } from "vite";
 import dotenv from "dotenv";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { svelteTesting } from "@testing-library/svelte/vite";
+import tailwindcss from "@tailwindcss/vite";
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    plugins: [sveltekit(), svelteTesting(), nodePolyfills()],
+    plugins: [tailwindcss(), sveltekit(), svelteTesting(), nodePolyfills()],
 
     server: {
       proxy: {
