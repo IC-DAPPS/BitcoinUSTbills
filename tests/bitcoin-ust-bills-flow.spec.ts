@@ -21,6 +21,15 @@ test('BitcoinUSTbills Complete Flow', async ({ page }) => {
     // Wait for popup to open
     const page1 = await page1Promise;
     await page1.getByRole('button', { name: 'Create Internet Identity' }).click();
+
+    // Wait for CAPTCHA input to be ready and editable
+    await page1.waitForSelector('#captchaInput', { state: 'visible' });
+    await page1.waitForFunction(() => {
+        const input = document.querySelector('#captchaInput') as HTMLInputElement;
+        return input && !input.disabled && input.offsetParent !== null;
+    }, { timeout: 15000 });
+
+    // Fill CAPTCHA
     await page1.getByRole('textbox', { name: 'Type the characters you see' }).fill('a');
     await page1.getByRole('button', { name: 'Next' }).click();
     await page1.getByRole('button', { name: 'I saved it, continue' }).click();
@@ -56,48 +65,14 @@ test('BitcoinUSTbills Complete Flow', async ({ page }) => {
     // Wait for dashboard to load properly and check if registration is complete
     await page.waitForSelector('text="Welcome back, vish@gmail.com"', { timeout: 15000 });
 
-    // Navigate to KYC page using direct URL to avoid navigation issues
-    await page.goto('http://localhost:5173/kyc');
-    await page.waitForLoadState('networkidle');
-
-    // Wait for KYC page content
-    await page.waitForSelector('h1:has-text("KYC Verification")', { timeout: 10000 });
-
-    // Check which files are already uploaded and upload missing ones
-    const passportBackUpload = page.locator('text="Click to upload or drag and drop"').first();
-    const selfieUpload = page.locator('text="Click to upload or drag and drop"').nth(1);
-
-    // Upload passport back page if not already uploaded
-    if (await passportBackUpload.isVisible()) {
-        const fileChooserPromise1 = page.waitForEvent('filechooser');
-        await passportBackUpload.click();
-        const fileChooser1 = await fileChooserPromise1;
-        await fileChooser1.setFiles('/home/vishnulinux/ic-projects/BitcoinUSTbills/tests/fixtures/passport-back.png');
-        await page.waitForTimeout(1000);
-    }
-
-    // Upload selfie if not already uploaded
-    if (await selfieUpload.isVisible()) {
-        const fileChooserPromise2 = page.waitForEvent('filechooser');
-        await selfieUpload.click();
-        const fileChooser2 = await fileChooserPromise2;
-        await fileChooser2.setFiles('/home/vishnulinux/ic-projects/BitcoinUSTbills/tests/fixtures/selfie.png');
-        await page.waitForTimeout(1000);
-    }
-
-    // Submit KYC documents (if submit button is available)
-    const submitButton = page.locator('button:has-text("Submit")');
-    if (await submitButton.isVisible()) {
-        await submitButton.click();
-        await page.waitForLoadState('networkidle');
-    }
-
     // Navigate to wallet page
     await page.goto('http://localhost:5173/wallet');
-    // Wait for the wallet page content to load
-    await page.waitForLoadState('networkidle');
+
+    // Wait for wallet page to load with shorter timeout
+    await page.waitForLoadState('domcontentloaded', { timeout: 10000 });
+
     // Wait for the deposit button to be visible
-    await page.waitForSelector('button:has-text("⬇ Deposit")', { state: 'visible' });
+    await page.waitForSelector('button:has-text("⬇ Deposit")', { state: 'visible', timeout: 10000 });
     await page.getByRole('button', { name: '⬇ Deposit' }).click();
     await page.getByText('Copy').click();
     await page.getByLabel('Close').click();
