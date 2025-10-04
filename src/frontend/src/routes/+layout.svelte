@@ -29,7 +29,15 @@
   };
 
   const closeMobileMenu = () => {
+    console.log("Closing mobile menu");
     isMobileMenuOpen = false;
+  };
+
+  const handleMobileNavClick = (href: string) => {
+    console.log("Mobile nav clicked:", href);
+    closeMobileMenu();
+    // Use SvelteKit's goto for proper client-side navigation
+    goto(href);
   };
 
   // Handle page transitions - converted to $effect()
@@ -120,50 +128,53 @@
 <Toaster />
 
 <div class="layout-stable">
-  <header class="bg-white shadow-sm border-b border-light sticky top-0 z-50">
+  <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
     <nav class="container mx-auto px-6 py-4">
       <div class="flex justify-between items-center">
         <!-- Logo Section -->
         <div class="flex items-center space-x-2">
           <div
-            class="w-10 h-10 bg-primary-blue rounded-lg flex items-center justify-center"
+            class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center"
           >
             <span class="text-white font-bold text-lg">B</span>
           </div>
-          <span class="text-xl font-semibold text-primary">BitcoinUSTbills</span
+          <span class="text-xl font-semibold text-slate-800"
+            >BitcoinUSTbills</span
           >
         </div>
 
         <!-- Desktop Navigation Links -->
-        <div class="desktop-only flex items-center space-x-8">
+        <div class="hidden md:flex items-center space-x-8">
           <a
             href="/"
-            class="text-secondary hover:text-primary transition-colors">Home</a
+            class="text-slate-600 hover:text-slate-800 transition-colors"
+            >Home</a
           >
           <a
             href="/dashboard"
-            class="text-secondary hover:text-primary transition-colors"
+            class="text-slate-600 hover:text-slate-800 transition-colors"
             >Dashboard</a
           >
           <a
             href="/ousg"
-            class="text-secondary hover:text-primary transition-colors">OUSG</a
+            class="text-slate-600 hover:text-slate-800 transition-colors"
+            >OUSG</a
           >
           <a
             href="/wallet"
-            class="text-secondary hover:text-primary transition-colors"
+            class="text-slate-600 hover:text-slate-800 transition-colors"
             >Wallet</a
           >
           <a
             href="/kyc"
-            class="text-secondary hover:text-primary transition-colors">KYC</a
+            class="text-slate-600 hover:text-slate-800 transition-colors">KYC</a
           >
         </div>
 
         <!-- Desktop Auth Section -->
-        <div class="desktop-only flex items-center space-x-4">
+        <div class="hidden md:flex items-center space-x-4">
           {#if $authStore.isAuthenticated}
-            <span class="text-sm text-secondary">
+            <span class="text-sm text-slate-600">
               {$authStore.principal?.toString().slice(0, 8)}...
             </span>
             <Button variant="secondary" onclick={() => authStore.signOut()}
@@ -179,9 +190,9 @@
         </div>
 
         <!-- Mobile Menu Button -->
-        <div class="mobile-only">
+        <div class="md:hidden">
           <button
-            class="text-secondary hover:text-primary p-2"
+            class="text-slate-600 hover:text-slate-800 p-2"
             onclick={toggleMobileMenu}
           >
             {#if !isMobileMenuOpen}
@@ -221,49 +232,51 @@
 
       <!-- Mobile Menu Drawer -->
       {#if isMobileMenuOpen}
-        <div class="mobile-only mt-4 pb-4 border-t border-light">
+        <div
+          class="md:hidden mt-4 pb-4 border-t border-gray-200 bg-white relative z-10"
+        >
           <div class="flex flex-col space-y-4 pt-4">
             <!-- Mobile Navigation Links -->
             <a
               href="/"
-              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-              onclick={closeMobileMenu}
+              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              onclick={() => handleMobileNavClick("/")}
             >
               Home
             </a>
             <a
               href="/dashboard"
-              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-              onclick={closeMobileMenu}
+              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              onclick={() => handleMobileNavClick("/dashboard")}
             >
               Dashboard
             </a>
             <a
               href="/ousg"
-              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-              onclick={closeMobileMenu}
+              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              onclick={() => handleMobileNavClick("/ousg")}
             >
               OUSG
             </a>
             <a
               href="/wallet"
-              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-              onclick={closeMobileMenu}
+              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              onclick={() => handleMobileNavClick("/wallet")}
             >
               Wallet
             </a>
             <a
               href="/kyc"
-              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-              onclick={closeMobileMenu}
+              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              onclick={() => handleMobileNavClick("/kyc")}
             >
               KYC
             </a>
 
             <!-- Mobile Auth Section -->
-            <div class="flex flex-col space-y-3 pt-4 border-t border-light">
+            <div class="flex flex-col space-y-3 pt-4 border-t border-gray-200">
               {#if $authStore.isAuthenticated}
-                <span class="text-sm text-secondary px-2">
+                <span class="text-sm text-slate-600 px-2">
                   {$authStore.principal?.toString().slice(0, 8)}...
                 </span>
                 <Button
@@ -320,4 +333,3 @@
 		<Footer />
 	</div> -->
 </div>
-
