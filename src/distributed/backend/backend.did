@@ -59,11 +59,11 @@ type Result = variant {
   Err : BitcoinUSTBillsError;
 };
 type Result_1 = variant { Ok; Err : BitcoinUSTBillsError };
-type Result_2 = variant { Ok : float64; Err : BitcoinUSTBillsError };
-type Result_3 = variant { Ok : Deposit; Err : BitcoinUSTBillsError };
-type Result_4 = variant { Ok : PublicKeyReply; Err : text };
-type Result_5 = variant { Ok : FreeKYCSession; Err : BitcoinUSTBillsError };
-type Result_6 = variant { Ok : nat64; Err : BitcoinUSTBillsError };
+type Result_2 = variant { Ok : nat64; Err : BitcoinUSTBillsError };
+type Result_3 = variant { Ok : float64; Err : BitcoinUSTBillsError };
+type Result_4 = variant { Ok : Deposit; Err : BitcoinUSTBillsError };
+type Result_5 = variant { Ok : PublicKeyReply; Err : text };
+type Result_6 = variant { Ok : FreeKYCSession; Err : BitcoinUSTBillsError };
 type Result_7 = variant { Ok : vec Deposit; Err : BitcoinUSTBillsError };
 type Result_8 = variant { Ok : User; Err : BitcoinUSTBillsError };
 type Result_9 = variant { Ok : text; Err : BitcoinUSTBillsError };
@@ -111,6 +111,8 @@ service : {
   admin_get_pending_reviews : () -> (Result) query;
   // Manual review functions for admins
   admin_review_free_kyc : (text, bool, opt text) -> (Result_1);
+  // Approve OUSG tokens for redemption (user must call this first)
+  approve_ousg_for_redemption : (nat64) -> (Result_2);
   // Calculate USD value of ckBTC amount
   calculate_ckbtc_usd_value : (nat64, float64) -> (float64) query;
   // Calculate OUSG tokens for USD amount
@@ -118,18 +120,18 @@ service : {
   // Gets the list of authorized principals
   get_authorized_principals : () -> (vec principal) query;
   // Get current BTC price
-  get_current_btc_price : () -> (Result_2);
+  get_current_btc_price : () -> (Result_3);
   // Get deposit by ID
-  get_deposit : (nat64) -> (Result_3) query;
+  get_deposit : (nat64) -> (Result_4) query;
   // Get deposit statistics
   get_deposit_stats : () -> (vec record { text; nat64 }) query;
-  get_eth_address : () -> (Result_4);
+  get_eth_address : () -> (Result_5);
   // Check user's free KYC status
-  get_free_kyc_status : (text) -> (Result_5) query;
+  get_free_kyc_status : (text) -> (Result_6) query;
   // Get latest block number
   get_latest_block_number : () -> (text);
   // Get user's OUSG balance
-  get_ousg_balance : () -> (Result_6);
+  get_ousg_balance : () -> (Result_2);
   // Get user's deposit history
   get_user_deposits : () -> (Result_7) query;
   // Retrieves user profile
@@ -138,6 +140,8 @@ service : {
   is_user_registered : () -> (bool) query;
   // User deposits ckBTC and gets OUSG minted (similar to DoxaV3 notifyStake)
   notify_deposit : (DepositRequest) -> (DepositResponse);
+  // Redeem OUSG tokens for ckBTC
+  redeem_ousg_tokens : (nat64) -> (Result_2);
   // Registers a new user
   register_user : (UserRegistrationRequest) -> (Result_8);
   // Test ERC-20 transfer with hardcoded values

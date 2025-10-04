@@ -1,471 +1,314 @@
 <script lang="ts">
+  import { authStore } from "$lib/stores/auth.store";
+  import { userSate } from "$lib/state/user.svelte";
+  import { adminList } from "$lib/state/admin-list.svelte";
+  import { ckbtcBalance } from "$lib/state/ckbtc-balance.svelte";
+  import { ousgBalance } from "$lib/state/ousg-balance.svelte";
+  import AdminDashboard from "$lib/components/AdminDashboard.svelte";
   import { onMount } from "svelte";
-  import { authStore } from "$lib/auth";
-  import {
-    getUserProfile,
-    getUserHoldings,
-    getActiveUSTBills,
-    getTradingMetrics,
-    centsToDoller,
-    formatYieldPercentage,
-    getErrorMessage,
-    formatTimestamp,
-  } from "$lib/api";
-  import USTBillCard from "$lib/components/USTBillCard.svelte";
-  import Button from "$lib/components/ui/Button.svelte";
-  import StatusBadge from "$lib/components/ui/StatusBadge.svelte";
-  import LoginPrompt from "$lib/components/ui/LoginPrompt.svelte";
-  import type { User, TokenHolding, USTBill, TradingMetrics } from "$lib/types";
-  import { goto } from "$app/navigation";
 
-  let user = $state<User | null>(null);
-  let holdings = $state<TokenHolding[]>([]);
-  let ustbills = $state<USTBill[]>([]);
-  let tradingMetrics = $state<TradingMetrics | null>(null);
-  let loading = $state(true);
-  let error = $state<string | null>(null);
-
-  // Mock data for transactions and yield payments (until implemented)
-  let recentTransactions = [
-    { type: "Buy", amount: "$1,250", token: "TB-001", status: "completed" },
-    { type: "Sell", amount: "$800", token: "TB-002", status: "completed" },
-    { type: "Buy", amount: "$2,000", token: "TB-003", status: "pending" },
-    { type: "Buy", amount: "$500", token: "TB-001", status: "completed" },
-  ];
-
-  let upcomingYieldPayments = [
-    {
-      date: "1/20/2024",
-      amount: "$52.3",
-      description: "Monthly yield payment",
-      status: "upcoming",
-    },
-    {
-      date: "2/20/2024",
-      amount: "$48.9",
-      description: "Monthly yield payment",
-      status: "upcoming",
-    },
-    {
-      date: "3/20/2024",
-      amount: "$55.15",
-      description: "Monthly yield payment",
-      status: "upcoming",
-    },
-    {
-      date: "4/20/2024",
-      amount: "$51.8",
-      description: "Monthly yield payment",
-      status: "upcoming",
-    },
-  ];
-
-  const portfolioValue = $derived(user ? user.total_invested : 0);
-  const totalYieldEarned = $derived(user ? user.total_yield_earned : 0);
-  const walletBalance = $derived(user ? user.wallet_balance : 0);
-
-  // Mock data for demo
-  const mockUser = {
-    username: "demo_user",
-    email: "demo@example.com",
-    wallet_balance: 2500,
-    total_invested: 1890,
-    total_yield_earned: 125,
-    created_at: Date.now() - 30 * 24 * 60 * 60 * 1000,
-    updated_at: Date.now(),
-  };
-
-  const mockHoldings: TokenHolding[] = [
-    {
-      id: "holding-1",
-      user_principal: "mock-principal",
-      ustbill_id: "1",
-      token_id: 1,
-      purchase_price: 95000, // $950
-      purchase_date: Date.now() - 15 * 24 * 60 * 60 * 1000, // 15 days ago
-      yield_option: { Reinvest: null },
-      status: { Active: null },
-      current_value: 97500, // $975
-      projected_yield: 5000, // $50
-    },
-    {
-      id: "holding-2",
-      user_principal: "mock-principal",
-      ustbill_id: "2",
-      token_id: 2,
-      purchase_price: 94000, // $940
-      purchase_date: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
-      yield_option: { Payout: null },
-      status: { Active: null },
-      current_value: 95200, // $952
-      projected_yield: 7500, // $75
-    },
-  ];
-
-  const mockTradingMetrics: TradingMetrics = {
-    total_volume: 1250000, // $12,500
-    active_bills: 5,
-    avg_yield: 6.75,
-    total_users: 150,
-  };
-
-  onMount(async () => {
-    if (!$authStore.isLoggedIn) {
-      loading = false;
-      return;
-    }
-
-    // Skip auth check for demo
-    console.log("Dashboard loading mock data for demo");
-
-    try {
-      // Simulate loading delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      user = mockUser;
-      holdings = mockHoldings;
-      ustbills = []; // Keep empty for demo focus
-      tradingMetrics = mockTradingMetrics;
-
-      console.log("Mock data loaded successfully");
-    } catch (e) {
-      console.error("Error in dashboard:", e);
-      error = getErrorMessage(e);
-    } finally {
-      console.log("Setting loading to false");
-      loading = false;
-    }
+  const isAdmin = $derived(() => {
+    if (!$authStore.isAuthenticated || !$authStore.principal) return false;
+    return adminList.includes($authStore.principal.toString());
   });
 
-  function handleInvestClick(ustbillId: string) {
-    // TODO: Implement investment modal
-    console.log("Invest in:", ustbillId);
-  }
+  const canTrade = $derived(() => {
+    return (
+      $authStore.isAuthenticated &&
+      userSate.profile &&
+      userSate.profile.kyc_status === "Verified"
+    );
+  });
 
-  function handleBuyTokens() {
-    // TODO: Implement buy tokens modal
-    console.log("Buy tokens clicked");
-  }
-
-  function handleSellTokens() {
-    // TODO: Implement sell tokens modal
-    console.log("Sell tokens clicked");
-  }
-
-  function handleViewAnalytics() {
-    goto("/analytics");
-  }
-
-  function goToTransactions() {
-    goto("/transactions");
-  }
+  onMount(() => {
+    // Dashboard initialization
+  });
 </script>
 
 <svelte:head>
-  <title>Dashboard - BitcoinUSTbills</title>
+  <title>Dashboard - Bitcoin UST Bills</title>
 </svelte:head>
 
-<div class="min-h-screen bg-section">
-  <div class="container-wide mx-auto px-6 py-8">
-    {#if !$authStore.isLoggedIn}
-      <div class="card p-6 text-center">
-        <p class="text-secondary">Please login to view your dashboard</p>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6 text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+        {#if userSate.profile}
+          <p class="text-gray-600 mt-1">
+            Welcome back, {userSate.profile.email}
+          </p>
+        {/if}
       </div>
-    {:else if loading}
-      <div class="flex justify-center items-center h-64">
-        <div class="text-center">
-          <div
-            class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue mx-auto mb-4"
-          ></div>
-          <p class="text-secondary">Loading your dashboard...</p>
-        </div>
-      </div>
-    {:else if error}
-      <div class="card p-6 text-center">
-        <h2 class="text-xl font-semibold text-primary mb-4">
-          Error Loading Dashboard
-        </h2>
-        <p class="text-red-500 mb-4">{error}</p>
-        <Button variant="primary" onclick={() => window.location.reload()}
-          >Try Again</Button
-        >
-      </div>
-    {:else}
-      <!-- Dashboard Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-primary mb-2">Dashboard</h1>
-        <p class="text-secondary">
-          Manage your tokenized Treasury Bill investments
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {#if !$authStore.isAuthenticated}
+      <div class="text-center py-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Please Sign In</h2>
+        <p class="text-gray-600 mb-6">
+          You need to be signed in to access the dashboard.
         </p>
+        <button
+          onclick={() => authStore.signIn({ identityProvider: "ii" })}
+          class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
+        >
+          Sign In
+        </button>
       </div>
-
-      <!-- Desktop Layout: Main content + Sidebar -->
-      <div class="dashboard-layout">
-        <div class="dashboard-main">
-          <!-- Portfolio Overview -->
-          <div class="card p-6 mb-8">
-            <div class="flex items-center mb-6">
-              <svg
-                class="w-6 h-6 text-blue mr-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
-                ></path>
-              </svg>
-              <h2 class="text-xl font-semibold text-primary">
-                Portfolio Overview
-              </h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <!-- Total Portfolio Value -->
-              <div>
-                <p class="text-sm text-secondary mb-1">Total Portfolio Value</p>
-                <p class="text-3xl font-bold text-primary">
-                  ${portfolioValue.toLocaleString()}
-                </p>
-              </div>
-
-              <!-- Current Yield -->
-              <div>
-                <p class="text-sm text-secondary mb-1">Current Yield</p>
-                <p class="text-3xl font-bold text-success">4.2% APY</p>
-              </div>
-
-              <!-- 24h Change -->
-              <div>
-                <p class="text-sm text-secondary mb-1">24h Change</p>
-                <div class="flex items-center">
-                  <p class="text-3xl font-bold text-success">+$45.20</p>
-                  <svg
-                    class="w-5 h-5 text-success ml-2 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 14l9-9 3 3L19 8l-8 8-4-4z"
-                    ></path>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Treasury Bills Marketplace -->
-          <div class="card p-6 mb-8">
-            <div class="flex items-center justify-between mb-6">
-              <div class="flex items-center">
-                <svg
-                  class="w-6 h-6 text-blue mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                  ></path>
-                </svg>
-                <h2 class="text-xl font-semibold text-primary">
-                  Treasury Bills Marketplace
-                </h2>
-              </div>
-            </div>
-
-            <p class="text-secondary mb-6">
-              Available tokenized Treasury Bills
-            </p>
-
-            <div class="grid grid-cols-1 lg:desktop-grid-2 gap-6">
-              {#each ustbills.slice(0, 4) as ustbill}
-                <USTBillCard {ustbill} onInvest={handleInvestClick} />
-              {/each}
-            </div>
-          </div>
+    {:else if !userSate.profile}
+      <div class="text-center py-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+          Complete Registration
+        </h2>
+        <p class="text-gray-600 mb-6">
+          Please complete your registration to access the dashboard.
+        </p>
+        <a
+          href="/register"
+          class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
+        >
+          Complete Registration
+        </a>
+      </div>
+    {:else if isAdmin()}
+      <AdminDashboard />
+    {:else}
+      <!-- Balance Overview -->
+      <div class="dashboard-balance-grid">
+        <div class="dashboard-balance-card">
+          <h3 class="dashboard-balance-title">ckBTC Balance</h3>
+          <p class="dashboard-balance-amount dashboard-balance-ckbtc">
+            {ckbtcBalance.number.toFixed(8)} ckBTC
+          </p>
         </div>
-
-        <!-- Sidebar for Recent Transactions & Yield Payments -->
-        <div class="dashboard-sidebar">
-          <!-- Recent Transactions -->
-          <div class="card p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-primary">
-                Recent Transactions
-              </h3>
-              <Button variant="outline" size="sm" onclick={goToTransactions}
-                >View All</Button
-              >
-            </div>
-
-            <div class="space-y-4">
-              {#each recentTransactions.slice(0, 3) as transaction}
-                <div
-                  class="flex items-center justify-between p-3 bg-gray-50 rounded"
-                >
-                  <div>
-                    <p class="font-medium text-sm">{transaction.type}</p>
-                    <p class="text-xs text-secondary">{transaction.bill_id}</p>
-                  </div>
-                  <div class="text-right">
-                    <p class="font-semibold">${transaction.amount}</p>
-                    <span
-                      class="inline-block px-2 py-1 text-xs rounded-full {transaction.status ===
-                      'completed'
-                        ? 'bg-green-100 text-green-800'
-                        : transaction.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-gray-100 text-gray-800'}"
-                    >
-                      {transaction.status}
-                    </span>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          </div>
-
-          <!-- Upcoming Yield Payments -->
-          <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-primary">
-                Upcoming Yields
-              </h3>
-            </div>
-
-            <div class="space-y-4">
-              {#each upcomingYieldPayments.slice(0, 3) as payment}
-                <div
-                  class="flex items-center justify-between p-3 bg-blue-50 rounded"
-                >
-                  <div>
-                    <p class="font-medium text-sm">{payment.bill_id}</p>
-                    <p class="text-xs text-secondary">
-                      Due: {payment.payment_date}
-                    </p>
-                  </div>
-                  <div class="text-right">
-                    <p class="font-semibold text-blue">
-                      ${payment.expected_amount}
-                    </p>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          </div>
+        <div class="dashboard-balance-card">
+          <h3 class="dashboard-balance-title">OUSG Balance</h3>
+          <p class="dashboard-balance-amount dashboard-balance-ousg">
+            {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} OUSG
+          </p>
         </div>
       </div>
 
-      <!-- Quick Actions - Horizontal Blocks -->
-      <div class="mb-8">
-        <h2 class="text-xl font-semibold text-primary mb-6">Quick Actions</h2>
-        <div class="grid grid-cols-3 gap-6">
-          <button
-            type="button"
-            class="card p-6 text-center cursor-pointer hover:bg-gray-50 h-32 flex flex-col justify-center border-0 w-full"
-            onclick={handleBuyTokens}
-            aria-label="Buy Treasury Bill Tokens"
+      <!-- Account Status -->
+      <div class="dashboard-status-grid">
+        <div class="dashboard-status-card">
+          <h3 class="dashboard-status-title">KYC Status</h3>
+          <p
+            class="dashboard-status-amount {userSate.profile?.kyc_status ===
+            'Verified'
+              ? 'dashboard-status-verified'
+              : 'dashboard-status-pending'}"
           >
-            <div
-              class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <svg
-                class="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-            </div>
-            <h3 class="text-sm font-semibold text-primary">Buy Tokens</h3>
-          </button>
-
-          <button
-            type="button"
-            class="card p-6 text-center cursor-pointer hover:bg-gray-50 h-32 flex flex-col justify-center border-0 w-full"
-            onclick={handleSellTokens}
-            aria-label="Sell Treasury Bill Tokens"
-          >
-            <div
-              class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <svg
-                class="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-                ></path>
-              </svg>
-            </div>
-            <h3 class="text-sm font-semibold text-primary">Sell Tokens</h3>
-          </button>
-
-          <button
-            type="button"
-            class="card p-6 text-center cursor-pointer hover:bg-gray-50 h-32 flex flex-col justify-center border-0 w-full"
-            onclick={handleViewAnalytics}
-            aria-label="View Portfolio Analytics"
-          >
-            <div
-              class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <svg
-                class="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
-                ></path>
-              </svg>
-            </div>
-            <h3 class="text-sm font-semibold text-primary">View Analytics</h3>
-          </button>
+            {userSate.profile?.kyc_status || "Pending"}
+          </p>
         </div>
+        <div class="dashboard-status-card">
+          <h3 class="dashboard-status-title">Trading Access</h3>
+          <p
+            class="dashboard-status-amount {canTrade()
+              ? 'dashboard-status-enabled'
+              : 'dashboard-status-disabled'}"
+          >
+            {canTrade() ? "Enabled" : "Disabled"}
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="dashboard-actions-grid">
+        <div class="dashboard-action-card">
+          <h3 class="dashboard-action-title">Mint/Redeem OUSG</h3>
+          <a href="/ousg" class="dashboard-action-btn dashboard-action-primary">
+            Go to OUSG
+          </a>
+        </div>
+        <div class="dashboard-action-card">
+          <h3 class="dashboard-action-title">View Wallet</h3>
+          <a
+            href="/wallet"
+            class="dashboard-action-btn dashboard-action-secondary"
+          >
+            Go to Wallet
+          </a>
+        </div>
+        {#if !canTrade()}
+          <div class="dashboard-action-card">
+            <h3 class="dashboard-action-title">Complete KYC</h3>
+            <a
+              href="/kyc"
+              class="dashboard-action-btn dashboard-action-outline"
+            >
+              Go to KYC
+            </a>
+          </div>
+        {/if}
       </div>
     {/if}
   </div>
 </div>
 
 <style>
-  .animate-spin {
-    animation: spin 1s linear infinite;
+  /* Custom CSS for Dashboard - laptop view optimization */
+
+  .dashboard-balance-grid,
+  .dashboard-status-grid,
+  .dashboard-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
   }
 
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
+  @media (min-width: 768px) {
+    .dashboard-balance-grid,
+    .dashboard-status-grid,
+    .dashboard-actions-grid {
+      grid-template-columns: 1fr 1fr;
+      max-width: 800px;
+      margin: 0 auto 1.5rem auto;
     }
-    to {
-      transform: rotate(360deg);
+  }
+
+  .dashboard-balance-card,
+  .dashboard-status-card,
+  .dashboard-action-card {
+    background: #2563eb !important;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid #2563eb;
+  }
+
+  .dashboard-balance-title,
+  .dashboard-status-title,
+  .dashboard-action-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1e293b !important;
+  }
+
+  .dashboard-balance-amount,
+  .dashboard-status-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1e293b !important;
+  }
+
+  .dashboard-balance-ckbtc {
+    color: #1e293b !important;
+  }
+
+  .dashboard-balance-ousg {
+    color: #1e293b !important;
+  }
+
+  .dashboard-status-verified {
+    color: #000000 !important;
+    background: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+  }
+
+  .dashboard-status-pending {
+    color: #1e293b !important;
+    background: #f59e0b;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+  }
+
+  .dashboard-status-enabled {
+    color: #000000 !important;
+    background: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+  }
+
+  .dashboard-status-disabled {
+    color: #1e293b !important;
+    background: #ef4444;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+  }
+
+  .dashboard-action-btn {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 1rem;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+
+  .dashboard-action-primary {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border: 1px solid #1e293b !important;
+  }
+
+  .dashboard-action-primary:hover {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+  }
+
+  .dashboard-action-secondary {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border: 1px solid #1e293b !important;
+  }
+
+  .dashboard-action-secondary:hover {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+  }
+
+  .dashboard-action-outline {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border: 1px solid #1e293b !important;
+  }
+
+  .dashboard-action-outline:hover {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .dashboard-balance-card,
+    .dashboard-status-card,
+    .dashboard-action-card {
+      background: #1f2937;
+      border-color: #374151;
+    }
+
+    .dashboard-balance-title,
+    .dashboard-status-title,
+    .dashboard-action-title {
+      color: #f9fafb;
+    }
+
+    .dashboard-balance-amount,
+    .dashboard-status-amount {
+      color: #f9fafb;
+    }
+
+    .dashboard-balance-ckbtc,
+    .dashboard-balance-ousg {
+      color: #f9fafb;
     }
   }
 </style>

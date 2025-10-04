@@ -27,16 +27,8 @@ jobs:
         with:
           dfx-version: 0.28.0
 
-      - name: Install Mops
-        run: |
-          echo "Installing Mops CLI from on-chain storage..."
-          curl -fsSL cli.mops.one/install.sh | sh
-          echo "Adding mops to PATH..."
-          export PATH="$HOME/.local/bin:$PATH"
-          echo "Updated PATH: $PATH"
-          echo "Testing mops installation:"
-          mops --version
-          echo "Mops installation successful!"
+      - name: Install Mops CLI
+        run: npm i -g ic-mops
 
       - name: Prefer IPv4 for localhost on runner
         run: |

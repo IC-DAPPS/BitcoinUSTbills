@@ -4,7 +4,9 @@ import {
     getFile,
     getChunk,
     list,
-    isUserRegistered
+    isUserRegistered,
+    getFileForAdmin,
+    getChunkForAdmin
 } from '$lib/api/file-store-bucket.api';
 import type { BatchArg, FileInfo } from '../../../../declarations/file_store_bucket/file_store_bucket.did';
 
@@ -461,6 +463,71 @@ export async function getFileInfo(fileName: string): Promise<FileInfo> {
         return fileInfo;
     } catch (error) {
         throw new Error(`${FileStoreError.FILE_NOT_FOUND}: ${error}`);
+    }
+}
+
+/**
+ * Download file for admin (uses anonymous identity)
+ * 
+ * @param fileName - Name of the file to download
+ * @param onProgress - Optional progress callback
+ * @returns Promise with the downloaded file
+ */
+export async function downloadFileForAdmin(
+    fileName: string,
+    onProgress?: (progress: number) => void
+): Promise<File> {
+    try {
+        // Step 1: Get first chunk
+        const response = await withRetry(
+            () => getFileForAdmin(fileName),
+            MAX_RETRY_ATTEMPTS,
+            'Failed to get file info after 3 attempts'
+        );
+
+        const { content, content_type, chunks_left } = response;
+
+        // If file is single chunk, return immediately
+        if (chunks_left === BigInt(0)) {
+            const file = new File([content], fileName, { type: content_type });
+            fileCache.set(fileName, file);
+            return file;
+        }
+
+        const totalChunks = chunks_left + 1; // +1 for the first chunk we already have
+        let downloadedChunks = 1;
+
+        // Update progress after first chunk
+        onProgress?.(Math.round((downloadedChunks / totalChunks) * 100));
+
+        // Step 2: Collect all chunks
+        const allChunks: Array<Uint8Array | number[]> = [content];
+
+        // Step 3: Download remaining chunks if any
+        for (let i = 1; i <= chunks_left; i++) {
+            const chunkResponse = await withRetry(
+                () => getChunkForAdmin(fileName, BigInt(i)),
+                MAX_RETRY_ATTEMPTS,
+                `Failed to get chunk ${i}`
+            );
+
+            allChunks.push(chunkResponse.content);
+            downloadedChunks++;
+
+            // Update progress after each chunk
+            onProgress?.(Math.round((downloadedChunks / totalChunks) * 100));
+        }
+
+        // Step 4: Reconstruct file
+        const reconstructedFile = combineChunksToFile(allChunks, fileName, content_type);
+
+        // Step 5: Cache the file for future use
+        fileCache.set(fileName, reconstructedFile);
+
+        return reconstructedFile;
+
+    } catch (error) {
+        throw new Error(`${FileStoreError.DOWNLOAD_FAILED}: ${error}`);
     }
 }
 

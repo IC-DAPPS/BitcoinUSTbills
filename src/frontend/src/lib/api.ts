@@ -1,22 +1,10 @@
-import { actor } from "./agent";
 import { get } from "svelte/store";
-import type {
-  Principal
-} from '@dfinity/principal';
+import type { Principal } from '@dfinity/principal';
 import type {
   // Core types from declaration
   _SERVICE,
-  USTBill,
-  USTBillCreateRequest,
   User,
   UserRegistrationRequest,
-  TokenHolding,
-  TreasuryRate,
-  YieldProjection,
-  TradingMetrics,
-  PlatformConfig,
-  VerifiedBrokerPurchase,
-  PaginatedResponse,
   KYCStatus,
 
   // Result types
@@ -36,18 +24,19 @@ import type {
   UserAndFreeKYCSession
 } from "../../../declarations/backend/backend.did";
 import type { GetUserProfileResponse, RegisterUserResponse } from "./types/result";
+import { authStore } from "./stores/auth.store"; // Import authStore
 
 // ============= UTILITY FUNCTIONS =============
 
 /**
- * Gets the backend actor instance
+ * Gets the backend actor instance from authStore
  */
-function getActor(): _SERVICE {
-  const backendActor = get(actor);
-  if (!backendActor) {
-    throw new Error("Actor not initialized. Please ensure you're logged in.");
+function getBackendActorFromAuth(): _SERVICE {
+  const { backend } = get(authStore);
+  if (!backend) {
+    throw new Error("Backend actor not initialized. Please ensure you're logged in.");
   }
-  return backendActor;
+  return backend as _SERVICE;
 }
 
 /**
@@ -63,39 +52,25 @@ function handleResult<T>(result: { 'Ok'?: T; 'Err'?: BitcoinUSTBillsError }): T 
   throw new Error("Unexpected API response format");
 }
 
-// ============= UST BILL MANAGEMENT =============
-
-/**
- * Gets all active UST Bills
- */
-export async function getActiveUSTBills(): Promise<USTBill[]> {
-  return await getActor().get_active_ustbills();
-}
-
-
-
 // ============= USER MANAGEMENT =============
 
 /**
  * Registers a new user
  */
 export async function registerUser(userData: UserRegistrationRequest): Promise<User> {
-  const result = await getActor().register_user(userData);
+  const result = await getBackendActorFromAuth().register_user(userData);
   return handleResult(result);
 }
 
 export async function isUserRegistered(): Promise<boolean> {
-  return getActor().is_user_registered();
-
+  return getBackendActorFromAuth().is_user_registered();
 }
 
 /**
  * Gets user profile by principal
  */
-export async function getUserProfile(): Promise<GetUserProfileResponse
-> {
-  return getActor().get_user_profile();
-
+export async function getUserProfile(): Promise<GetUserProfileResponse> {
+  return getBackendActorFromAuth().get_user_profile();
 }
 
 
@@ -104,54 +79,31 @@ export async function getUserProfile(): Promise<GetUserProfileResponse
  * Gets KYC status for user and admin by uploadId = user.principal.toText()
  */
 export async function getKYCStatus(uploadId: string): Promise<FreeKYCSession> {
-  const result = await getActor().get_free_kyc_status(uploadId);
+  const result = await getBackendActorFromAuth().get_free_kyc_status(uploadId);
   return handleResult(result);
 }
 
 export async function RequestKycReview(documentFrontPage: string, documentBackPage: string, selfieWithDocument: string): Promise<string> {
-  const result = await getActor().upload_document_free_kyc(documentFrontPage, documentBackPage, selfieWithDocument);
+  const result = await getBackendActorFromAuth().upload_document_free_kyc(documentFrontPage, documentBackPage, selfieWithDocument);
   return handleResult(result);
 }
 
-
 // this function is used to get User details and KYC requests documents that are pending review to review by admin
 export async function adminGetPendingReviews(): Promise<UserAndFreeKYCSession[]> {
-  const result = await getActor().admin_get_pending_reviews();
+  const result = await getBackendActorFromAuth().admin_get_pending_reviews();
   return handleResult(result);
 }
 
 // this function is used to review a free KYC request
 export async function adminReviewFreeKyc(uploadId: string, approved: boolean, notes?: string): Promise<void> {
   console.log('adminReviewFreeKyc', uploadId, approved, notes);
-  const result = await getActor().admin_review_free_kyc(uploadId, approved, notes ? [notes] : []);
+  const result = await getBackendActorFromAuth().admin_review_free_kyc(uploadId, approved, notes ? [notes] : []);
   console.log('adminReviewFreeKyc result', result);
   handleResult(result);
 }
 
 
 
-
-
-
-// ============= TRADING OPERATIONS =============
-
-/**
- * Gets user's token holdings
- */
-export async function getUserHoldings(principal: Principal): Promise<TokenHolding[]> {
-  return await getActor().get_user_holdings(principal);
-}
-
-
-
-// ============= PLATFORM MANAGEMENT =============
-
-/**
- * Gets trading metrics
- */
-export async function getTradingMetrics(): Promise<TradingMetrics> {
-  return await getActor().get_trading_metrics();
-}
 
 
 
@@ -172,7 +124,6 @@ export function formatTimestamp(timestamp: bigint): string {
 }
 
 /**
-/**
  * Formats yield percentage for display
  */
 export function formatYieldPercentage(yieldValue: number): string {
@@ -187,13 +138,11 @@ export function getStatusText(status: any): string {
   return String(status);
 }
 
-
-
 /**
  * Gets the list of authorized principals
  */
 export function getAuthorizedPrincipals(): Promise<Principal[]> {
-  return getActor().get_authorized_principals();
+  return getBackendActorFromAuth().get_authorized_principals();
 }
 
 

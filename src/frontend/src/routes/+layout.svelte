@@ -4,23 +4,16 @@
   import Button from "$lib/components/ui/Button.svelte";
   import Footer from "$lib/components/Footer.svelte";
   import { onDestroy, onMount, tick } from "svelte";
-  import {
-    authStore,
-    initAuth,
-    login,
-    logout,
-    type AuthState,
-  } from "$lib/auth";
+  import { authStore } from "$lib/stores/auth.store";
   import { fetchUserProfile } from "$lib/state/user.svelte";
   import { page } from "$app/state";
   import { navigating } from "$app/state";
   import { Toaster } from "svelte-sonner";
   import { fetchCkbtcBalance } from "$lib/state/ckbtc-balance.svelte";
-  import { getAgent } from "$lib/actors/agents.ic";
-  import { actor, createActor } from "$lib/agent";
   import { adminList, fetchAdminList } from "$lib/state/admin-list.svelte";
+  import { subscribeToAuthChanges as subscribeToOUSGBalance } from "$lib/state/ousg-balance.svelte";
+  import { subscribeToAuthChanges as subscribeToTransactions } from "$lib/state/transactions.svelte";
   import { goto } from "$app/navigation";
-  import { AnonymousIdentity } from "@dfinity/agent";
 
   // Mobile menu state - converted to $state()
   let isMobileMenuOpen = $state(false);
@@ -63,37 +56,29 @@
 
   // Effect to handle admin routing based on authentication and admin status
   $effect(() => {
-    // Check if user is authenticated
-    if ($authStore.identity) {
-      const principal = $authStore.identity.getPrincipal().toString();
+    // Only restrict access to /admin/kyc, allow /admin to be open
+    if (page.url.pathname === "/admin/kyc") {
+      // Check if user is authenticated
+      if ($authStore.principal) {
+        const principal = $authStore.principal.toString();
 
-      // Check if authenticated user is an admin
-      if (adminList.includes(principal)) {
-        // Redirect admins to KYC management page if not already there
-        if (page.url.pathname !== "/admin/kyc") {
-          goto("/admin/kyc");
-        }
-      } else {
-        // Redirect non-admins away from admin pages
-        if (page.url.pathname === "/admin/kyc") {
+        // Check if authenticated user is an admin
+        if (!adminList.includes(principal)) {
+          // Redirect non-admins away from admin/kyc page
           goto("/");
         }
-      }
-    } else {
-      // Redirect unauthenticated users away from admin pages
-      if (page.url.pathname === "/admin/kyc") {
+      } else {
+        // Redirect unauthenticated users away from admin/kyc page
         goto("/");
       }
     }
   });
 
   onMount(async () => {
-    await initAuth();
+    await authStore.sync();
 
     // Wait for initial render to complete
     await tick();
-
-    await createActorBasedOnIdentity($authStore);
 
     await fetchAdminList();
 
@@ -109,34 +94,27 @@
     }, 100);
   });
 
-  const createActorBasedOnIdentity = async ({
-    identity,
-    isLoggedIn,
-  }: AuthState) => {
-    if (identity && isLoggedIn) {
-      console.log("principal", identity.getPrincipal().toString());
-      const agent = await getAgent({ identity });
-      const newActor = await createActor(agent);
-      actor.set(newActor);
-    } else {
-      console.log("creating new actor with anonymous identity");
-      const agent = await getAgent({ identity: new AnonymousIdentity() });
-      const newActor = await createActor(agent);
-      actor.set(newActor);
-    }
-  };
-
-  const newActorUnsubscriber = authStore.subscribe(async (authState) => {
-    await createActorBasedOnIdentity(authState);
-
-    if (authState.isLoggedIn) {
-      // Only fetch data after actor is initialized
+  // Subscribe to auth store changes
+  const authUnsubscriber = authStore.subscribe(async (authState) => {
+    if (authState.isAuthenticated) {
+      // Only fetch data after authentication
       await fetchUserProfile();
       // Temporarily disable ckBTC balance fetch to avoid canister errors
       await fetchCkbtcBalance();
     }
   });
-  onDestroy(newActorUnsubscriber);
+
+  // Subscribe to OUSG balance changes
+  const ousgBalanceUnsubscriber = subscribeToOUSGBalance();
+
+  // Subscribe to transaction changes
+  const transactionsUnsubscriber = subscribeToTransactions();
+
+  onDestroy(() => {
+    authUnsubscriber();
+    ousgBalanceUnsubscriber();
+    transactionsUnsubscriber();
+  });
 </script>
 
 <Toaster />
@@ -168,24 +146,13 @@
             >Dashboard</a
           >
           <a
-            href="/marketplace"
-            class="text-secondary hover:text-primary transition-colors"
-            >Marketplace</a
-          >
-          <a
-            href="/portfolio"
-            class="text-secondary hover:text-primary transition-colors"
-            >Portfolio</a
+            href="/ousg"
+            class="text-secondary hover:text-primary transition-colors">OUSG</a
           >
           <a
             href="/wallet"
             class="text-secondary hover:text-primary transition-colors"
             >Wallet</a
-          >
-          <a
-            href="/purchased"
-            class="text-secondary hover:text-primary transition-colors"
-            >Purchased</a
           >
           <a
             href="/kyc"
@@ -195,13 +162,19 @@
 
         <!-- Desktop Auth Section -->
         <div class="desktop-only flex items-center space-x-4">
-          {#if $authStore.isLoggedIn}
+          {#if $authStore.isAuthenticated}
             <span class="text-sm text-secondary">
-              {$authStore.identity?.getPrincipal().toString().slice(0, 8)}...
+              {$authStore.principal?.toString().slice(0, 8)}...
             </span>
-            <Button variant="secondary" onclick={logout}>Logout</Button>
+            <Button variant="secondary" onclick={() => authStore.signOut()}
+              >Logout</Button
+            >
           {:else}
-            <Button variant="primary" onclick={login}>Login</Button>
+            <Button
+              variant="primary"
+              onclick={() => authStore.signIn({ identityProvider: "ii" })}
+              >Login</Button
+            >
           {/if}
         </div>
 
@@ -266,18 +239,11 @@
               Dashboard
             </a>
             <a
-              href="/marketplace"
+              href="/ousg"
               class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
               onclick={closeMobileMenu}
             >
-              Marketplace
-            </a>
-            <a
-              href="/portfolio"
-              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-              onclick={closeMobileMenu}
-            >
-              Portfolio
+              OUSG
             </a>
             <a
               href="/wallet"
@@ -285,13 +251,6 @@
               onclick={closeMobileMenu}
             >
               Wallet
-            </a>
-            <a
-              href="/purchased"
-              class="text-secondary hover:text-primary transition-colors py-2 px-2 rounded hover:bg-gray-50"
-              onclick={closeMobileMenu}
-            >
-              Purchased
             </a>
             <a
               href="/kyc"
@@ -303,17 +262,14 @@
 
             <!-- Mobile Auth Section -->
             <div class="flex flex-col space-y-3 pt-4 border-t border-light">
-              {#if $authStore.isLoggedIn}
+              {#if $authStore.isAuthenticated}
                 <span class="text-sm text-secondary px-2">
-                  {$authStore.identity
-                    ?.getPrincipal()
-                    .toString()
-                    .slice(0, 8)}...
+                  {$authStore.principal?.toString().slice(0, 8)}...
                 </span>
                 <Button
                   variant="secondary"
                   onclick={() => {
-                    logout();
+                    authStore.signOut();
                     closeMobileMenu();
                   }}
                 >
@@ -323,7 +279,7 @@
                 <Button
                   variant="primary"
                   onclick={() => {
-                    login();
+                    authStore.signIn({ identityProvider: "ii" });
                     closeMobileMenu();
                   }}
                 >

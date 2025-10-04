@@ -1,28 +1,26 @@
+import { HttpAgent, type Identity, type Principal } from '@dfinity/agent';
+import { HOST, FETCH_ROOT_KEY } from '$lib/const';
 
-import type { Option } from '$lib/types/utils';
-import type { HttpAgent, Identity } from '@dfinity/agent';
-import { createAgent as createAgentUtils, isNullish } from '@dfinity/utils';
-
-
-export const HOST = import.meta.env.VITE_DFX_NETWORK === "ic" ? "https://ic0.app" : "http://localhost:8080" ;
-
-let agents: Option<Record<string, HttpAgent>> = undefined;
+let agents: Map<string, HttpAgent> | null = null;
 
 export const getAgent = async ({ identity }: { identity: Identity }): Promise<HttpAgent> => {
-	const key = identity.getPrincipal().toString();
+	const principal = identity.getPrincipal();
 
-	if (isNullish(agents) || isNullish(agents[key])) {
-		const agent = await createAgent({ identity });
-
-		agents = {
-			...(agents ?? {}),
-			[key]: agent
-		};
-
-		return agent;
+	if (agents === null) {
+		agents = new Map();
 	}
 
-	return agents[key];
+	const principalString = principal.toString();
+
+	if (agents.has(principalString)) {
+		return agents.get(principalString)!;
+	}
+
+	const agent = await createAgent({ identity });
+
+	agents.set(principalString, agent);
+
+	return agent;
 };
 
 export const createAgent = ({
@@ -32,12 +30,22 @@ export const createAgent = ({
 	identity: Identity;
 	verifyQuerySignatures?: boolean;
 }): Promise<HttpAgent> =>
-	createAgentUtils({
-		identity,
-		host: HOST,
-		fetchRootKey: import.meta.env.DEV,
-		verifyQuerySignatures
-		// retryTimes: 3 //default
+	new Promise((resolve) => {
+		const agent = new HttpAgent({
+			identity,
+			host: HOST,
+			verifyQuerySignatures
+		});
+
+		if (FETCH_ROOT_KEY) {
+			agent.fetchRootKey().then(() => resolve(agent));
+		} else {
+			resolve(agent);
+		}
 	});
 
 export const clearAgents = () => (agents = null);
+
+export const getAgentFromCache = (principal: Principal): HttpAgent | undefined => {
+	return agents?.get(principal.toString());
+};
