@@ -26,9 +26,7 @@
 </svelte:head>
 
 <!-- Hero Section -->
-<section
-  class="relative bg-gradient-to-br from-blue-50 via-white to-blue-50 py-20 lg:py-32"
->
+<section class="relative bg-white py-20 lg:py-32">
   <div class="container mx-auto px-6">
     <!-- SEC Compliant Banner -->
     <div class="flex justify-center mb-12">
@@ -326,7 +324,7 @@
 </section>
 
 <!-- Stats Section - Responsive Stats Cards -->
-<section class="py-16 bg-gray-50">
+<section class="py-16 bg-white">
   <div class="container mx-auto px-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <div
@@ -358,10 +356,12 @@
 </section>
 
 <!-- Call to Action -->
-<section class="py-20 bg-gray-900 text-white">
+<section class="py-20 bg-white border-t border-gray-200">
   <div class="container mx-auto px-6 text-center">
-    <h2 class="text-4xl font-bold mb-6">Ready to Start Investing?</h2>
-    <p class="text-xl mb-8 text-gray-300">
+    <h2 class="text-4xl font-bold mb-6 text-slate-800">
+      Ready to Start Investing?
+    </h2>
+    <p class="text-xl mb-8 text-slate-600">
       Join thousands of investors already earning steady yields with Treasury
       Bills
     </p>
@@ -378,7 +378,7 @@
         variant="outline"
         size="lg"
         onclick={handleLearnMore}
-        class="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+        class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
       >
         Learn More
       </Button>
