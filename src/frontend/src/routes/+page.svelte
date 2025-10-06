@@ -356,7 +356,7 @@
 </section>
 
 <!-- Call to Action -->
-<section class="py-20 bg-white border-t border-gray-200">
+<section class="py-20 bg-white">
   <div class="container mx-auto px-6 text-center">
     <h2 class="text-4xl font-bold mb-6 text-slate-800">
       Ready to Start Investing?
