@@ -135,7 +135,7 @@
 
       <div class="text-center">
         <div
-          class="w-16 h-16 bg-blue rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+          class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
         >
           <svg
             class="w-8 h-8 text-white"
@@ -151,14 +151,14 @@
             ></path>
           </svg>
         </div>
-        <h3 class="text-lg font-semibold text-primary mb-2">
+        <h3 class="text-lg font-semibold text-slate-800 mb-2">
           US Treasury Bills
         </h3>
       </div>
 
       <div class="text-center">
         <div
-          class="w-16 h-16 bg-blue rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+          class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
         >
           <svg
             class="w-8 h-8 text-white"
@@ -174,7 +174,7 @@
             ></path>
           </svg>
         </div>
-        <h3 class="text-lg font-semibold text-primary mb-2">Blockchain</h3>
+        <h3 class="text-lg font-semibold text-slate-800 mb-2">Blockchain</h3>
       </div>
     </div>
   </div>
@@ -182,20 +182,20 @@
 
 <!-- Value Proposition Section -->
 <section class="py-20 bg-white">
-  <div class="container-wide mx-auto px-6">
+  <div class="container mx-auto px-6 max-w-7xl">
     <div class="text-center mb-16">
-      <p class="text-blue font-medium mb-4">Built for Modern Investors</p>
+      <p class="text-blue-600 font-medium mb-4">Built for Modern Investors</p>
       <h2
-        class="text-4xl lg:text-5xl font-bold text-primary mb-6 leading-tight"
+        class="text-4xl lg:text-5xl font-bold text-slate-800 mb-6 leading-tight"
       >
         Everything you need to<br />
         invest in tokenized
-        <span class="text-blue"
+        <span class="text-blue-600"
           >Treasury<br />
           Bills with confidence</span
         >
       </h2>
-      <p class="text-xl text-secondary max-w-4xl mx-auto leading-relaxed">
+      <p class="text-xl text-slate-600 max-w-4xl mx-auto leading-relaxed">
         Democratizing access to US Treasury investments through innovative
         blockchain<br />
         technology. Join thousands of investors who are already building wealth with<br
@@ -205,177 +205,172 @@
     </div>
 
     <!-- Feature Cards - Responsive Card Blocks -->
-    <div class="feature-cards-container">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <!-- Instant Onboarding -->
-      <div class="feature-card">
-        <div class="feature-card-icon">
-          <div
-            class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto"
+      <div
+        class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 text-center"
+      >
+        <div
+          class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6"
+        >
+          <svg
+            class="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              class="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-          </div>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
         </div>
-        <div class="feature-card-content">
-          <h3 class="text-xl font-bold text-primary mb-4 text-center">
-            Instant Onboarding
-          </h3>
-          <p
-            class="feature-card-description text-secondary text-sm text-center"
-          >
-            Quick registration with streamlined KYC verification. Get started in
-            minutes with our secure, user-friendly onboarding process designed
-            for modern investors.
-          </p>
-          <Button
-            variant="secondary"
-            size="sm"
-            onclick={handleLearnMore}
-            class="mx-auto"
-          >
-            Learn more →
-          </Button>
-        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-4">
+          Instant Onboarding
+        </h3>
+        <p class="text-slate-600 text-sm mb-6">
+          Quick registration with streamlined KYC verification. Get started in
+          minutes with our secure, user-friendly onboarding process designed for
+          modern investors.
+        </p>
+        <Button
+          variant="secondary"
+          size="sm"
+          onclick={handleLearnMore}
+          class="mx-auto"
+        >
+          Learn more →
+        </Button>
       </div>
 
       <!-- Fractional Ownership -->
-      <div class="feature-card">
-        <div class="feature-card-icon">
-          <div
-            class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto"
+      <div
+        class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 text-center"
+      >
+        <div
+          class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6"
+        >
+          <svg
+            class="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              class="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
-              ></path>
-            </svg>
-          </div>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
+            ></path>
+          </svg>
         </div>
-        <div class="feature-card-content">
-          <h3 class="text-xl font-bold text-primary mb-4 text-center">
-            Fractional Ownership
-          </h3>
-          <p
-            class="feature-card-description text-secondary text-sm text-center"
-          >
-            Invest with as little as $10 in US Treasury Bills. Break down
-            traditional barriers and make institutional-grade investments
-            accessible to everyone.
-          </p>
-          <Button
-            variant="secondary"
-            size="sm"
-            onclick={handleLearnMore}
-            class="mx-auto"
-          >
-            Learn more →
-          </Button>
-        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-4">
+          Fractional Ownership
+        </h3>
+        <p class="text-slate-600 text-sm mb-6">
+          Invest with as little as $10 in US Treasury Bills. Break down
+          traditional barriers and make institutional-grade investments
+          accessible to everyone.
+        </p>
+        <Button
+          variant="secondary"
+          size="sm"
+          onclick={handleLearnMore}
+          class="mx-auto"
+        >
+          Learn more →
+        </Button>
       </div>
 
       <!-- Real-Time Liquidity -->
-      <div class="feature-card">
-        <div class="feature-card-icon">
-          <div
-            class="w-12 h-12 bg-blue rounded-full flex items-center justify-center mx-auto"
+      <div
+        class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 text-center"
+      >
+        <div
+          class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6"
+        >
+          <svg
+            class="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              class="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-          </div>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
         </div>
-        <div class="feature-card-content">
-          <h3 class="text-xl font-bold text-primary mb-4 text-center">
-            Real-Time Liquidity
-          </h3>
-          <p
-            class="feature-card-description text-secondary text-sm text-center"
-          >
-            Buy and sell tokens instantly with no waiting periods. Access your
-            investments 24/7 with unprecedented liquidity in the Treasury
-            market.
-          </p>
-          <Button
-            variant="secondary"
-            size="sm"
-            onclick={handleLearnMore}
-            class="mx-auto"
-          >
-            Learn more →
-          </Button>
-        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-4">
+          Real-Time Liquidity
+        </h3>
+        <p class="text-slate-600 text-sm mb-6">
+          Buy and sell tokens instantly with no waiting periods. Access your
+          investments 24/7 with unprecedented liquidity in the Treasury market.
+        </p>
+        <Button
+          variant="secondary"
+          size="sm"
+          onclick={handleLearnMore}
+          class="mx-auto"
+        >
+          Learn more →
+        </Button>
       </div>
     </div>
   </div>
 </section>
 
 <!-- Stats Section - Responsive Stats Cards -->
-<section class="py-16 bg-section">
+<section class="py-16 bg-gray-50">
   <div class="container mx-auto px-6">
-    <div class="purchase-summary-grid">
-      <div class="card p-6 text-center">
-        <div class="text-3xl font-bold text-primary mb-2">$10M+</div>
-        <div class="text-sm text-secondary">Total Value Locked</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div
+        class="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
+      >
+        <div class="text-3xl font-bold text-slate-800 mb-2">$10M+</div>
+        <div class="text-sm text-slate-600">Total Value Locked</div>
       </div>
-      <div class="card p-6 text-center">
-        <div class="text-3xl font-bold text-primary mb-2">5.2%</div>
-        <div class="text-sm text-secondary">Average Yield</div>
+      <div
+        class="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
+      >
+        <div class="text-3xl font-bold text-slate-800 mb-2">5.2%</div>
+        <div class="text-sm text-slate-600">Average Yield</div>
       </div>
-      <div class="card p-6 text-center">
-        <div class="text-3xl font-bold text-primary mb-2">1,000+</div>
-        <div class="text-sm text-secondary">Active Investors</div>
+      <div
+        class="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
+      >
+        <div class="text-3xl font-bold text-slate-800 mb-2">1,000+</div>
+        <div class="text-sm text-slate-600">Active Investors</div>
       </div>
-      <div class="card p-6 text-center">
-        <div class="text-3xl font-bold text-primary mb-2">24/7</div>
-        <div class="text-sm text-secondary">Market Access</div>
+      <div
+        class="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
+      >
+        <div class="text-3xl font-bold text-slate-800 mb-2">24/7</div>
+        <div class="text-sm text-slate-600">Market Access</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- Call to Action -->
-<section class="py-20 bg-gray-900 text-white cta-section">
+<section class="py-20 bg-gray-900 text-white">
   <div class="container mx-auto px-6 text-center">
     <h2 class="text-4xl font-bold mb-6">Ready to Start Investing?</h2>
     <p class="text-xl mb-8 text-gray-300">
       Join thousands of investors already earning steady yields with Treasury
       Bills
     </p>
-    <div class="cta-buttons flex flex-col sm:flex-row gap-4 justify-center">
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <Button
         variant="primary"
         size="lg"
         onclick={handleStartInvesting}
-        class="btn btn-primary btn-lg"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
       >
         Get Started Today
       </Button>
@@ -383,7 +378,7 @@
         variant="outline"
         size="lg"
         onclick={handleLearnMore}
-        class="btn btn-outline btn-lg"
+        class="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
       >
         Learn More
       </Button>
