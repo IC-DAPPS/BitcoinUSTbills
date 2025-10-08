@@ -325,12 +325,12 @@
   />
 </svelte:head>
 
-<div class="min-h-screen bg-section">
+<div class="min-h-screen bg-slate-50">
   <div class="container mx-auto px-6 py-8">
     <!-- Page Header -->
-    <div class="kyc-header">
-      <h1 class="kyc-title">KYC Verification</h1>
-      <p class="kyc-subtitle">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-slate-800 mb-2">KYC Verification</h1>
+      <p class="text-slate-600 text-lg">
         Complete your identity verification to start investing in US Treasury
         Bills
       </p>
@@ -338,10 +338,14 @@
 
     {#if !isAuthenticated}
       <!-- Not logged in -->
-      <div class="kyc-card">
-        <div class="kyc-icon-container">
+      <div
+        class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+      >
+        <div
+          class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
           <svg
-            class="kyc-icon"
+            class="w-8 h-8 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -354,39 +358,51 @@
             ></path>
           </svg>
         </div>
-        <h2 class="kyc-card-title">Authentication Required</h2>
-        <p class="kyc-card-text">Please log in to access KYC verification</p>
+        <h2 class="text-xl font-semibold text-black mb-4">
+          Authentication Required
+        </h2>
+        <p class="text-black mb-6">Please log in to access KYC verification</p>
         <Button variant="primary" href="/">Go to Home</Button>
       </div>
     {:else if loading}
       <!-- Loading state -->
-      <div class="kyc-loading">
-        <div class="kyc-loading-content">
+      <div class="flex justify-center items-center h-64">
+        <div class="text-center">
           <LoadingSpinner />
-          <p class="kyc-loading-text">Loading KYC status...</p>
+          <p class="text-slate-600 mt-4">Loading KYC status...</p>
         </div>
       </div>
     {:else if kycSession}
       <!-- User has started KYC - show status (prioritize this over basic status) -->
-      <div class="kyc-status-container">
+      <div class="flex flex-col gap-6">
         <!-- Status Card -->
-        <div class="kyc-card">
-          <div class="kyc-status-header">
-            <h2 class="kyc-card-title">KYC Status</h2>
+        <div
+          class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-black">KYC Status</h2>
             <StatusBadge status={getKYCStatusBadgeType(kycSession)} />
           </div>
 
-          <div class="kyc-status-details">
-            <div class="kyc-status-item">
-              <span class="kyc-status-label">Status:</span>
-              <span class="kyc-status-value"
+          <div class="flex flex-col gap-6 max-w-md mx-auto text-center">
+            <div
+              class="flex justify-between items-center py-3 border-b border-white/20"
+            >
+              <span class="text-black text-sm font-medium text-left"
+                >Status:</span
+              >
+              <span class="text-black font-semibold text-sm text-right"
                 >{getKYCStatusText(kycSession)}</span
               >
             </div>
 
-            <div class="kyc-status-item">
-              <span class="kyc-status-label">Submitted:</span>
-              <span class="kyc-status-value">
+            <div
+              class="flex justify-between items-center py-3 border-b border-white/20"
+            >
+              <span class="text-black text-sm font-medium text-left"
+                >Submitted:</span
+              >
+              <span class="text-black font-semibold text-sm text-right">
                 {new Date(
                   Number(kycSession.created_at) * 1000
                 ).toLocaleDateString()}
@@ -394,9 +410,13 @@
             </div>
 
             {#if kycSession.reviewed_at[0]}
-              <div class="kyc-status-item">
-                <span class="kyc-status-label">Reviewed:</span>
-                <span class="kyc-status-value">
+              <div
+                class="flex justify-between items-center py-3 border-b border-white/20"
+              >
+                <span class="text-black text-sm font-medium text-left"
+                  >Reviewed:</span
+                >
+                <span class="text-black font-semibold text-sm text-right">
                   {new Date(
                     Number(kycSession.reviewed_at[0]) * 1000
                   ).toLocaleDateString()}
@@ -405,9 +425,11 @@
             {/if}
 
             {#if kycSession.reviewer_notes[0]}
-              <div class="kyc-notes">
-                <h4 class="kyc-notes-title">Reviewer Notes:</h4>
-                <p class="kyc-notes-text">{kycSession.reviewer_notes[0]}</p>
+              <div class="mt-4 p-4 bg-amber-500 rounded-lg">
+                <h4 class="font-semibold text-slate-800 mb-2">
+                  Reviewer Notes:
+                </h4>
+                <p class="text-slate-800">{kycSession.reviewer_notes[0]}</p>
               </div>
             {/if}
           </div>
@@ -415,30 +437,37 @@
 
         <!-- OCR Results (if available) -->
         {#if kycSession.ocr_result}
-          <div class="kyc-card">
-            <h3 class="kyc-card-title">Document Information</h3>
-            <div class="kyc-document-grid">
-              <div class="kyc-document-item">
-                <span class="kyc-document-label">Name:</span>
-                <p class="kyc-document-value">
+          <div
+            class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+          >
+            <h3 class="text-xl font-semibold text-black mb-6">
+              Document Information
+            </h3>
+            <div class="grid grid-cols-1 gap-4 max-w-md mx-auto text-left">
+              <div class="text-left">
+                <span class="text-black text-sm block mb-1">Name:</span>
+                <p class="text-black font-medium">
                   {kycSession.ocr_result.extracted_name || "Not available"}
                 </p>
               </div>
-              <div class="kyc-document-item">
-                <span class="kyc-document-label">Date of Birth:</span>
-                <p class="kyc-document-value">
+              <div class="text-left">
+                <span class="text-black text-sm block mb-1">Date of Birth:</span
+                >
+                <p class="text-black font-medium">
                   {kycSession.ocr_result.extracted_dob || "Not available"}
                 </p>
               </div>
-              <div class="kyc-document-item">
-                <span class="kyc-document-label">Country:</span>
-                <p class="kyc-document-value">
+              <div class="text-left">
+                <span class="text-black text-sm block mb-1">Country:</span>
+                <p class="text-black font-medium">
                   {kycSession.ocr_result.extracted_country || "Not available"}
                 </p>
               </div>
-              <div class="kyc-document-item">
-                <span class="kyc-document-label">Document Number:</span>
-                <p class="kyc-document-value">
+              <div class="text-left">
+                <span class="text-black text-sm block mb-1"
+                  >Document Number:</span
+                >
+                <p class="text-black font-medium">
                   {kycSession.ocr_result.extracted_document_number ||
                     "Not available"}
                 </p>
@@ -449,10 +478,14 @@
       </div>
     {:else if basicKYCStatus === "Verified"}
       <!-- KYC already verified -->
-      <div class="kyc-card">
-        <div class="kyc-icon-container kyc-success-icon">
+      <div
+        class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+      >
+        <div
+          class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
           <svg
-            class="kyc-icon"
+            class="w-8 h-8 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -465,12 +498,14 @@
             ></path>
           </svg>
         </div>
-        <h2 class="kyc-card-title">KYC Verification Completed</h2>
-        <p class="kyc-card-text">
+        <h2 class="text-xl font-semibold text-black mb-4">
+          KYC Verification Completed
+        </h2>
+        <p class="text-black mb-6">
           Your identity has been successfully verified. You can now invest in US
           Treasury Bills.
         </p>
-        <div class="kyc-button-group">
+        <div class="flex gap-4 justify-center flex-wrap">
           <Button variant="primary" href="/marketplace"
             >Browse Marketplace</Button
           >
@@ -479,13 +514,13 @@
       </div>
     {:else}
       <!-- New KYC process - show integrated upload form -->
-      <div class="kyc-upload-container">
+      <div class="flex flex-col gap-6">
         <!-- Alert Messages -->
         {#if error}
-          <div class="kyc-alert kyc-alert-error">
-            <div class="kyc-alert-content">
+          <div class="p-4 rounded-lg bg-red-50 border border-red-200 mb-4">
+            <div class="flex items-center">
               <svg
-                class="kyc-alert-icon"
+                class="w-5 h-5 text-red-500 mr-3 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -497,16 +532,16 @@
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 ></path>
               </svg>
-              <p class="kyc-alert-text">{error}</p>
+              <p class="text-black font-medium">{error}</p>
             </div>
           </div>
         {/if}
 
         {#if success}
-          <div class="kyc-alert kyc-alert-success">
-            <div class="kyc-alert-content">
+          <div class="p-4 rounded-lg bg-green-50 border border-green-200 mb-4">
+            <div class="flex items-center">
               <svg
-                class="kyc-alert-icon"
+                class="w-5 h-5 text-green-500 mr-3 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -518,14 +553,18 @@
                   d="M5 13l4 4L19 7"
                 ></path>
               </svg>
-              <p class="kyc-alert-text">{success}</p>
+              <p class="text-black font-medium">{success}</p>
             </div>
           </div>
         {/if}
 
         <!-- Integrated Document Upload Requirements with Upload Areas -->
-        <div class="kyc-upload-card">
-          <h2 class="kyc-upload-title">Document Upload Requirements</h2>
+        <div
+          class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-4xl mx-auto"
+        >
+          <h2 class="text-2xl font-semibold text-black mb-8">
+            Document Upload Requirements
+          </h2>
 
           <!-- Step 1: Passport Front Page -->
           <div class="kyc-upload-step">
@@ -919,404 +958,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  /* Custom CSS for KYC page - laptop view optimization */
-
-  .kyc-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .kyc-title {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #1e293b !important;
-    margin-bottom: 0.5rem;
-  }
-
-  .kyc-subtitle {
-    color: #64748b !important;
-    font-size: 1.125rem;
-  }
-
-  .kyc-card {
-    background: #2563eb !important;
-    border-radius: 0.75rem;
-    padding: 2rem 3rem;
-    box-shadow:
-      0 1px 3px 0 rgb(0 0 0 / 0.1),
-      0 1px 2px -1px rgb(0 0 0 / 0.1);
-    border: 1px solid #2563eb;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    width: 700px;
-    min-height: 180px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .kyc-card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #000000 !important;
-    margin-bottom: 1.5rem;
-  }
-
-  .kyc-card-text {
-    color: #000000 !important;
-    margin-bottom: 1.5rem;
-  }
-
-  .kyc-icon-container {
-    width: 4rem;
-    height: 4rem;
-    background: #1e293b !important;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem auto;
-  }
-
-  .kyc-success-icon {
-    background: #059669 !important;
-  }
-
-  .kyc-icon {
-    width: 2rem;
-    height: 2rem;
-    color: #ffffff !important;
-  }
-
-  .kyc-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 16rem;
-  }
-
-  .kyc-loading-content {
-    text-align: center;
-  }
-
-  .kyc-loading-text {
-    color: #64748b !important;
-    margin-top: 1rem;
-  }
-
-  .kyc-status-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .kyc-status-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-
-  .kyc-status-details {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    max-width: 400px;
-    margin: 0 auto;
-    text-align: center;
-  }
-
-  .kyc-status-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .kyc-status-item:last-child {
-    border-bottom: none;
-  }
-
-  .kyc-status-label {
-    color: #000000 !important;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-align: left;
-  }
-
-  .kyc-status-value {
-    color: #000000 !important;
-    font-weight: 600;
-    font-size: 0.875rem;
-    text-align: right;
-  }
-
-  .kyc-notes {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: #f59e0b;
-    border-radius: 0.5rem;
-  }
-
-  .kyc-notes-title {
-    font-weight: 600;
-    color: #1e293b !important;
-    margin-bottom: 0.5rem;
-  }
-
-  .kyc-notes-text {
-    color: #1e293b !important;
-  }
-
-  .kyc-document-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-
-  .kyc-document-item {
-    text-align: left;
-  }
-
-  .kyc-document-label {
-    color: #000000 !important;
-    font-size: 0.875rem;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-
-  .kyc-document-value {
-    color: #000000 !important;
-    font-weight: 500;
-  }
-
-  .kyc-button-group {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .kyc-upload-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .kyc-upload-card {
-    background: #2563eb !important;
-    border-radius: 0.75rem;
-    padding: 2rem;
-    box-shadow:
-      0 1px 3px 0 rgb(0 0 0 / 0.1),
-      0 1px 2px -1px rgb(0 0 0 / 0.1);
-    border: 1px solid #2563eb;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .kyc-upload-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #000000 !important;
-    margin-bottom: 2rem;
-  }
-
-  .kyc-upload-step {
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-
-  .kyc-step-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .kyc-step-number {
-    width: 3rem;
-    height: 3rem;
-    background: #000000 !important;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .kyc-step-number-text {
-    color: #ffffff !important;
-    font-size: 1.25rem;
-    font-weight: bold;
-  }
-
-  .kyc-step-content {
-    text-align: center;
-    max-width: 600px;
-  }
-
-  .kyc-step-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #000000 !important;
-    margin-bottom: 0.75rem;
-  }
-
-  .kyc-step-description {
-    color: #000000 !important;
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
-  }
-
-  .kyc-alert {
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .kyc-alert-error {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-  }
-
-  .kyc-alert-success {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-  }
-
-  .kyc-alert-content {
-    display: flex;
-    align-items: center;
-  }
-
-  .kyc-alert-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-right: 0.75rem;
-    flex-shrink: 0;
-  }
-
-  .kyc-alert-error .kyc-alert-icon {
-    color: #ef4444;
-  }
-
-  .kyc-alert-success .kyc-alert-icon {
-    color: #22c55e;
-  }
-
-  .kyc-alert-text {
-    color: #000000 !important;
-    font-weight: 500;
-  }
-
-  .kyc-submit-container {
-    text-align: center;
-  }
-
-  .kyc-submit-text {
-    font-size: 0.875rem;
-    color: #000000 !important;
-    margin-top: 0.5rem;
-  }
-
-  /* Enhanced drag and drop styling */
-  .upload-area {
-    transition: all 0.3s ease;
-    background-color: #eff6ff;
-    border-width: 3px !important;
-    border-color: var(--primary-blue) !important;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
-  }
-
-  .upload-area:hover {
-    border-color: var(--primary-blue-dark) !important;
-    background-color: #dbeafe !important;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
-  }
-
-  .upload-area.drag-over {
-    border-color: var(--primary-blue-dark) !important;
-    background-color: #bfdbfe !important;
-    transform: scale(1.02);
-    box-shadow: 0 12px 35px rgba(37, 99, 235, 0.3);
-  }
-
-  /* Force white text in numbered circles */
-  :global(.bg-blue) {
-    background-color: var(--primary-blue) !important;
-  }
-
-  :global(.bg-blue span) {
-    color: white !important;
-  }
-
-  /* Custom border utilities */
-  .border-3 {
-    border-width: 3px;
-  }
-
-  /* Blue background utilities */
-  .bg-blue-50 {
-    background-color: #eff6ff;
-  }
-
-  /* Image preview styling */
-  img[alt*="Preview"] {
-    border: 2px solid #bbf7d0;
-    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.15);
-    transition: all 0.2s ease;
-  }
-
-  img[alt*="Preview"]:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(22, 163, 74, 0.25);
-  }
-
-  /* Upload area text styling */
-  .upload-area p {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  /* Dark mode support */
-  @media (prefers-color-scheme: dark) {
-    .kyc-card {
-      background: #1f2937;
-      border-color: #374151;
-    }
-
-    .kyc-title,
-    .kyc-card-title,
-    .kyc-status-value,
-    .kyc-document-value,
-    .kyc-alert-text {
-      color: #000000;
-    }
-
-    .kyc-subtitle,
-    .kyc-card-text,
-    .kyc-status-label,
-    .kyc-document-label,
-    .kyc-submit-text {
-      color: #000000;
-    }
-
-    .kyc-icon-container {
-      background: #374151;
-    }
-
-    .kyc-success-icon {
-      background: #059669;
-    }
-  }
-</style>

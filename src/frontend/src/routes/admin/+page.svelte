@@ -204,15 +204,15 @@
     switch (statusText) {
       case "pending":
       case "pendingreview":
-        return "status-badge status-pending";
+        return "px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full";
       case "verified":
-        return "status-badge status-verified";
+        return "px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full";
       case "rejected":
-        return "status-badge status-rejected";
+        return "px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full";
       case "expired":
-        return "status-badge status-expired";
+        return "px-3 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full";
       default:
-        return "status-badge status-pending";
+        return "px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full";
     }
   }
 </script>
@@ -221,224 +221,284 @@
   <title>Admin Panel - KYC Reviews</title>
 </svelte:head>
 
-<div class="admin-container">
-  <div class="header">
-    <h1>🔐 Admin Panel</h1>
-    <p class="subtitle">Review and manage KYC applications</p>
-  </div>
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">🔐 Admin Panel</h1>
+      <p class="text-lg text-gray-600">Review and manage KYC applications</p>
+    </div>
 
-  {#if isLoading}
-    <div class="loading-container">
-      <LoadingSpinner />
-      <p>Loading pending KYC reviews...</p>
-    </div>
-  {:else if errorMessage}
-    <div class="error-container">
-      <p class="error-message">{errorMessage}</p>
-      <Button variant="secondary" onclick={fetchPendingReviews}>Retry</Button>
-    </div>
-  {:else if pendingReviews.length === 0}
-    <div class="empty-state">
-      <div class="empty-icon">✅</div>
-      <h3>All caught up!</h3>
-      <p>No pending KYC reviews found.</p>
-      <Button variant="secondary" onclick={fetchPendingReviews}>Refresh</Button>
-    </div>
-  {:else}
-    <div class="stats-bar">
-      <div class="stat">
-        <span class="stat-number">{pendingReviews.length}</span>
-        <span class="stat-label">Pending Reviews</span>
+    {#if isLoading}
+      <div class="flex flex-col items-center justify-center py-12">
+        <LoadingSpinner />
+        <p class="mt-4 text-gray-600">Loading pending KYC reviews...</p>
       </div>
-    </div>
-
-    <div class="reviews-grid">
-      {#each pendingReviews as review}
-        <div class="review-card" onclick={() => openReviewModal(review)}>
-          <div class="card-header">
-            <div class="user-info">
-              <h3 class="user-email">{review.user.email}</h3>
-              <p class="user-principal">
-                {review.user.principal.toText().substring(0, 20)}...
-              </p>
-            </div>
-            <div class={getStatusBadgeClass(review.kyc_session.status)}>
-              {getKYCStatusText(review.kyc_session.status)}
-            </div>
-          </div>
-
-          <div class="card-content">
-            <div class="info-row">
-              <span class="label">Email:</span>
-              <span class="value">{review.user.email}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Phone:</span>
-              <span class="value"
-                >{review.user.phone_number.length > 0
-                  ? review.user.phone_number[0]
-                  : "Not provided"}</span
-              >
-            </div>
-            <div class="info-row">
-              <span class="label">Country:</span>
-              <span class="value">{review.user.country}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Created:</span>
-              <span class="value"
-                >{formatDate(review.kyc_session.created_at)}</span
-              >
-            </div>
-          </div>
-
-          <div class="card-footer">
-            <span class="review-prompt">Click to review →</span>
-          </div>
+    {:else if errorMessage}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <p class="text-red-800 font-medium">{errorMessage}</p>
+        <Button variant="secondary" onclick={fetchPendingReviews} class="mt-4"
+          >Retry</Button
+        >
+      </div>
+    {:else if pendingReviews.length === 0}
+      <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+        <div class="text-6xl mb-4">✅</div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">All caught up!</h3>
+        <p class="text-gray-600 mb-6">No pending KYC reviews found.</p>
+        <Button variant="secondary" onclick={fetchPendingReviews}
+          >Refresh</Button
+        >
+      </div>
+    {:else}
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center justify-center">
+          <span class="text-3xl font-bold text-blue-600 mr-2"
+            >{pendingReviews.length}</span
+          >
+          <span class="text-lg text-blue-800 font-medium">Pending Reviews</span>
         </div>
-      {/each}
-    </div>
-  {/if}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {#each pendingReviews as review}
+          <div
+            class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 cursor-pointer hover:shadow-xl transition-shadow"
+            onclick={() => openReviewModal(review)}
+          >
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex-1">
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                  {review.user.email}
+                </h3>
+                <p class="text-sm text-gray-500 font-mono">
+                  {review.user.principal.toText().substring(0, 20)}...
+                </p>
+              </div>
+              <div class={getStatusBadgeClass(review.kyc_session.status)}>
+                {getKYCStatusText(review.kyc_session.status)}
+              </div>
+            </div>
+
+            <div class="space-y-2 mb-4">
+              <div class="flex justify-between">
+                <span class="text-sm font-medium text-gray-600">Email:</span>
+                <span class="text-sm text-gray-900">{review.user.email}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm font-medium text-gray-600">Phone:</span>
+                <span class="text-sm text-gray-900"
+                  >{review.user.phone_number.length > 0
+                    ? review.user.phone_number[0]
+                    : "Not provided"}</span
+                >
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm font-medium text-gray-600">Country:</span>
+                <span class="text-sm text-gray-900">{review.user.country}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm font-medium text-gray-600">Created:</span>
+                <span class="text-sm text-gray-900"
+                  >{formatDate(review.kyc_session.created_at)}</span
+                >
+              </div>
+            </div>
+
+            <div class="text-center pt-4 border-t border-gray-200">
+              <span class="text-sm text-blue-600 font-medium"
+                >Click to review →</span
+              >
+            </div>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <!-- Review Modal -->
 <Modal bind:open={showModal} size="xl" title="KYC Review">
   {#if selectedReview}
     <!-- User Information Section -->
-    <div class="user-section">
-      <h2><User class="section-icon" />User Information</h2>
-      <div class="user-details">
-        <div class="detail-grid">
-          <div class="detail-item">
-            <label>Email:</label>
-            <span>{selectedReview.user.email}</span>
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+        <User class="w-6 h-6 mr-2 text-blue-600" />User Information
+      </h2>
+      <div class="bg-gray-50 rounded-lg p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex flex-col">
+            <label class="text-sm font-medium text-gray-600 mb-1">Email:</label>
+            <span class="text-gray-900">{selectedReview.user.email}</span>
           </div>
-          <div class="detail-item">
-            <label>Phone:</label>
+          <div class="flex flex-col">
+            <label class="text-sm font-medium text-gray-600 mb-1">Phone:</label>
             <span
               >{selectedReview.user.phone_number.length > 0
                 ? selectedReview.user.phone_number[0]
                 : "Not provided"}</span
             >
           </div>
-          <div class="detail-item">
-            <label>Country:</label>
-            <span>{selectedReview.user.country}</span>
+          <div class="flex flex-col">
+            <label class="text-sm font-medium text-gray-600 mb-1"
+              >Country:</label
+            >
+            <span class="text-gray-900">{selectedReview.user.country}</span>
           </div>
-          <div class="detail-item">
-            <label>Principal:</label>
-            <span class="principal-text"
+          <div class="flex flex-col">
+            <label class="text-sm font-medium text-gray-600 mb-1"
+              >Principal:</label
+            >
+            <span class="text-gray-900 font-mono text-sm break-all"
               >{selectedReview.user.principal.toText()}</span
             >
           </div>
-          <div class="detail-item">
-            <label>Current Status:</label>
+          <div class="flex flex-col">
+            <label class="text-sm font-medium text-gray-600 mb-1"
+              >Current Status:</label
+            >
             <span class={getStatusBadgeClass(selectedReview.user.kyc_status)}
               >{getKYCStatusText(selectedReview.user.kyc_status)}</span
             >
           </div>
-          <div class="detail-item">
-            <label>Created:</label>
-            <span>{formatDate(selectedReview.kyc_session.created_at)}</span>
+          <div class="flex flex-col">
+            <label class="text-sm font-medium text-gray-600 mb-1"
+              >Created:</label
+            >
+            <span class="text-gray-900"
+              >{formatDate(selectedReview.kyc_session.created_at)}</span
+            >
           </div>
         </div>
       </div>
     </div>
 
     <!-- Document Images Section -->
-    <div class="images-section">
-      <h2><CloudUpload class="section-icon" />Submitted Documents</h2>
-      <div class="images-grid">
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+        <CloudUpload class="w-6 h-6 mr-2 text-blue-600" />Submitted Documents
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Document Front -->
-        <div class="image-container">
-          <h3>Document Front</h3>
+        <div class="bg-white border border-gray-200 rounded-lg p-4">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">
+            Document Front
+          </h3>
           {#if imageLoadingStates.front}
-            <div class="image-skeleton">
+            <div
+              class="flex flex-col items-center justify-center py-8 bg-gray-50 rounded-lg"
+            >
               <LoadingSpinner />
-              <p>Loading document...</p>
+              <p class="mt-2 text-gray-600">Loading document...</p>
             </div>
           {:else if documentFrontImage}
             <img
               src={documentFrontImage}
               alt="Document Front"
-              class="document-image"
+              class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
               onclick={() =>
                 documentFrontImage && openImageInNewWindow(documentFrontImage)}
             />
           {:else}
-            <div class="image-error">Failed to load image</div>
+            <div
+              class="flex items-center justify-center py-8 bg-red-50 text-red-600 rounded-lg"
+            >
+              Failed to load image
+            </div>
           {/if}
         </div>
 
         <!-- Document Back -->
-        <div class="image-container">
-          <h3>Document Back</h3>
+        <div class="bg-white border border-gray-200 rounded-lg p-4">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">
+            Document Back
+          </h3>
           {#if imageLoadingStates.back}
-            <div class="image-skeleton">
+            <div
+              class="flex flex-col items-center justify-center py-8 bg-gray-50 rounded-lg"
+            >
               <LoadingSpinner />
-              <p>Loading document...</p>
+              <p class="mt-2 text-gray-600">Loading document...</p>
             </div>
           {:else if documentBackImage}
             <img
               src={documentBackImage}
               alt="Document Back"
-              class="document-image"
+              class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
               onclick={() =>
                 documentBackImage && openImageInNewWindow(documentBackImage)}
             />
           {:else}
-            <div class="image-error">Failed to load image</div>
+            <div
+              class="flex items-center justify-center py-8 bg-red-50 text-red-600 rounded-lg"
+            >
+              Failed to load image
+            </div>
           {/if}
         </div>
 
         <!-- Selfie -->
-        <div class="image-container">
-          <h3>Selfie with Document</h3>
+        <div class="bg-white border border-gray-200 rounded-lg p-4">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">
+            Selfie with Document
+          </h3>
           {#if imageLoadingStates.selfie}
-            <div class="image-skeleton">
+            <div
+              class="flex flex-col items-center justify-center py-8 bg-gray-50 rounded-lg"
+            >
               <LoadingSpinner />
-              <p>Loading selfie...</p>
+              <p class="mt-2 text-gray-600">Loading selfie...</p>
             </div>
           {:else if selfieImage}
             <img
               src={selfieImage}
               alt="Selfie with Document"
-              class="document-image"
+              class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
               onclick={() => selfieImage && openImageInNewWindow(selfieImage)}
             />
           {:else}
-            <div class="image-error">Failed to load image</div>
+            <div
+              class="flex items-center justify-center py-8 bg-red-50 text-red-600 rounded-lg"
+            >
+              Failed to load image
+            </div>
           {/if}
         </div>
       </div>
-      <p class="image-hint">Click on any image to open in full size</p>
+      <p class="text-sm text-gray-600 mt-4 text-center">
+        Click on any image to open in full size
+      </p>
     </div>
 
     <!-- Review Notes Section -->
-    <div class="notes-section">
-      <h2><ClipboardCheck class="section-icon" />Review Notes</h2>
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+        <ClipboardCheck class="w-6 h-6 mr-2 text-blue-600" />Review Notes
+      </h2>
       <textarea
         bind:value={reviewNotes}
         placeholder="Enter optional notes for this review..."
-        class="notes-textarea"
+        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
         rows="4"
       ></textarea>
     </div>
 
     <!-- Download Progress -->
     {#if downloadProgress < 100 && downloadProgress > 0}
-      <div class="progress-section">
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: {downloadProgress}%"></div>
+      <div class="mb-8">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div
+            class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style="width: {downloadProgress}%"
+          ></div>
         </div>
-        <p class="progress-text">
+        <p class="text-sm text-gray-600 mt-2 text-center">
           Loading documents: {Math.round(downloadProgress)}%
         </p>
       </div>
     {/if}
 
     <!-- Modal Footer -->
-    <div class="modal-actions">
+    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
       <Button
         variant="secondary"
         onclick={async () => await submitReview(false)}
@@ -456,529 +516,3 @@
     </div>
   {/if}
 </Modal>
-
-<style>
-  .admin-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    min-height: 100vh;
-    background-color: var(--background-main);
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    color: white;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  }
-
-  .header h1 {
-    margin-bottom: 0.5rem;
-    font-size: 2.5rem;
-    font-weight: 700;
-  }
-
-  .subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
-  }
-
-  .loading-container {
-    text-align: center;
-    padding: 4rem 2rem;
-  }
-
-  .loading-container p {
-    margin-top: 1rem;
-    color: var(--text-secondary);
-  }
-
-  .error-container {
-    text-align: center;
-    padding: 2rem;
-    background-color: #fef2f2;
-    border-radius: 12px;
-    border: 1px solid #fecaca;
-    margin: 2rem 0;
-  }
-
-  .error-message {
-    color: #dc2626;
-    margin-bottom: 1rem;
-    font-weight: 500;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    background-color: #f9fafb;
-    border-radius: 16px;
-    margin: 2rem 0;
-  }
-
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h3 {
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
-  }
-
-  .empty-state p {
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-  }
-
-  .stats-bar {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    color: white;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  }
-
-  .stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .stat-number {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-  }
-
-  .stat-label {
-    font-size: 1rem;
-    opacity: 0.9;
-    font-weight: 500;
-  }
-
-  .reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 2rem;
-  }
-
-  .review-card {
-    background: var(--background-card);
-    border: 1px solid var(--border-light);
-    border-radius: 16px;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    word-wrap: break-word;
-    word-break: break-word;
-  }
-
-  .review-card:hover {
-    border-color: var(--primary-blue);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    transform: translateY(-4px);
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
-  }
-
-  .user-info {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .user-email {
-    margin: 0 0 0.5rem 0;
-    color: var(--text-primary);
-    font-size: 1.2rem;
-    font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .user-principal {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    font-family: monospace;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border: 1px solid transparent;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-
-  .status-pending {
-    background-color: #fef3c7;
-    color: #92400e;
-    border-color: #fbbf24;
-  }
-
-  .status-verified {
-    background-color: #dcfce7;
-    color: #166534;
-    border-color: #22c55e;
-  }
-
-  .status-rejected {
-    background-color: #fee2e2;
-    color: #dc2626;
-    border-color: #ef4444;
-  }
-
-  .status-expired {
-    background-color: #f3f4f6;
-    color: #6b7280;
-    border-color: #9ca3af;
-  }
-
-  .card-content {
-    margin-bottom: 1.5rem;
-  }
-
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border-light);
-  }
-
-  .info-row:last-child {
-    border-bottom: none;
-  }
-
-  .label {
-    font-weight: 600;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-  }
-
-  .value {
-    color: var(--text-primary);
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .card-footer {
-    text-align: right;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-light);
-  }
-
-  .review-prompt {
-    color: var(--primary-blue);
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-
-  /* Modal Styles */
-  .user-section,
-  .images-section,
-  .notes-section {
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background-color: var(--background-section);
-    border-radius: 12px;
-    border: 1px solid var(--border-light);
-  }
-
-  .user-section:last-child,
-  .images-section:last-child,
-  .notes-section:last-child {
-    margin-bottom: 0;
-  }
-
-  .user-section h2,
-  .images-section h2,
-  .notes-section h2 {
-    margin: 0 0 1.5rem 0;
-    color: var(--text-primary);
-    font-size: 1.25rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .section-icon {
-    width: 20px;
-    height: 20px;
-    color: var(--primary-blue);
-  }
-
-  .detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1rem;
-    background-color: var(--background-card);
-    border-radius: 8px;
-    border: 1px solid var(--border-light);
-    transition: all 0.2s ease;
-  }
-
-  .detail-item:hover {
-    border-color: var(--primary-blue-light);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  .detail-item label {
-    font-weight: 600;
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.25rem;
-  }
-
-  .detail-item span {
-    color: var(--text-primary);
-    font-weight: 500;
-    word-break: break-word;
-  }
-
-  .principal-text {
-    font-family: monospace;
-    font-size: 0.875rem;
-    word-break: break-all;
-  }
-
-  .images-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .image-container {
-    text-align: center;
-    background-color: var(--background-card);
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 1px solid var(--border-light);
-    transition: all 0.2s ease;
-  }
-
-  .image-container:hover {
-    border-color: var(--primary-blue-light);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
-
-  .image-container h3 {
-    margin: 0 0 1rem 0;
-    color: var(--text-primary);
-    font-size: 1rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .document-image {
-    width: 100%;
-    max-width: 300px;
-    height: auto;
-    border: 2px solid var(--border-light);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .document-image:hover {
-    border-color: var(--primary-blue);
-    transform: scale(1.02);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  }
-
-  .image-skeleton {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 200px;
-    background-color: var(--background-section);
-    border: 2px dashed var(--border-medium);
-    border-radius: 8px;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.7;
-    }
-  }
-
-  .image-skeleton p {
-    margin-top: 1rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
-
-  .image-error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 200px;
-    background-color: #fef2f2;
-    border: 2px dashed #fca5a5;
-    border-radius: 8px;
-    color: #dc2626;
-    font-weight: 500;
-  }
-
-  .image-hint {
-    text-align: center;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    font-style: italic;
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: var(--background-card);
-    border-radius: 8px;
-    border: 1px solid var(--border-light);
-  }
-
-  .notes-textarea {
-    width: 100%;
-    min-height: 120px;
-    padding: 1rem;
-    border: 1px solid var(--border-light);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 0.875rem;
-    resize: vertical;
-    background-color: var(--background-card);
-    color: var(--text-primary);
-    transition: all 0.2s ease;
-  }
-
-  .notes-textarea:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-  }
-
-  .notes-textarea::placeholder {
-    color: var(--text-muted);
-  }
-
-  .progress-section {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
-    background-color: var(--background-card);
-    border-radius: 12px;
-    border: 1px solid var(--border-light);
-  }
-
-  .progress-bar {
-    width: 100%;
-    height: 12px;
-    background-color: var(--background-section);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-    border: 1px solid var(--border-light);
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      var(--primary-blue) 0%,
-      var(--primary-blue-light) 100%
-    );
-    transition: width 0.3s ease;
-    border-radius: 6px;
-  }
-
-  .progress-text {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    text-align: center;
-    font-weight: 500;
-  }
-
-  .modal-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 2rem;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .admin-container {
-      padding: 1rem;
-    }
-
-    .reviews-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .detail-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .images-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .modal-actions {
-      flex-direction: column;
-    }
-
-    .header h1 {
-      font-size: 2rem;
-    }
-
-    .stats-bar {
-      gap: 1rem;
-    }
-  }
-</style>
