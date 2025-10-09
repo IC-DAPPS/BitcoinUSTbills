@@ -232,9 +232,9 @@
 </svelte:head>
 
 <!-- Main Hero Section -->
-<section class="min-h-screen bg-gray-50 py-12 lg:py-20">
+<section class="bg-gray-50 py-8 lg:py-12">
   <div class="container mx-auto px-6 max-w-7xl">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
       <!-- Left Section - Information -->
       <div class="space-y-6 lg:space-y-8">
         <!-- Badge -->
@@ -308,7 +308,7 @@
 
       <!-- Right Section - Widget Card -->
       <div
-        class="bg-white rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-6 lg:p-8"
+        class="bg-white rounded-2xl shadow-xl border-2 border-black p-4 sm:p-6 lg:p-8"
       >
         <!-- Mint/Redeem Toggle -->
         <div
