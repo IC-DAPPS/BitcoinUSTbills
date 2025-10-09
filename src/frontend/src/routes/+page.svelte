@@ -346,7 +346,7 @@
           <!-- Mint Interface -->
           <div class="space-y-4">
             <!-- Pay Input -->
-            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div class="bg-gray-50 rounded-xl p-4 border-2 border-black">
               <div class="flex justify-between items-center mb-2">
                 <label for="mint-ckbtc-input" class="text-sm text-gray-600"
                   >Pay</label
