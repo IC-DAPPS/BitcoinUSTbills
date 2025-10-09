@@ -79,10 +79,11 @@
       return;
     }
 
-    if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
-      toast.error("KYC verification is required to mint OUSG tokens");
-      return;
-    }
+    // TODO: Uncomment for KYC enforcement in production
+    // if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+    //   toast.error("KYC verification is required to mint OUSG tokens");
+    //   return;
+    // }
 
     const amount = parseFloat(ckbtcAmount);
     if (!amount || amount <= 0) {
@@ -122,10 +123,11 @@
       return;
     }
 
-    if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
-      toast.error("KYC verification is required");
-      return;
-    }
+    // TODO: Uncomment for KYC enforcement in production
+    // if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+    //   toast.error("KYC verification is required");
+    //   return;
+    // }
 
     const amount = parseFloat(ousgAmount);
     if (!amount || amount <= 0) {
@@ -172,10 +174,11 @@
       return;
     }
 
-    if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
-      toast.error("KYC verification is required to redeem OUSG tokens");
-      return;
-    }
+    // TODO: Uncomment for KYC enforcement in production
+    // if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+    //   toast.error("KYC verification is required to redeem OUSG tokens");
+    //   return;
+    // }
 
     const amount = parseFloat(ousgAmount);
     if (!amount || amount <= 0) {
@@ -447,15 +450,15 @@
                 It looks like you haven't applied for OUSG yet. Start your
                 application to access OUSG
               </p>
-            {:else if !userSate.profile || userSate.profile.kyc_status !== "Verified"}
+            {:else if !userSate.profile}
               <button
                 disabled
                 class="w-full py-4 bg-gray-300 text-gray-600 font-semibold rounded-xl cursor-not-allowed text-lg"
               >
-                KYC Required
+                Registration Required
               </button>
               <p class="text-xs text-center text-red-500 mt-2">
-                KYC verification is required to mint OUSG tokens
+                Please complete registration to mint OUSG tokens
               </p>
             {:else}
               <button
@@ -588,12 +591,12 @@
               >
                 Connect Wallet
               </button>
-            {:else if !userSate.profile || userSate.profile.kyc_status !== "Verified"}
+            {:else if !userSate.profile}
               <button
                 disabled
                 class="w-full py-4 bg-gray-300 text-gray-600 font-semibold rounded-xl cursor-not-allowed text-lg"
               >
-                KYC Required
+                Registration Required
               </button>
             {:else}
               <div class="flex gap-2">

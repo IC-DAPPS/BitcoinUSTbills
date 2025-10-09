@@ -73,10 +73,11 @@
       return;
     }
 
-    if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
-      toast.error("KYC verification is required to mint OUSG tokens");
-      return;
-    }
+    // TODO: Uncomment for KYC enforcement in production
+    // if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+    //   toast.error("KYC verification is required to mint OUSG tokens");
+    //   return;
+    // }
 
     const amount = parseFloat(ckbtcAmount);
     if (!amount || amount <= 0) {
@@ -117,10 +118,11 @@
       return;
     }
 
-    if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
-      toast.error("KYC verification is required");
-      return;
-    }
+    // TODO: Uncomment for KYC enforcement in production
+    // if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+    //   toast.error("KYC verification is required");
+    //   return;
+    // }
 
     const amount = parseFloat(ousgAmount);
     if (!amount || amount <= 0) {
@@ -167,10 +169,11 @@
       return;
     }
 
-    if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
-      toast.error("KYC verification is required to redeem OUSG tokens");
-      return;
-    }
+    // TODO: Uncomment for KYC enforcement in production
+    // if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+    //   toast.error("KYC verification is required to redeem OUSG tokens");
+    //   return;
+    // }
 
     const amount = parseFloat(ousgAmount);
     if (!amount || amount <= 0) {
@@ -214,19 +217,19 @@
     }
   };
 
+  // TODO: Add back KYC check: userSate.profile.kyc_status !== "Verified" ||
   const mintDisabled = $derived(
     !$authStore.isAuthenticated ||
       !userSate.profile ||
-      userSate.profile.kyc_status !== "Verified" ||
       !ckbtcAmount ||
       parseFloat(ckbtcAmount) <= 0 ||
       isMinting
   );
 
+  // TODO: Add back KYC check: userSate.profile.kyc_status !== "Verified" ||
   const approveDisabled = $derived(
     !$authStore.isAuthenticated ||
       !userSate.profile ||
-      userSate.profile.kyc_status !== "Verified" ||
       !ousgAmount ||
       parseFloat(ousgAmount) <= 0 ||
       parseFloat(ousgAmount) < 1 ||
@@ -236,11 +239,11 @@
       approvalPending
   );
 
+  // TODO: Add back KYC check: userSate.profile.kyc_status !== "Verified" ||
   const redeemDisabled = $derived(
     !approvalPending ||
       !$authStore.isAuthenticated ||
       !userSate.profile ||
-      userSate.profile.kyc_status !== "Verified" ||
       !ousgAmount ||
       parseFloat(ousgAmount) <= 0 ||
       parseFloat(ousgAmount) < 1 ||
@@ -355,8 +358,8 @@
               Minting...
             {:else if !$authStore.isAuthenticated}
               Connect to Mint
-            {:else if !userSate.profile || userSate.profile.kyc_status !== "Verified"}
-              KYC Required
+            {:else if !userSate.profile}
+              Registration Required
             {:else}
               Mint OUSG Tokens
             {/if}
@@ -438,8 +441,8 @@
                 Approved ✓
               {:else if !$authStore.isAuthenticated}
                 Connect to Approve
-              {:else if !userSate.profile || userSate.profile.kyc_status !== "Verified"}
-                KYC Required
+              {:else if !userSate.profile}
+                Registration Required
               {:else}
                 1. Approve
               {/if}
@@ -486,7 +489,8 @@
         • Minimum redemption amount: 1 OUSG token
       </p>
       <p class="text-xs sm:text-sm text-gray-600">
-        • KYC verification is required for both minting and redemption
+        • Registration is required for both minting and redemption (KYC optional
+        for now)
       </p>
       <p class="text-xs sm:text-sm text-gray-600">
         • <span class="font-bold">Automatic minting:</span> Just enter ckBTC amount
