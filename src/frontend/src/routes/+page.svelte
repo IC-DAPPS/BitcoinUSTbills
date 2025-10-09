@@ -245,22 +245,22 @@
             class="w-6 h-6 lg:w-8 lg:h-8 bg-orange-500 rounded flex items-center justify-center flex-shrink-0"
           >
             <span class="text-white text-xs font-bold">₿</span>
-          </div>
+      </div>
           <span class="text-xs lg:text-sm text-gray-700 font-medium">
             $TB: BTC based Short-Term US Treasuries Fund *
           </span>
-        </div>
+    </div>
 
-        <!-- Main Heading -->
+    <!-- Main Heading -->
         <div>
-          <h1
+      <h1
             class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight mb-3 lg:mb-4"
-          >
+      >
             BITCOIN LIQUIDITY<br />
             To<br />
             USTBILL MARKETS
-          </h1>
-          <p
+      </h1>
+      <p
             class="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed"
           >
             Built for the Bitcoin Economy. $btb offers exposure to short-term US
@@ -288,8 +288,8 @@
             <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
               $ 701.07M
             </p>
-          </div>
-        </div>
+      </div>
+    </div>
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row flex-wrap gap-3 lg:gap-4">
@@ -376,31 +376,31 @@
                   >
                 </div>
               </div>
-            </div>
+      </div>
 
             <!-- Swap Arrow -->
             <div class="flex justify-center">
-              <div
+        <div
                 class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"
-              >
-                <svg
+        >
+          <svg
                   class="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
                     d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  ></path>
-                </svg>
-              </div>
-            </div>
+            ></path>
+          </svg>
+        </div>
+      </div>
 
             <!-- Receive Input -->
-            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div class="bg-gray-50 rounded-xl p-4 border-2 border-black">
               <div class="flex justify-between items-center mb-2">
                 <label for="mint-ousg-output" class="text-sm text-gray-600"
                   >Receive</label
@@ -428,9 +428,9 @@
                   <span class="text-white font-medium text-sm sm:text-base"
                     >$BTB</span
                   >
-                </div>
-              </div>
-            </div>
+      </div>
+    </div>
+  </div>
 
             <!-- Exchange Rate -->
             <div class="text-center text-sm text-gray-600">1$BTB = $ 1.09</div>
@@ -478,12 +478,12 @@
                 {/if}
               </button>
             {/if}
-          </div>
+    </div>
         {:else}
           <!-- Redeem Interface -->
           <div class="space-y-4">
             <!-- Pay Input (OUSG) -->
-            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div class="bg-gray-50 rounded-xl p-4 border-2 border-black">
               <div class="flex justify-between items-center mb-2">
                 <label for="redeem-ousg-input" class="text-sm text-gray-600"
                   >Pay</label
@@ -513,32 +513,32 @@
                     >$BTB</span
                   >
                 </div>
-              </div>
-            </div>
+        </div>
+      </div>
 
             <!-- Swap Arrow -->
             <div class="flex justify-center">
-              <div
+      <div
                 class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"
-              >
-                <svg
+        >
+          <svg
                   class="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
                     d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  ></path>
-                </svg>
-              </div>
-            </div>
+            ></path>
+          </svg>
+        </div>
+      </div>
 
             <!-- Receive Input (ckBTC) -->
-            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div class="bg-gray-50 rounded-xl p-4 border-2 border-black">
               <div class="flex justify-between items-center mb-2">
                 <label for="redeem-ckbtc-output" class="text-sm text-gray-600"
                   >Receive</label
@@ -564,9 +564,9 @@
                   <span class="text-white font-medium text-sm sm:text-base"
                     >ckBTC</span
                   >
-                </div>
-              </div>
-            </div>
+      </div>
+    </div>
+  </div>
 
             <!-- Exchange Rate -->
             <div class="text-center text-sm text-gray-600">1$BTB = $ 1.09</div>
@@ -636,9 +636,9 @@
                     2. Redeem
                   {/if}
                 </button>
-              </div>
+      </div>
             {/if}
-          </div>
+      </div>
         {/if}
       </div>
     </div>
