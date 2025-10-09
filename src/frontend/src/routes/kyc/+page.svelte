@@ -325,12 +325,12 @@
   />
 </svelte:head>
 
-<div class="min-h-screen bg-slate-50">
+<div class="min-h-screen bg-gray-50">
   <div class="container mx-auto px-6 py-8">
     <!-- Page Header -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-slate-800 mb-2">KYC Verification</h1>
-      <p class="text-slate-600 text-lg">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">KYC Verification</h1>
+      <p class="text-gray-600 text-lg">
         Complete your identity verification to start investing in US Treasury
         Bills
       </p>
@@ -339,10 +339,10 @@
     {#if !isAuthenticated}
       <!-- Not logged in -->
       <div
-        class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+        class="bg-orange-500 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
       >
         <div
-          class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4"
+          class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4"
         >
           <svg
             class="w-8 h-8 text-white"
@@ -369,7 +369,7 @@
       <div class="flex justify-center items-center h-64">
         <div class="text-center">
           <LoadingSpinner />
-          <p class="text-slate-600 mt-4">Loading KYC status...</p>
+          <p class="text-gray-600 mt-4">Loading KYC status...</p>
         </div>
       </div>
     {:else if kycSession}
@@ -377,7 +377,7 @@
       <div class="flex flex-col gap-6">
         <!-- Status Card -->
         <div
-          class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+          class="bg-orange-500 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
         >
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold text-black">KYC Status</h2>
@@ -426,10 +426,10 @@
 
             {#if kycSession.reviewer_notes[0]}
               <div class="mt-4 p-4 bg-amber-500 rounded-lg">
-                <h4 class="font-semibold text-slate-800 mb-2">
+                <h4 class="font-semibold text-gray-800 mb-2">
                   Reviewer Notes:
                 </h4>
-                <p class="text-slate-800">{kycSession.reviewer_notes[0]}</p>
+                <p class="text-gray-800">{kycSession.reviewer_notes[0]}</p>
               </div>
             {/if}
           </div>
@@ -438,7 +438,7 @@
         <!-- OCR Results (if available) -->
         {#if kycSession.ocr_result}
           <div
-            class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+            class="bg-orange-500 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
           >
             <h3 class="text-xl font-semibold text-black mb-6">
               Document Information
@@ -479,7 +479,7 @@
     {:else if basicKYCStatus === "Verified"}
       <!-- KYC already verified -->
       <div
-        class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+        class="bg-orange-500 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
       >
         <div
           class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4"
@@ -560,7 +560,7 @@
 
         <!-- Integrated Document Upload Requirements with Upload Areas -->
         <div
-          class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-4xl mx-auto"
+          class="bg-orange-500 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-4xl mx-auto"
         >
           <h2 class="text-2xl font-semibold text-black mb-8">
             Document Upload Requirements

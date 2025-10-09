@@ -250,48 +250,60 @@
   );
 </script>
 
-<div class="min-h-screen bg-slate-50">
-  <div class="container mx-auto px-6 py-8">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-slate-800 mb-2">
+<div class="min-h-screen bg-gray-50">
+  <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="mb-6 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
         OUSG Token Management
       </h1>
-      <p class="text-slate-600 text-lg">
+      <p class="text-gray-600 text-base sm:text-lg">
         Mint OUSG tokens with ckBTC or redeem them back to ckBTC. Each OUSG
         token represents $5,000 USD in value.
       </p>
     </div>
 
     <!-- Balance Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 max-w-4xl mx-auto">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8 max-w-4xl mx-auto"
+    >
       <div
-        class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600"
+        class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
       >
-        <h3 class="text-lg font-semibold mb-2 text-slate-800">ckBTC Balance</h3>
-        <p class="text-2xl font-bold text-slate-800">
+        <h3 class="text-base sm:text-lg font-semibold mb-2 text-gray-900">
+          ckBTC Balance
+        </h3>
+        <p class="text-xl sm:text-2xl font-bold text-gray-900">
           {ckbtcBalance.number.toFixed(8)} ckBTC
         </p>
       </div>
       <div
-        class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600"
+        class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
       >
-        <h3 class="text-lg font-semibold mb-2 text-slate-800">OUSG Balance</h3>
-        <p class="text-2xl font-bold text-slate-800">
+        <h3 class="text-base sm:text-lg font-semibold mb-2 text-gray-900">
+          OUSG Balance
+        </h3>
+        <p class="text-xl sm:text-2xl font-bold text-gray-900">
           {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} OUSG
         </p>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+    <div
+      class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto"
+    >
       <!-- Minting Section -->
-      <div class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600">
-        <h2 class="text-xl font-semibold text-black mb-6">Mint OUSG Tokens</h2>
+      <div
+        class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200"
+      >
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6">
+          Mint OUSG Tokens
+        </h2>
 
         <div>
           <div class="mb-6">
             <label
               for="ckbtc-amount"
-              class="block text-black text-sm font-medium mb-2"
+              class="block text-gray-900 text-sm font-medium mb-2"
             >
               ckBTC Amount
             </label>
@@ -303,24 +315,26 @@
                 min="0"
                 bind:value={ckbtcAmount}
                 placeholder="Enter ckBTC amount"
-                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               />
               <button
                 type="button"
                 onclick={setMaxCkBTC}
-                class="px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                class="px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
               >
                 MAX
               </button>
             </div>
-            <p class="text-black text-sm mt-2">
+            <p class="text-gray-600 text-sm mt-2">
               ckBTC will be automatically transferred to mint OUSG tokens
             </p>
           </div>
 
           {#if expectedOUSG() > 0n}
-            <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p class="text-black text-sm">
+            <div
+              class="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg"
+            >
+              <p class="text-gray-900 text-sm">
                 Expected OUSG: <span class="font-semibold"
                   >{(Number(expectedOUSG()) / 1_000_000).toFixed(6)} OUSG</span
                 >
@@ -332,7 +346,7 @@
             type="button"
             onclick={handleMint}
             disabled={mintDisabled}
-            class="w-full px-6 py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="w-full px-6 py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {#if isMinting}
               <span
@@ -351,8 +365,10 @@
       </div>
 
       <!-- Redeeming Section -->
-      <div class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600">
-        <h2 class="text-xl font-semibold text-black mb-6">
+      <div
+        class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200"
+      >
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6">
           Redeem OUSG Tokens
         </h2>
 
@@ -360,7 +376,7 @@
           <div class="mb-6">
             <label
               for="ousg-amount"
-              class="block text-black text-sm font-medium mb-2"
+              class="block text-gray-900 text-sm font-medium mb-2"
             >
               OUSG Amount (minimum 1 OUSG)
             </label>
@@ -372,12 +388,12 @@
                 min="1"
                 bind:value={ousgAmount}
                 placeholder="Enter OUSG amount"
-                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               />
               <button
                 type="button"
                 onclick={setMaxOUSG}
-                class="px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                class="px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
               >
                 MAX
               </button>
@@ -388,7 +404,7 @@
             <div
               class="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg"
             >
-              <p class="text-black text-sm">
+              <p class="text-gray-900 text-sm">
                 Expected ckBTC: <span class="font-semibold"
                   >{(Number(expectedCkBTC()) / 100_000_000).toFixed(8)} ckBTC</span
                 >
@@ -400,7 +416,7 @@
             <div
               class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg"
             >
-              <p class="text-black text-sm">
+              <p class="text-gray-900 text-sm">
                 ✅ OUSG tokens approved for redemption. You can now redeem them.
               </p>
             </div>
@@ -411,7 +427,7 @@
               type="button"
               onclick={handleApprove}
               disabled={approveDisabled}
-              class="flex-1 px-6 py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="flex-1 px-6 py-3 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {#if isApproving}
                 <span
@@ -433,7 +449,7 @@
               type="button"
               onclick={handleRedeem}
               disabled={redeemDisabled}
-              class="flex-1 px-6 py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="flex-1 px-6 py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {#if isRedeeming}
                 <span
@@ -453,31 +469,33 @@
   </div>
 
   <!-- Information Section -->
-  <div class="mt-8 text-center">
-    <h3 class="text-lg font-semibold text-slate-800 mb-4">
+  <div class="mt-8 text-center max-w-4xl mx-auto">
+    <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">
       Important Information
     </h3>
-    <div class="space-y-2">
-      <p class="text-sm text-slate-600">
+    <div
+      class="space-y-2 bg-white rounded-xl p-4 sm:p-6 border border-gray-200"
+    >
+      <p class="text-xs sm:text-sm text-gray-600">
         • Each OUSG token represents $5,000 USD in value
       </p>
-      <p class="text-sm text-slate-600">
+      <p class="text-xs sm:text-sm text-gray-600">
         • Minimum minting amount: $5,000 USD worth of ckBTC
       </p>
-      <p class="text-sm text-slate-600">
+      <p class="text-xs sm:text-sm text-gray-600">
         • Minimum redemption amount: 1 OUSG token
       </p>
-      <p class="text-sm text-slate-600">
+      <p class="text-xs sm:text-sm text-gray-600">
         • KYC verification is required for both minting and redemption
       </p>
-      <p class="text-sm text-slate-600">
+      <p class="text-xs sm:text-sm text-gray-600">
         • <span class="font-bold">Automatic minting:</span> Just enter ckBTC amount
         and click mint - no manual transaction needed!
       </p>
-      <p class="text-sm text-slate-600">
+      <p class="text-xs sm:text-sm text-gray-600">
         • Redemption requires two steps: approval and then redemption
       </p>
-      <p class="text-sm text-slate-600">
+      <p class="text-xs sm:text-sm text-gray-600">
         • BTC price is fetched from external sources and may vary
       </p>
     </div>
