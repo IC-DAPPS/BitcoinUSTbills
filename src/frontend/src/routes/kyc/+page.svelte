@@ -318,7 +318,7 @@
 </script>
 
 <svelte:head>
-  <title>KYC Verification - BitcoinUSTbills</title>
+  <title>KYC Verification - BitcoinTBill</title>
   <meta
     name="description"
     content="Complete your Know Your Customer (KYC) verification to start investing in tokenized US Treasury Bills."

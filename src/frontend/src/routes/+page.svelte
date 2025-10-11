@@ -224,10 +224,10 @@
 </script>
 
 <svelte:head>
-  <title>Btc Tbills - Bitcoin Liquidity To USTBILL Markets</title>
+  <title>BitcoinTBill - Fractionalized US Treasury Bills for Africa</title>
   <meta
     name="description"
-    content="Built for the Bitcoin Economy. $btb offers exposure to short-term US Treasuries with 24/7 instant mints and redemptions."
+    content="Bitcoin Tbill offers fractionalized US Treasury bills to individuals and SMEs in Africa using ckBTC."
   />
 </svelte:head>
 
@@ -247,7 +247,7 @@
             <span class="text-white text-xs font-bold">₿</span>
           </div>
           <span class="text-xs lg:text-xs text-gray-700 font-medium">
-            $TB: BTC based Short-Term US Treasuries Fund *
+            BBILL: BTC based Short-Term US Treasuries Fund *
           </span>
         </div>
 
@@ -263,8 +263,8 @@
           <p
             class="text-sm sm:text-sm lg:text-base text-gray-600 leading-relaxed"
           >
-            Built for the Bitcoin Economy. $btb offers exposure to short-term US
-            Treasuries with 24/7 instant mints and redemptions.
+            Bitcoin Tbill offers fractionalized US Treasury bills to individuals
+            and SMEs in Africa using ckBTC.
           </p>
         </div>
 
@@ -296,12 +296,12 @@
           <button
             class="px-4 py-2 lg:px-5 lg:py-2.5 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors text-sm"
           >
-            Buy OUSG
+            Buy BBILL
           </button>
           <button
             class="px-4 py-2 lg:px-5 lg:py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors text-sm"
           >
-            Redeem OUSG
+            Redeem BBILL
           </button>
         </div>
       </div>
@@ -426,14 +426,14 @@
                   class="flex items-center gap-1 px-2 py-1 bg-orange-500 rounded-lg flex-shrink-0"
                 >
                   <span class="text-white font-medium text-xs sm:text-sm"
-                    >$BTB</span
+                    >BBILL</span
                   >
                 </div>
               </div>
             </div>
 
             <!-- Exchange Rate -->
-            <div class="text-center text-sm text-gray-600">1$BTB = $ 1.09</div>
+            <div class="text-center text-sm text-gray-600">1BBILL = $ 1.09</div>
 
             <!-- Instant Limits Info -->
             <div class="text-center text-xs text-gray-500">Instant Limits</div>
@@ -447,8 +447,8 @@
                 Connect Wallet
               </button>
               <p class="text-xs text-center text-gray-500 mt-2">
-                It looks like you haven't applied for OUSG yet. Start your
-                application to access OUSG
+                It looks like you haven't applied for BBILL yet. Start your
+                application to access BBILL
               </p>
             {:else if !userSate.profile}
               <button
@@ -458,7 +458,7 @@
                 Registration Required
               </button>
               <p class="text-xs text-center text-red-500 mt-2">
-                Please complete registration to mint OUSG tokens
+                Please complete registration to mint BBILL tokens
               </p>
             {:else}
               <button
@@ -474,7 +474,7 @@
                   ></span>
                   Minting...
                 {:else}
-                  Mint OUSG
+                  Mint BBILL
                 {/if}
               </button>
             {/if}
@@ -510,7 +510,7 @@
                   class="flex items-center gap-1 px-2 py-1 bg-orange-500 rounded-lg flex-shrink-0"
                 >
                   <span class="text-white font-medium text-xs sm:text-sm"
-                    >$BTB</span
+                    >BBILL</span
                   >
                 </div>
               </div>
@@ -569,7 +569,7 @@
             </div>
 
             <!-- Exchange Rate -->
-            <div class="text-center text-sm text-gray-600">1$BTB = $ 1.09</div>
+            <div class="text-center text-sm text-gray-600">1BBILL = $ 1.09</div>
 
             <!-- Instant Limits Info -->
             <div class="text-center text-xs text-gray-500">Instant Limits</div>

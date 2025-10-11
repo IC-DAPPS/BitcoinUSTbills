@@ -26,7 +26,7 @@
 </script>
 
 <svelte:head>
-  <title>Dashboard - Bitcoin UST Bills</title>
+  <title>Dashboard - BitcoinTBill</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50">

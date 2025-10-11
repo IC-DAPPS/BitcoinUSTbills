@@ -142,7 +142,7 @@
             <span class="text-white font-bold text-base sm:text-lg">₿</span>
           </div>
           <span class="text-lg sm:text-xl font-bold text-gray-900"
-            >Btc Tbills</span
+            >BitcoinTBill</span
           >
         </a>
 
@@ -161,7 +161,7 @@
           <a
             href="/ousg"
             class="text-gray-600 hover:text-gray-900 transition-colors font-medium text-sm lg:text-base"
-            >OUSG</a
+            >BBILL</a
           >
           <a
             href="/wallet"
@@ -265,7 +265,7 @@
               class="text-gray-600 hover:text-gray-900 transition-colors py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium"
               onclick={() => handleMobileNavClick("/ousg")}
             >
-              OUSG
+              BBILL
             </a>
             <a
               href="/wallet"

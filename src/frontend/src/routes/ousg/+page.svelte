@@ -69,7 +69,7 @@
 
   const handleMint = async () => {
     if (!$authStore.isAuthenticated) {
-      toast.error("Please log in to mint OUSG tokens");
+      toast.error("Please log in to mint BBILL tokens");
       return;
     }
 
@@ -102,11 +102,11 @@
       const result = await mintOUSGAutomatic(ckbtcAmountBigInt);
       if (result.success) {
         ckbtcAmount = "";
-        toast.success("OUSG tokens minted successfully!");
+        toast.success("BBILL tokens minted successfully!");
       }
     } catch (error) {
       console.error("Minting error:", error);
-      toast.error("Failed to mint OUSG tokens");
+      toast.error("Failed to mint BBILL tokens");
     } finally {
       isMinting = false;
     }
@@ -114,7 +114,7 @@
 
   const handleApprove = async () => {
     if (!$authStore.isAuthenticated) {
-      toast.error("Please log in to approve OUSG tokens");
+      toast.error("Please log in to approve BBILL tokens");
       return;
     }
 
@@ -126,19 +126,19 @@
 
     const amount = parseFloat(ousgAmount);
     if (!amount || amount <= 0) {
-      toast.error("Please enter a valid OUSG amount");
+      toast.error("Please enter a valid BBILL amount");
       return;
     }
 
     if (amount < 1) {
-      toast.error("Minimum redemption amount is 1 OUSG token");
+      toast.error("Minimum redemption amount is 1 BBILL token");
       return;
     }
 
     const ousgAmountBigInt = BigInt(Math.floor(amount * 1_000_000));
 
     if (ousgBalance.balance < ousgAmountBigInt) {
-      toast.error("Insufficient OUSG balance");
+      toast.error("Insufficient BBILL balance");
       return;
     }
 
@@ -148,11 +148,11 @@
       const result = await approveOUSGForRedemption(ousgAmountBigInt);
       if (result.success) {
         approvalPending = true;
-        toast.success("OUSG tokens approved! You can now redeem them.");
+        toast.success("BBILL tokens approved! You can now redeem them.");
       }
     } catch (error) {
       console.error("Approval error:", error);
-      toast.error("Failed to approve OUSG tokens");
+      toast.error("Failed to approve BBILL tokens");
     } finally {
       isApproving = false;
     }
@@ -160,12 +160,12 @@
 
   const handleRedeem = async () => {
     if (!approvalPending) {
-      toast.error("Please approve OUSG tokens first");
+      toast.error("Please approve BBILL tokens first");
       return;
     }
 
     if (!$authStore.isAuthenticated) {
-      toast.error("Please log in to redeem OUSG tokens");
+      toast.error("Please log in to redeem BBILL tokens");
       return;
     }
 
@@ -177,14 +177,14 @@
 
     const amount = parseFloat(ousgAmount);
     if (!amount || amount <= 0) {
-      toast.error("Please enter a valid OUSG amount");
+      toast.error("Please enter a valid BBILL amount");
       return;
     }
 
     const ousgAmountBigInt = BigInt(Math.floor(amount * 1_000_000));
 
     if (ousgBalance.balance < ousgAmountBigInt) {
-      toast.error("Insufficient OUSG balance");
+      toast.error("Insufficient BBILL balance");
       return;
     }
 
@@ -195,11 +195,11 @@
       if (result.success) {
         ousgAmount = "";
         approvalPending = false;
-        toast.success("OUSG tokens redeemed successfully!");
+        toast.success("BBILL tokens redeemed successfully!");
       }
     } catch (error) {
       console.error("Redeeming error:", error);
-      toast.error("Failed to redeem OUSG tokens");
+      toast.error("Failed to redeem BBILL tokens");
     } finally {
       isRedeeming = false;
     }
@@ -257,10 +257,10 @@
   <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
     <div class="mb-6 sm:mb-8">
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-        OUSG Token Management
+        BBILL Token Management
       </h1>
       <p class="text-gray-600 text-base sm:text-lg">
-        Mint OUSG tokens with ckBTC or redeem them back to ckBTC. Each OUSG
+        Mint BBILL tokens with ckBTC or redeem them back to ckBTC. Each BBILL
         token represents $5,000 USD in value.
       </p>
     </div>
@@ -283,10 +283,10 @@
         class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
       >
         <h3 class="text-base sm:text-lg font-semibold mb-2 text-gray-900">
-          OUSG Balance
+          BBILL Balance
         </h3>
         <p class="text-xl sm:text-2xl font-bold text-gray-900">
-          {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} OUSG
+          {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} BBILL
         </p>
       </div>
     </div>
@@ -299,7 +299,7 @@
         class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200"
       >
         <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6">
-          Mint OUSG Tokens
+          Mint BBILL Tokens
         </h2>
 
         <div>
@@ -329,7 +329,7 @@
               </button>
             </div>
             <p class="text-gray-600 text-sm mt-2">
-              ckBTC will be automatically transferred to mint OUSG tokens
+              ckBTC will be automatically transferred to mint BBILL tokens
             </p>
           </div>
 
@@ -338,8 +338,8 @@
               class="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg"
             >
               <p class="text-gray-900 text-sm">
-                Expected OUSG: <span class="font-semibold"
-                  >{(Number(expectedOUSG()) / 1_000_000).toFixed(6)} OUSG</span
+                Expected BBILL: <span class="font-semibold"
+                  >{(Number(expectedOUSG()) / 1_000_000).toFixed(6)} BBILL</span
                 >
               </p>
             </div>
@@ -361,7 +361,7 @@
             {:else if !userSate.profile}
               Registration Required
             {:else}
-              Mint OUSG Tokens
+              Mint BBILL Tokens
             {/if}
           </button>
         </div>
@@ -372,7 +372,7 @@
         class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200"
       >
         <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6">
-          Redeem OUSG Tokens
+          Redeem BBILL Tokens
         </h2>
 
         <div>
@@ -381,7 +381,7 @@
               for="ousg-amount"
               class="block text-gray-900 text-sm font-medium mb-2"
             >
-              OUSG Amount (minimum 1 OUSG)
+              BBILL Amount (minimum 1 BBILL)
             </label>
             <div class="flex gap-2">
               <input
@@ -390,7 +390,7 @@
                 step="0.000001"
                 min="1"
                 bind:value={ousgAmount}
-                placeholder="Enter OUSG amount"
+                placeholder="Enter BBILL amount"
                 class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               />
               <button
@@ -420,7 +420,8 @@
               class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg"
             >
               <p class="text-gray-900 text-sm">
-                ✅ OUSG tokens approved for redemption. You can now redeem them.
+                ✅ BBILL tokens approved for redemption. You can now redeem
+                them.
               </p>
             </div>
           {/if}
@@ -462,7 +463,7 @@
               {:else if !approvalPending}
                 2. Redeem
               {:else}
-                2. Redeem OUSG
+                2. Redeem BBILL
               {/if}
             </button>
           </div>
@@ -480,13 +481,13 @@
       class="space-y-2 bg-white rounded-xl p-4 sm:p-6 border border-gray-200"
     >
       <p class="text-xs sm:text-sm text-gray-600">
-        • Each OUSG token represents $5,000 USD in value
+        • Each BBILL token represents $5,000 USD in value
       </p>
       <p class="text-xs sm:text-sm text-gray-600">
         • Minimum minting amount: $5,000 USD worth of ckBTC
       </p>
       <p class="text-xs sm:text-sm text-gray-600">
-        • Minimum redemption amount: 1 OUSG token
+        • Minimum redemption amount: 1 BBILL token
       </p>
       <p class="text-xs sm:text-sm text-gray-600">
         • Registration is required for both minting and redemption (KYC optional

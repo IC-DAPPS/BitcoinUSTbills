@@ -27,7 +27,7 @@
               href="/ousg"
               class="text-gray-400 hover:text-orange-500 transition-colors text-sm sm:text-base"
             >
-              OUSG Tokens
+              BBILL Tokens
             </a>
           </li>
           <li>
@@ -150,7 +150,7 @@
         class="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-6 text-center text-xs sm:text-sm"
       >
         <span class="text-gray-400">
-          © 2024 Btc Tbills. All rights reserved.
+          © 2024 BitcoinTBill. All rights reserved.
         </span>
         <span class="text-gray-400 hidden sm:inline">
           Securities offered through licensed broker-dealers.

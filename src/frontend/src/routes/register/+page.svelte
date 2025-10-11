@@ -119,7 +119,7 @@
 </script>
 
 <svelte:head>
-  <title>Register - BitcoinUSTbills</title>
+  <title>Register - BitcoinTBill</title>
   <meta
     name="description"
     content="Complete your registration to start investing in US Treasury Bills"
