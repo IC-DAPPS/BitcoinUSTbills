@@ -129,71 +129,80 @@
 
 <div class="layout-stable">
   <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-    <nav class="container mx-auto px-6 py-4">
+    <nav class="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
       <div class="flex justify-between items-center">
         <!-- Logo Section -->
-        <div class="flex items-center space-x-2">
+        <a
+          href="/"
+          class="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        >
           <div
-            class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center"
+            class="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500 rounded-lg flex items-center justify-center"
           >
-            <span class="text-white font-bold text-lg">B</span>
+            <span class="text-white font-bold text-base sm:text-lg">₿</span>
           </div>
-          <span class="text-xl font-semibold text-slate-800"
-            >BitcoinUSTbills</span
+          <span class="text-lg sm:text-xl font-bold text-gray-900"
+            >BitcoinTBill</span
           >
-        </div>
+        </a>
 
         <!-- Desktop Navigation Links -->
-        <div class="hidden md:flex items-center space-x-8">
+        <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
           <a
             href="/"
-            class="text-slate-600 hover:text-slate-800 transition-colors"
+            class="text-gray-600 hover:text-gray-900 transition-colors font-medium text-sm lg:text-base"
             >Home</a
           >
           <a
             href="/dashboard"
-            class="text-slate-600 hover:text-slate-800 transition-colors"
+            class="text-gray-600 hover:text-gray-900 transition-colors font-medium text-sm lg:text-base"
             >Dashboard</a
           >
           <a
             href="/ousg"
-            class="text-slate-600 hover:text-slate-800 transition-colors"
-            >OUSG</a
+            class="text-gray-600 hover:text-gray-900 transition-colors font-medium text-sm lg:text-base"
+            >BBILL</a
           >
           <a
             href="/wallet"
-            class="text-slate-600 hover:text-slate-800 transition-colors"
+            class="text-gray-600 hover:text-gray-900 transition-colors font-medium text-sm lg:text-base"
             >Wallet</a
           >
           <a
             href="/kyc"
-            class="text-slate-600 hover:text-slate-800 transition-colors">KYC</a
+            class="text-gray-600 hover:text-gray-900 transition-colors font-medium text-sm lg:text-base"
+            >KYC</a
           >
         </div>
 
         <!-- Desktop Auth Section -->
-        <div class="hidden md:flex items-center space-x-4">
+        <div class="hidden md:flex items-center gap-3 lg:gap-4">
           {#if $authStore.isAuthenticated}
-            <span class="text-sm text-slate-600">
+            <span class="text-xs lg:text-sm text-gray-600 font-mono">
               {$authStore.principal?.toString().slice(0, 8)}...
             </span>
-            <Button variant="secondary" onclick={() => authStore.signOut()}
-              >Logout</Button
+            <button
+              onclick={() => authStore.signOut()}
+              class="px-4 py-2 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors text-sm"
             >
+              Logout
+            </button>
           {:else}
-            <Button
-              variant="primary"
+            <button
               onclick={() => authStore.signIn({ identityProvider: "ii" })}
-              >Login</Button
+              class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors text-sm"
             >
+              Login
+            </button>
           {/if}
         </div>
 
         <!-- Mobile Menu Button -->
         <div class="md:hidden">
           <button
-            class="text-slate-600 hover:text-slate-800 p-2"
+            class="text-gray-600 hover:text-gray-900 p-2"
             onclick={toggleMobileMenu}
+            aria-label="Toggle menu"
           >
             {#if !isMobileMenuOpen}
               <!-- Hamburger Icon -->
@@ -235,39 +244,39 @@
         <div
           class="md:hidden mt-4 pb-4 border-t border-gray-200 bg-white relative z-10"
         >
-          <div class="flex flex-col space-y-4 pt-4">
+          <div class="flex flex-col space-y-3 pt-4">
             <!-- Mobile Navigation Links -->
             <a
               href="/"
-              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              class="text-gray-600 hover:text-gray-900 transition-colors py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium"
               onclick={() => handleMobileNavClick("/")}
             >
               Home
             </a>
             <a
               href="/dashboard"
-              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              class="text-gray-600 hover:text-gray-900 transition-colors py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium"
               onclick={() => handleMobileNavClick("/dashboard")}
             >
               Dashboard
             </a>
             <a
               href="/ousg"
-              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              class="text-gray-600 hover:text-gray-900 transition-colors py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium"
               onclick={() => handleMobileNavClick("/ousg")}
             >
-              OUSG
+              BBILL
             </a>
             <a
               href="/wallet"
-              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              class="text-gray-600 hover:text-gray-900 transition-colors py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium"
               onclick={() => handleMobileNavClick("/wallet")}
             >
               Wallet
             </a>
             <a
               href="/kyc"
-              class="text-slate-600 hover:text-slate-800 transition-colors py-2 px-2 rounded hover:bg-gray-50"
+              class="text-gray-600 hover:text-gray-900 transition-colors py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium"
               onclick={() => handleMobileNavClick("/kyc")}
             >
               KYC
@@ -276,28 +285,28 @@
             <!-- Mobile Auth Section -->
             <div class="flex flex-col space-y-3 pt-4 border-t border-gray-200">
               {#if $authStore.isAuthenticated}
-                <span class="text-sm text-slate-600 px-2">
+                <span class="text-sm text-gray-600 px-3 font-mono">
                   {$authStore.principal?.toString().slice(0, 8)}...
                 </span>
-                <Button
-                  variant="secondary"
+                <button
                   onclick={() => {
                     authStore.signOut();
                     closeMobileMenu();
                   }}
+                  class="px-4 py-2.5 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   Logout
-                </Button>
+                </button>
               {:else}
-                <Button
-                  variant="primary"
+                <button
                   onclick={() => {
                     authStore.signIn({ identityProvider: "ii" });
                     closeMobileMenu();
                   }}
+                  class="px-4 py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors"
                 >
                   Login
-                </Button>
+                </button>
               {/if}
             </div>
           </div>

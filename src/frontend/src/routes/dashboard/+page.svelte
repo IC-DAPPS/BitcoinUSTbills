@@ -26,7 +26,7 @@
 </script>
 
 <svelte:head>
-  <title>Dashboard - Bitcoin UST Bills</title>
+  <title>Dashboard - BitcoinTBill</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50">
@@ -54,7 +54,7 @@
         </p>
         <button
           onclick={() => authStore.signIn({ identityProvider: "ii" })}
-          class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
+          class="px-6 py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600"
         >
           Sign In
         </button>
@@ -69,7 +69,7 @@
         </p>
         <a
           href="/register"
-          class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
+          class="px-6 py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600"
         >
           Complete Registration
         </a>
@@ -78,25 +78,27 @@
       <AdminDashboard />
     {:else}
       <!-- Balance Overview -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 max-w-4xl mx-auto">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 max-w-4xl mx-auto"
+      >
         <div
-          class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600"
+          class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
         >
-          <h3 class="text-lg font-semibold mb-2 text-slate-800">
+          <h3 class="text-base sm:text-lg font-semibold mb-2 text-gray-900">
             ckBTC Balance
           </h3>
-          <p class="text-2xl font-bold text-slate-800">
+          <p class="text-xl sm:text-2xl font-bold text-gray-900">
             {ckbtcBalance.number.toFixed(8)} ckBTC
           </p>
         </div>
         <div
-          class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600"
+          class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
         >
-          <h3 class="text-lg font-semibold mb-2 text-slate-800">
-            OUSG Balance
+          <h3 class="text-base sm:text-lg font-semibold mb-2 text-gray-900">
+            BBILL Balance
           </h3>
-          <p class="text-2xl font-bold text-slate-800">
-            {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} OUSG
+          <p class="text-xl sm:text-2xl font-bold text-gray-900">
+            {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} BBILL
           </p>
         </div>
       </div>
@@ -104,28 +106,28 @@
       <!-- Account Status -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 max-w-4xl mx-auto">
         <div
-          class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600"
+          class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
         >
-          <h3 class="text-lg font-semibold mb-2 text-slate-800">KYC Status</h3>
+          <h3 class="text-lg font-semibold mb-2 text-gray-900">KYC Status</h3>
           <p
             class="text-2xl font-bold {userSate.profile?.kyc_status ===
             'Verified'
               ? 'text-black bg-white px-4 py-2 rounded-lg font-semibold'
-              : 'text-slate-800 bg-amber-500 px-4 py-2 rounded-lg font-semibold'}"
+              : 'text-gray-900 bg-amber-500 px-4 py-2 rounded-lg font-semibold'}"
           >
             {userSate.profile?.kyc_status || "Pending"}
           </p>
         </div>
         <div
-          class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600"
+          class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
         >
-          <h3 class="text-lg font-semibold mb-2 text-slate-800">
+          <h3 class="text-lg font-semibold mb-2 text-gray-900">
             Trading Access
           </h3>
           <p
             class="text-2xl font-bold {canTrade()
               ? 'text-black bg-white px-4 py-2 rounded-lg font-semibold'
-              : 'text-slate-800 bg-red-500 px-4 py-2 rounded-lg font-semibold'}"
+              : 'text-gray-900 bg-red-500 px-4 py-2 rounded-lg font-semibold'}"
           >
             {canTrade() ? "Enabled" : "Disabled"}
           </p>
@@ -135,22 +137,22 @@
       <!-- Quick Actions -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 max-w-4xl mx-auto">
         <div
-          class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600"
+          class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
         >
-          <h3 class="text-lg font-semibold mb-2 text-slate-800">
-            Mint/Redeem OUSG
+          <h3 class="text-lg font-semibold mb-2 text-gray-900">
+            Mint/Redeem BBILL
           </h3>
           <a
             href="/ousg"
             class="block px-4 py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors mt-2"
           >
-            Go to OUSG
+            Go to BBILL
           </a>
         </div>
         <div
-          class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600"
+          class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
         >
-          <h3 class="text-lg font-semibold mb-2 text-slate-800">View Wallet</h3>
+          <h3 class="text-lg font-semibold mb-2 text-gray-900">View Wallet</h3>
           <a
             href="/wallet"
             class="block px-4 py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors mt-2"
@@ -160,9 +162,9 @@
         </div>
         {#if !canTrade()}
           <div
-            class="bg-blue-600 rounded-xl p-6 text-center border border-blue-600"
+            class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
           >
-            <h3 class="text-lg font-semibold mb-2 text-slate-800">
+            <h3 class="text-lg font-semibold mb-2 text-gray-900">
               Complete KYC
             </h3>
             <a

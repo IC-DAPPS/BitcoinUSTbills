@@ -119,7 +119,7 @@
 </script>
 
 <svelte:head>
-  <title>Register - BitcoinUSTbills</title>
+  <title>Register - BitcoinTBill</title>
   <meta
     name="description"
     content="Complete your registration to start investing in US Treasury Bills"
@@ -130,7 +130,7 @@
   <div class="min-h-screen flex items-center justify-center bg-slate-50">
     <div class="flex flex-col items-center space-y-4">
       <LoadingSpinner />
-      <p class="text-slate-600">Checking registration status...</p>
+      <p class="text-gray-600">Checking registration status...</p>
     </div>
   </div>
 {:else}
@@ -141,14 +141,14 @@
       <!-- Header -->
       <div class="text-center mb-8">
         <div
-          class="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4"
+          class="w-16 h-16 bg-orange-500 rounded-xl flex items-center justify-center mx-auto mb-4"
         >
           <span class="text-white font-bold text-2xl">B</span>
         </div>
-        <h1 class="text-3xl lg:text-4xl font-bold text-slate-800 mb-4">
+        <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
           Complete Your Registration
         </h1>
-        <p class="text-lg text-slate-600 leading-relaxed">
+        <p class="text-lg text-gray-600 leading-relaxed">
           Welcome to BitcoinUSTbills! Please provide your information to start
           investing in US Treasury Bills.
         </p>
@@ -167,7 +167,7 @@
           <div>
             <label
               for="email"
-              class="block text-sm font-medium text-slate-800 mb-2"
+              class="block text-sm font-medium text-gray-800 mb-2"
             >
               Email Address <span class="text-red-500">*</span>
             </label>
@@ -189,7 +189,7 @@
           <div>
             <label
               for="country"
-              class="block text-sm font-medium text-slate-800 mb-2"
+              class="block text-sm font-medium text-gray-800 mb-2"
             >
               Country <span class="text-red-500">*</span>
             </label>
