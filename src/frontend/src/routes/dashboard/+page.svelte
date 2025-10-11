@@ -95,10 +95,10 @@
           class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
         >
           <h3 class="text-base sm:text-lg font-semibold mb-2 text-gray-900">
-            OUSG Balance
+            BBILL Balance
           </h3>
           <p class="text-xl sm:text-2xl font-bold text-gray-900">
-            {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} OUSG
+            {(Number(ousgBalance.balance) / 1_000_000).toFixed(6)} BBILL
           </p>
         </div>
       </div>
@@ -140,13 +140,13 @@
           class="bg-white rounded-xl p-4 sm:p-6 text-center border border-gray-200 shadow-sm"
         >
           <h3 class="text-lg font-semibold mb-2 text-gray-900">
-            Mint/Redeem OUSG
+            Mint/Redeem BBILL
           </h3>
           <a
             href="/ousg"
             class="block px-4 py-3 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors mt-2"
           >
-            Go to OUSG
+            Go to BBILL
           </a>
         </div>
         <div
