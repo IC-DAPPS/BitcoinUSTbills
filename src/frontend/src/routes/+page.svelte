@@ -268,14 +268,12 @@
           </p>
 
           <!-- Backing Note -->
-          <div
-            class="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-4"
-          >
+          <div class="bg-gray-100 border border-gray-300 rounded-lg p-3 mt-4">
             <div class="flex items-center gap-2">
               <div
                 class="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"
               ></div>
-              <p class="text-xs sm:text-sm text-orange-800 font-medium">
+              <p class="text-xs sm:text-sm text-gray-700 font-medium">
                 <span class="font-bold">BBILL</span> is backed by
                 <span class="font-bold">OUSG</span> (Ondo Short-Term U.S. Government
                 Treasuries)
