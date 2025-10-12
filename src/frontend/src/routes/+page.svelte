@@ -493,6 +493,17 @@
                   Mint BBILL
                 {/if}
               </button>
+
+              <!-- KYC Prompt for registered users -->
+              {#if userSate.profile && userSate.profile.kyc_status === "Pending"}
+                <p class="text-xs text-center text-gray-600 mt-2">
+                  To fill in KYC <a
+                    href="/kyc"
+                    class="text-orange-500 hover:text-orange-600 underline"
+                    >click here</a
+                  >
+                </p>
+              {/if}
             {/if}
           </div>
         {:else}
