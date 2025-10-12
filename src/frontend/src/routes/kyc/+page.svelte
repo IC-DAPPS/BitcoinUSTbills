@@ -47,7 +47,7 @@
   // - Anything else = user has started KYC process (call getKYCStatus for details)
   let hasStartedKYC = $derived(basicKYCStatus && basicKYCStatus !== "Pending");
 
-  // Check if all files are uploaded and valid
+  // No auto-redirect - show message page instead
   let allFilesUploaded = $derived(
     documentFrontFile && documentBackFile && selfieFile
   );
@@ -373,6 +373,37 @@
           <LoadingSpinner />
           <p class="text-gray-600 mt-4">Loading KYC status...</p>
         </div>
+      </div>
+    {:else if !userProfile}
+      <!-- User not registered -->
+      <div
+        class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+      >
+        <div
+          class="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            class="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            ></path>
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+          Complete Registration
+        </h2>
+        <p class="text-gray-900 mb-6">
+          Please complete registration first to access KYC
+        </p>
+        <Button variant="primary" href="/register">Complete Registration</Button
+        >
       </div>
     {:else if kycSession}
       <!-- User has started KYC - show status (prioritize this over basic status) -->
