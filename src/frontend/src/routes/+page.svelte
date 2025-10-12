@@ -256,9 +256,9 @@
           <h1
             class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2 lg:mb-3"
           >
-            BITCOIN LIQUIDITY<br />
-            To<br />
-            USTBILL MARKETS
+            BUY TREASURY BILLS<br />
+            FOR<br />
+            AS LOW AS 100$.
           </h1>
           <p
             class="text-sm sm:text-sm lg:text-base text-gray-600 leading-relaxed"
@@ -266,6 +266,22 @@
             Bitcoin Tbill offers fractionalized US Treasury bills to individuals
             and SMEs in Africa using ckBTC.
           </p>
+
+          <!-- Backing Note -->
+          <div
+            class="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-4"
+          >
+            <div class="flex items-center gap-2">
+              <div
+                class="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"
+              ></div>
+              <p class="text-xs sm:text-sm text-orange-800 font-medium">
+                <span class="font-bold">BBILL</span> is backed by
+                <span class="font-bold">OUSG</span> (Ondo Short-Term U.S. Government
+                Treasuries)
+              </p>
+            </div>
+          </div>
         </div>
 
         <!-- Metrics -->
