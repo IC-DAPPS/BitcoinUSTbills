@@ -1,391 +1,673 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/Button.svelte";
+  import { onMount } from "svelte";
   import { authStore } from "$lib/stores/auth.store";
-  import { goto } from "$app/navigation";
+  import { userSate } from "$lib/state/user.svelte";
+  import { ckbtcBalance } from "$lib/state/ckbtc-balance.svelte";
+  import {
+    ousgBalance,
+    subscribeToAuthChanges,
+  } from "$lib/state/ousg-balance.svelte";
+  import { mintOUSGAutomatic } from "$lib/services/minting.service";
+  import {
+    redeemOUSG,
+    approveOUSGForRedemption,
+  } from "$lib/services/redeeming.service";
+  import { toast } from "svelte-sonner";
   import Footer from "$lib/components/Footer.svelte";
 
-  function handleStartInvesting() {
-    if ($authStore.isAuthenticated) {
-      goto("/dashboard");
-    } else {
+  // State variables
+  let activeTab = $state<"mint" | "redeem">("mint");
+  let ckbtcAmount = $state("");
+  let ousgAmount = $state("");
+  let isMinting = $state(false);
+  let isApproving = $state(false);
+  let isRedeeming = $state(false);
+  let approvalPending = $state(false);
+  let btcPrice = $state(100000); // Default BTC price
+
+  // Calculate expected OUSG tokens for minting
+  const expectedOUSG = $derived(() => {
+    const amount = parseFloat(ckbtcAmount);
+    if (!amount || amount <= 0) return 0n;
+
+    const ckbtcInSatoshis = amount * 100_000_000;
+    const usdValue = (ckbtcInSatoshis / 100_000_000) * btcPrice;
+    const ousgTokens = usdValue / 5000; // Each OUSG = $5000
+    return BigInt(Math.floor(ousgTokens * 1_000_000)); // Convert to OUSG units
+  });
+
+  // Calculate expected ckBTC for redemption
+  const expectedCkBTC = $derived(() => {
+    const amount = parseFloat(ousgAmount);
+    if (!amount || amount <= 0) return 0n;
+
+    const ousgInUnits = amount * 1_000_000;
+    const usdValue = (ousgInUnits / 1_000_000) * 5000; // Each OUSG = $5000
+    const ckbtcAmount = usdValue / btcPrice;
+    return BigInt(Math.floor(ckbtcAmount * 100_000_000)); // Convert to satoshis
+  });
+
+  // Get current BTC price
+  const fetchBTCPrice = async () => {
+    try {
+      const { backend } = $authStore;
+      if (backend) {
+        const response = await backend.get_current_btc_price();
+        if ("Ok" in response) {
+          btcPrice = response.Ok;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch BTC price:", error);
+    }
+  };
+
+  onMount(() => {
+    fetchBTCPrice();
+    subscribeToAuthChanges();
+  });
+
+  const handleConnectWallet = () => {
+    if (!$authStore.isAuthenticated) {
       authStore.signIn({ identityProvider: "ii" });
     }
-  }
+  };
 
-  function handleLearnMore() {
-    goto("/dashboard");
-  }
+  const handleMint = async () => {
+    if (!$authStore.isAuthenticated) {
+      toast.error("Please log in to mint OUSG tokens");
+      return;
+    }
+
+    // TODO: Uncomment for KYC enforcement in production
+    // if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+    //   toast.error("KYC verification is required to mint OUSG tokens");
+    //   return;
+    // }
+
+    const amount = parseFloat(ckbtcAmount);
+    if (!amount || amount <= 0) {
+      toast.error("Please enter a valid ckBTC amount");
+      return;
+    }
+
+    const ckbtcAmountBigInt = BigInt(Math.floor(amount * 100_000_000));
+
+    const ckbtcBalanceBigInt = BigInt(
+      Math.floor(ckbtcBalance.number * 100_000_000)
+    );
+    if (ckbtcBalanceBigInt < ckbtcAmountBigInt) {
+      toast.error("Insufficient ckBTC balance");
+      return;
+    }
+
+    isMinting = true;
+
+    try {
+      const result = await mintOUSGAutomatic(ckbtcAmountBigInt);
+      if (result.success) {
+        ckbtcAmount = "";
+        toast.success("OUSG tokens minted successfully!");
+      }
+    } catch (error) {
+      console.error("Minting error:", error);
+      toast.error("Failed to mint OUSG tokens");
+    } finally {
+      isMinting = false;
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!$authStore.isAuthenticated) {
+      toast.error("Please log in to approve OUSG tokens");
+      return;
+    }
+
+    // TODO: Uncomment for KYC enforcement in production
+    // if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+    //   toast.error("KYC verification is required");
+    //   return;
+    // }
+
+    const amount = parseFloat(ousgAmount);
+    if (!amount || amount <= 0) {
+      toast.error("Please enter a valid OUSG amount");
+      return;
+    }
+
+    if (amount < 1) {
+      toast.error("Minimum redemption amount is 1 OUSG token");
+      return;
+    }
+
+    const ousgAmountBigInt = BigInt(Math.floor(amount * 1_000_000));
+
+    if (ousgBalance.balance < ousgAmountBigInt) {
+      toast.error("Insufficient OUSG balance");
+      return;
+    }
+
+    isApproving = true;
+
+    try {
+      const result = await approveOUSGForRedemption(ousgAmountBigInt);
+      if (result.success) {
+        approvalPending = true;
+        toast.success("OUSG tokens approved! You can now redeem them.");
+      }
+    } catch (error) {
+      console.error("Approval error:", error);
+      toast.error("Failed to approve OUSG tokens");
+    } finally {
+      isApproving = false;
+    }
+  };
+
+  const handleRedeem = async () => {
+    if (!approvalPending) {
+      toast.error("Please approve OUSG tokens first");
+      return;
+    }
+
+    if (!$authStore.isAuthenticated) {
+      toast.error("Please log in to redeem OUSG tokens");
+      return;
+    }
+
+    // TODO: Uncomment for KYC enforcement in production
+    // if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+    //   toast.error("KYC verification is required to redeem OUSG tokens");
+    //   return;
+    // }
+
+    const amount = parseFloat(ousgAmount);
+    if (!amount || amount <= 0) {
+      toast.error("Please enter a valid OUSG amount");
+      return;
+    }
+
+    const ousgAmountBigInt = BigInt(Math.floor(amount * 1_000_000));
+
+    if (ousgBalance.balance < ousgAmountBigInt) {
+      toast.error("Insufficient OUSG balance");
+      return;
+    }
+
+    isRedeeming = true;
+
+    try {
+      const result = await redeemOUSG(ousgAmountBigInt);
+      if (result.success) {
+        ousgAmount = "";
+        approvalPending = false;
+        toast.success("OUSG tokens redeemed successfully!");
+      }
+    } catch (error) {
+      console.error("Redeeming error:", error);
+      toast.error("Failed to redeem OUSG tokens");
+    } finally {
+      isRedeeming = false;
+    }
+  };
+
+  const setMaxCkBTC = () => {
+    if (ckbtcBalance.number > 0) {
+      ckbtcAmount = ckbtcBalance.number.toString();
+    }
+  };
+
+  const setMaxOUSG = () => {
+    if (ousgBalance.balance > 0n) {
+      ousgAmount = (Number(ousgBalance.balance) / 1_000_000).toString();
+    }
+  };
 </script>
 
 <svelte:head>
-  <title>BitcoinUSTbills - Democratize Treasury Investments</title>
+  <title>BitcoinTBill - Fractionalized US Treasury Bills for Africa</title>
   <meta
     name="description"
-    content="Access fractional ownership of US Treasury Bills through blockchain tokenization. Earn steady yields with unprecedented liquidity and transparency."
+    content="Bitcoin Tbill offers fractionalized US Treasury bills to individuals and SMEs in Africa using ckBTC."
   />
 </svelte:head>
 
-<!-- Hero Section -->
-<section class="relative bg-white py-20 lg:py-32">
-  <div class="container mx-auto px-6">
-    <!-- SEC Compliant Banner -->
-    <div class="flex justify-center mb-12">
+<!-- Main Hero Section -->
+<section class="bg-gray-50 py-20 lg:py-24">
+  <div class="container mx-auto px-6 max-w-6xl">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+      <!-- Left Section - Information -->
+      <div class="space-y-4 lg:space-y-5">
+        <!-- Badge -->
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 lg:px-3 lg:py-1.5 bg-white rounded-full border border-gray-200 shadow-sm"
+        >
+          <div
+            class="w-5 h-5 lg:w-6 lg:h-6 bg-orange-500 rounded flex items-center justify-center flex-shrink-0"
+          >
+            <span class="text-white text-xs font-bold">₿</span>
+          </div>
+          <span class="text-xs lg:text-xs text-gray-700 font-medium">
+            BBILL: BTC based Short-Term US Treasuries Fund *
+          </span>
+        </div>
+
+        <!-- Main Heading -->
+        <div>
+          <h1
+            class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2 lg:mb-3"
+          >
+            BUY TREASURY BILLS<br />
+            FOR<br />
+            AS LOW AS 100$.
+          </h1>
+          <p
+            class="text-sm sm:text-sm lg:text-base text-gray-600 leading-relaxed"
+          >
+            Bitcoin Tbill offers fractionalized US Treasury bills to individuals
+            and SMEs in Africa using ckBTC.
+          </p>
+
+          <!-- Backing Note -->
+          <div class="bg-gray-100 border border-gray-300 rounded-lg p-3 mt-4">
+            <div class="flex items-center gap-2">
+              <div
+                class="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"
+              ></div>
+              <p class="text-xs sm:text-sm text-gray-700 font-medium">
+                <span class="font-bold">BBILL</span> is backed by
+                <span class="font-bold">OUSG</span> (Ondo Short-Term U.S. Government
+                Treasuries)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+          <div>
+            <p class="text-xs text-gray-600 mb-1">Price</p>
+            <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+              $ 112.0303
+            </p>
+            <p class="text-xs text-gray-500 hidden sm:block">$ 0.0000 today</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-600 mb-1">APY1</p>
+            <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+              4.11 %
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-600 mb-1">TVL</p>
+            <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+              $ 701.07M
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row flex-wrap gap-2 lg:gap-3">
+          <button
+            class="px-4 py-2 lg:px-5 lg:py-2.5 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors text-sm"
+          >
+            Buy BBILL
+          </button>
+          <button
+            class="px-4 py-2 lg:px-5 lg:py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors text-sm"
+          >
+            Redeem BBILL
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Section - Widget Card -->
       <div
-        class="inline-flex items-center px-4 py-2 bg-white rounded-full shadow-sm border border-gray-200"
+        class="bg-white rounded-2xl shadow-xl border-2 border-black p-4 sm:p-5 lg:p-6"
       >
-        <div class="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
-        <span class="text-sm text-slate-600 font-medium"
-          >SEC Compliant & Secure</span
-        >
-        <svg
-          class="w-4 h-4 ml-2 text-blue-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          ></path>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Main Heading -->
-    <div class="text-center max-w-6xl mx-auto mb-12">
-      <h1
-        class="text-5xl lg:text-6xl font-bold text-slate-800 mb-6 leading-tight"
-      >
-        Democratize <span class="text-blue-600">Treasury</span><br />
-        <span class="text-blue-600">Investments</span>
-      </h1>
-      <p
-        class="text-xl lg:text-2xl text-slate-600 mb-8 max-w-4xl mx-auto leading-relaxed"
-      >
-        Access fractional ownership of US Treasury Bills through blockchain
-        tokenization.<br />
-        Earn steady yields with unprecedented liquidity and transparency.
-      </p>
-
-      <!-- CTA Buttons -->
-      <div
-        class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
-      >
-        <Button
-          variant="primary"
-          size="lg"
-          onclick={handleStartInvesting}
-          class="shadow-lg"
-        >
-          Start Investing →
-        </Button>
-        <Button variant="secondary" size="lg" onclick={handleLearnMore}
-          >Learn How It Works</Button
-        >
-      </div>
-    </div>
-
-    <!-- Feature Icons -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
-      <div class="text-center">
+        <!-- Mint/Redeem Toggle -->
         <div
-          class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+          class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-4"
         >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-            ></path>
-          </svg>
+          <div class="flex gap-2">
+            <button
+              class={`px-3 sm:px-4 py-1.5 rounded-full font-medium transition-colors text-xs sm:text-sm ${
+                activeTab === "mint"
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              onclick={() => (activeTab = "mint")}
+            >
+              Mint
+            </button>
+            <button
+              class={`px-3 sm:px-4 py-1.5 rounded-full font-medium transition-colors text-xs sm:text-sm ${
+                activeTab === "redeem"
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              onclick={() => (activeTab = "redeem")}
+            >
+              Redeem
+            </button>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs text-gray-600">
+            <span class="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+            <span>BTC Network</span>
+          </div>
         </div>
-        <h3 class="text-lg font-semibold text-slate-800 mb-2">Steady Yields</h3>
-      </div>
 
-      <div class="text-center">
-        <div
-          class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="text-lg font-semibold text-slate-800 mb-2">Global Access</h3>
-      </div>
+        {#if activeTab === "mint"}
+          <!-- Mint Interface -->
+          <div class="space-y-3">
+            <!-- Pay Input -->
+            <div class="bg-gray-50 rounded-xl p-3 border-2 border-black">
+              <div class="flex justify-between items-center mb-1.5">
+                <label for="mint-ckbtc-input" class="text-xs text-gray-600"
+                  >Pay</label
+                >
+                <button
+                  onclick={setMaxCkBTC}
+                  class="text-xs text-gray-500 hover:text-gray-700"
+                >
+                  Balance: {ckbtcBalance.number.toFixed(8)}
+                  <span class="font-medium">Max</span>
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  id="mint-ckbtc-input"
+                  type="number"
+                  step="0.00000001"
+                  bind:value={ckbtcAmount}
+                  placeholder="0"
+                  class="flex-1 bg-transparent text-lg sm:text-xl font-semibold text-gray-900 outline-none"
+                />
+                <div
+                  class="flex items-center gap-1 px-2 py-1 bg-orange-500 rounded-lg flex-shrink-0"
+                >
+                  <span class="text-white font-medium text-xs sm:text-sm"
+                    >ckBTC</span
+                  >
+                </div>
+              </div>
+            </div>
 
-      <div class="text-center">
-        <div
-          class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="text-lg font-semibold text-slate-800 mb-2">
-          US Treasury Bills
-        </h3>
-      </div>
+            <!-- Swap Arrow -->
+            <div class="flex justify-center">
+              <div
+                class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  ></path>
+                </svg>
+              </div>
+            </div>
 
-      <div class="text-center">
-        <div
-          class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="text-lg font-semibold text-slate-800 mb-2">Blockchain</h3>
+            <!-- Receive Input -->
+            <div class="bg-gray-50 rounded-xl p-3 border-2 border-black">
+              <div class="flex justify-between items-center mb-1.5">
+                <label for="mint-ousg-output" class="text-xs text-gray-600"
+                  >Receive</label
+                >
+                <span class="text-xs text-gray-500">
+                  Balance: {(Number(ousgBalance.balance) / 1_000_000).toFixed(
+                    6
+                  )}
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  id="mint-ousg-output"
+                  type="text"
+                  value={expectedOUSG() > 0n
+                    ? (Number(expectedOUSG()) / 1_000_000).toFixed(6)
+                    : "0"}
+                  readonly
+                  placeholder="0"
+                  class="flex-1 bg-transparent text-lg sm:text-xl font-semibold text-gray-900 outline-none"
+                />
+                <div
+                  class="flex items-center gap-1 px-2 py-1 bg-orange-500 rounded-lg flex-shrink-0"
+                >
+                  <span class="text-white font-medium text-xs sm:text-sm"
+                    >BBILL</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Exchange Rate -->
+            <div class="text-center text-sm text-gray-600">1BBILL = $ 1.09</div>
+
+            <!-- Instant Limits Info -->
+            <div class="text-center text-xs text-gray-500">Instant Limits</div>
+
+            <!-- Connect Wallet / Mint Button -->
+            {#if !$authStore.isAuthenticated}
+              <button
+                onclick={handleConnectWallet}
+                class="w-full py-4 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors text-lg"
+              >
+                Connect Wallet
+              </button>
+              <p class="text-xs text-center text-gray-500 mt-2">
+                It looks like you haven't applied for BBILL yet. Start your
+                application to access BBILL
+              </p>
+            {:else if !userSate.profile}
+              <button
+                disabled
+                class="w-full py-4 bg-gray-300 text-gray-600 font-semibold rounded-xl cursor-not-allowed text-lg"
+              >
+                Registration Required
+              </button>
+              <p class="text-xs text-center text-red-500 mt-2">
+                Please complete registration to mint BBILL tokens
+              </p>
+            {:else}
+              <button
+                onclick={handleMint}
+                disabled={isMinting ||
+                  !ckbtcAmount ||
+                  parseFloat(ckbtcAmount) <= 0}
+                class="w-full py-4 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+              >
+                {#if isMinting}
+                  <span
+                    class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"
+                  ></span>
+                  Minting...
+                {:else}
+                  Mint BBILL
+                {/if}
+              </button>
+
+              <!-- KYC Prompt for registered users -->
+              {#if userSate.profile && userSate.profile.kyc_status === "Pending"}
+                <p class="text-xs text-center text-gray-600 mt-2">
+                  To fill in KYC <a
+                    href="/kyc"
+                    class="text-orange-500 hover:text-orange-600 underline"
+                    >click here</a
+                  >
+                </p>
+              {/if}
+            {/if}
+          </div>
+        {:else}
+          <!-- Redeem Interface -->
+          <div class="space-y-3">
+            <!-- Pay Input (OUSG) -->
+            <div class="bg-gray-50 rounded-xl p-3 border-2 border-black">
+              <div class="flex justify-between items-center mb-1.5">
+                <label for="redeem-ousg-input" class="text-xs text-gray-600"
+                  >Pay</label
+                >
+                <button
+                  onclick={setMaxOUSG}
+                  class="text-xs text-gray-500 hover:text-gray-700"
+                >
+                  Balance: {(Number(ousgBalance.balance) / 1_000_000).toFixed(
+                    6
+                  )} <span class="font-medium">Max</span>
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  id="redeem-ousg-input"
+                  type="number"
+                  step="0.000001"
+                  bind:value={ousgAmount}
+                  placeholder="0"
+                  class="flex-1 bg-transparent text-lg sm:text-xl font-semibold text-gray-900 outline-none"
+                />
+                <div
+                  class="flex items-center gap-1 px-2 py-1 bg-orange-500 rounded-lg flex-shrink-0"
+                >
+                  <span class="text-white font-medium text-xs sm:text-sm"
+                    >BBILL</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Swap Arrow -->
+            <div class="flex justify-center">
+              <div
+                class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Receive Input (ckBTC) -->
+            <div class="bg-gray-50 rounded-xl p-3 border-2 border-black">
+              <div class="flex justify-between items-center mb-1.5">
+                <label for="redeem-ckbtc-output" class="text-xs text-gray-600"
+                  >Receive</label
+                >
+                <span class="text-xs text-gray-500">
+                  Balance: {ckbtcBalance.number.toFixed(8)}
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  id="redeem-ckbtc-output"
+                  type="text"
+                  value={expectedCkBTC() > 0n
+                    ? (Number(expectedCkBTC()) / 100_000_000).toFixed(8)
+                    : "0"}
+                  readonly
+                  placeholder="0"
+                  class="flex-1 bg-transparent text-lg sm:text-xl font-semibold text-gray-900 outline-none"
+                />
+                <div
+                  class="flex items-center gap-1 px-2 py-1 bg-orange-500 rounded-lg flex-shrink-0"
+                >
+                  <span class="text-white font-medium text-xs sm:text-sm"
+                    >ckBTC</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Exchange Rate -->
+            <div class="text-center text-sm text-gray-600">1BBILL = $ 1.09</div>
+
+            <!-- Instant Limits Info -->
+            <div class="text-center text-xs text-gray-500">Instant Limits</div>
+
+            <!-- Approval Status -->
+            {#if approvalPending}
+              <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-800 text-center">
+                  ✅ OUSG tokens approved for redemption
+                </p>
+              </div>
+            {/if}
+
+            <!-- Redeem Buttons -->
+            {#if !$authStore.isAuthenticated}
+              <button
+                onclick={handleConnectWallet}
+                class="w-full py-4 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors text-lg"
+              >
+                Connect Wallet
+              </button>
+            {:else if !userSate.profile}
+              <button
+                disabled
+                class="w-full py-4 bg-gray-300 text-gray-600 font-semibold rounded-xl cursor-not-allowed text-lg"
+              >
+                Registration Required
+              </button>
+            {:else}
+              <div class="flex gap-2">
+                <button
+                  onclick={handleApprove}
+                  disabled={isApproving ||
+                    approvalPending ||
+                    !ousgAmount ||
+                    parseFloat(ousgAmount) <= 0}
+                  class="flex-1 py-4 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {#if isApproving}
+                    <span
+                      class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"
+                    ></span>
+                    Approving...
+                  {:else if approvalPending}
+                    Approved ✓
+                  {:else}
+                    1. Approve
+                  {/if}
+                </button>
+                <button
+                  onclick={handleRedeem}
+                  disabled={!approvalPending ||
+                    isRedeeming ||
+                    !ousgAmount ||
+                    parseFloat(ousgAmount) <= 0}
+                  class="flex-1 py-4 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {#if isRedeeming}
+                    <span
+                      class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"
+                    ></span>
+                    Redeeming...
+                  {:else}
+                    2. Redeem
+                  {/if}
+                </button>
+              </div>
+            {/if}
+          </div>
+        {/if}
       </div>
     </div>
   </div>
 </section>
-
-<!-- Value Proposition Section -->
-<section class="py-20 bg-white">
-  <div class="container mx-auto px-6 max-w-7xl">
-    <div class="text-center mb-16">
-      <p class="text-blue-600 font-medium mb-4">Built for Modern Investors</p>
-      <h2
-        class="text-4xl lg:text-5xl font-bold text-slate-800 mb-6 leading-tight"
-      >
-        Everything you need to<br />
-        invest in tokenized
-        <span class="text-blue-600"
-          >Treasury<br />
-          Bills with confidence</span
-        >
-      </h2>
-      <p class="text-xl text-slate-600 max-w-4xl mx-auto leading-relaxed">
-        Democratizing access to US Treasury investments through innovative
-        blockchain<br />
-        technology. Join thousands of investors who are already building wealth with<br
-        />
-        BitcoinUSTbills.
-      </p>
-    </div>
-
-    <!-- Feature Cards - Responsive Card Blocks -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <!-- Instant Onboarding -->
-      <div
-        class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 text-center"
-      >
-        <div
-          class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6"
-        >
-          <svg
-            class="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="text-xl font-bold text-slate-800 mb-4">
-          Instant Onboarding
-        </h3>
-        <p class="text-slate-600 text-sm mb-6">
-          Quick registration with streamlined KYC verification. Get started in
-          minutes with our secure, user-friendly onboarding process designed for
-          modern investors.
-        </p>
-        <Button
-          variant="secondary"
-          size="sm"
-          onclick={handleLearnMore}
-          class="mx-auto"
-        >
-          Learn more →
-        </Button>
-      </div>
-
-      <!-- Fractional Ownership -->
-      <div
-        class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 text-center"
-      >
-        <div
-          class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6"
-        >
-          <svg
-            class="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="text-xl font-bold text-slate-800 mb-4">
-          Fractional Ownership
-        </h3>
-        <p class="text-slate-600 text-sm mb-6">
-          Invest with as little as $10 in US Treasury Bills. Break down
-          traditional barriers and make institutional-grade investments
-          accessible to everyone.
-        </p>
-        <Button
-          variant="secondary"
-          size="sm"
-          onclick={handleLearnMore}
-          class="mx-auto"
-        >
-          Learn more →
-        </Button>
-      </div>
-
-      <!-- Real-Time Liquidity -->
-      <div
-        class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 text-center"
-      >
-        <div
-          class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6"
-        >
-          <svg
-            class="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="text-xl font-bold text-slate-800 mb-4">
-          Real-Time Liquidity
-        </h3>
-        <p class="text-slate-600 text-sm mb-6">
-          Buy and sell tokens instantly with no waiting periods. Access your
-          investments 24/7 with unprecedented liquidity in the Treasury market.
-        </p>
-        <Button
-          variant="secondary"
-          size="sm"
-          onclick={handleLearnMore}
-          class="mx-auto"
-        >
-          Learn more →
-        </Button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Stats Section - Responsive Stats Cards -->
-<section class="py-16 bg-white">
-  <div class="container mx-auto px-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div
-        class="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
-      >
-        <div class="text-3xl font-bold text-slate-800 mb-2">$10M+</div>
-        <div class="text-sm text-slate-600">Total Value Locked</div>
-      </div>
-      <div
-        class="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
-      >
-        <div class="text-3xl font-bold text-slate-800 mb-2">5.2%</div>
-        <div class="text-sm text-slate-600">Average Yield</div>
-      </div>
-      <div
-        class="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
-      >
-        <div class="text-3xl font-bold text-slate-800 mb-2">1,000+</div>
-        <div class="text-sm text-slate-600">Active Investors</div>
-      </div>
-      <div
-        class="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
-      >
-        <div class="text-3xl font-bold text-slate-800 mb-2">24/7</div>
-        <div class="text-sm text-slate-600">Market Access</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Call to Action -->
-<section class="py-20 bg-white">
-  <div class="container mx-auto px-6 text-center">
-    <h2 class="text-4xl font-bold mb-6 text-slate-800">
-      Ready to Start Investing?
-    </h2>
-    <p class="text-xl mb-8 text-slate-600">
-      Join thousands of investors already earning steady yields with Treasury
-      Bills
-    </p>
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <Button
-        variant="primary"
-        size="lg"
-        onclick={handleStartInvesting}
-        class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
-      >
-        Get Started Today
-      </Button>
-      <Button
-        variant="outline"
-        size="lg"
-        onclick={handleLearnMore}
-        class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
-      >
-        Learn More
-      </Button>
-    </div>
-  </div>
-</section>
-
-<!-- Footer with controlled visibility -->
 
 <Footer />

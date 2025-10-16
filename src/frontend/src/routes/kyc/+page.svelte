@@ -47,7 +47,7 @@
   // - Anything else = user has started KYC process (call getKYCStatus for details)
   let hasStartedKYC = $derived(basicKYCStatus && basicKYCStatus !== "Pending");
 
-  // Check if all files are uploaded and valid
+  // No auto-redirect - show message page instead
   let allFilesUploaded = $derived(
     documentFrontFile && documentBackFile && selfieFile
   );
@@ -318,19 +318,19 @@
 </script>
 
 <svelte:head>
-  <title>KYC Verification - BitcoinUSTbills</title>
+  <title>KYC Verification - BitcoinTBill</title>
   <meta
     name="description"
     content="Complete your Know Your Customer (KYC) verification to start investing in tokenized US Treasury Bills."
   />
 </svelte:head>
 
-<div class="min-h-screen bg-slate-50">
+<div class="min-h-screen bg-gray-50">
   <div class="container mx-auto px-6 py-8">
     <!-- Page Header -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-slate-800 mb-2">KYC Verification</h1>
-      <p class="text-slate-600 text-lg">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">KYC Verification</h1>
+      <p class="text-gray-600 text-lg">
         Complete your identity verification to start investing in US Treasury
         Bills
       </p>
@@ -339,10 +339,10 @@
     {#if !isAuthenticated}
       <!-- Not logged in -->
       <div
-        class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+        class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
       >
         <div
-          class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4"
+          class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4"
         >
           <svg
             class="w-8 h-8 text-white"
@@ -358,10 +358,12 @@
             ></path>
           </svg>
         </div>
-        <h2 class="text-xl font-semibold text-black mb-4">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">
           Authentication Required
         </h2>
-        <p class="text-black mb-6">Please log in to access KYC verification</p>
+        <p class="text-gray-900 mb-6">
+          Please log in to access KYC verification
+        </p>
         <Button variant="primary" href="/">Go to Home</Button>
       </div>
     {:else if loading}
@@ -369,18 +371,49 @@
       <div class="flex justify-center items-center h-64">
         <div class="text-center">
           <LoadingSpinner />
-          <p class="text-slate-600 mt-4">Loading KYC status...</p>
+          <p class="text-gray-600 mt-4">Loading KYC status...</p>
         </div>
+      </div>
+    {:else if !userProfile}
+      <!-- User not registered -->
+      <div
+        class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+      >
+        <div
+          class="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            class="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            ></path>
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+          Complete Registration
+        </h2>
+        <p class="text-gray-900 mb-6">
+          Please complete registration first to access KYC
+        </p>
+        <Button variant="primary" href="/register">Complete Registration</Button
+        >
       </div>
     {:else if kycSession}
       <!-- User has started KYC - show status (prioritize this over basic status) -->
       <div class="flex flex-col gap-6">
         <!-- Status Card -->
         <div
-          class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+          class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
         >
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold text-black">KYC Status</h2>
+            <h2 class="text-xl font-semibold text-gray-900">KYC Status</h2>
             <StatusBadge status={getKYCStatusBadgeType(kycSession)} />
           </div>
 
@@ -388,10 +421,10 @@
             <div
               class="flex justify-between items-center py-3 border-b border-white/20"
             >
-              <span class="text-black text-sm font-medium text-left"
+              <span class="text-gray-900 text-sm font-medium text-left"
                 >Status:</span
               >
-              <span class="text-black font-semibold text-sm text-right"
+              <span class="text-gray-900 font-semibold text-sm text-right"
                 >{getKYCStatusText(kycSession)}</span
               >
             </div>
@@ -399,10 +432,10 @@
             <div
               class="flex justify-between items-center py-3 border-b border-white/20"
             >
-              <span class="text-black text-sm font-medium text-left"
+              <span class="text-gray-900 text-sm font-medium text-left"
                 >Submitted:</span
               >
-              <span class="text-black font-semibold text-sm text-right">
+              <span class="text-gray-900 font-semibold text-sm text-right">
                 {new Date(
                   Number(kycSession.created_at) * 1000
                 ).toLocaleDateString()}
@@ -413,10 +446,10 @@
               <div
                 class="flex justify-between items-center py-3 border-b border-white/20"
               >
-                <span class="text-black text-sm font-medium text-left"
+                <span class="text-gray-900 text-sm font-medium text-left"
                   >Reviewed:</span
                 >
-                <span class="text-black font-semibold text-sm text-right">
+                <span class="text-gray-900 font-semibold text-sm text-right">
                   {new Date(
                     Number(kycSession.reviewed_at[0]) * 1000
                   ).toLocaleDateString()}
@@ -426,10 +459,10 @@
 
             {#if kycSession.reviewer_notes[0]}
               <div class="mt-4 p-4 bg-amber-500 rounded-lg">
-                <h4 class="font-semibold text-slate-800 mb-2">
+                <h4 class="font-semibold text-gray-800 mb-2">
                   Reviewer Notes:
                 </h4>
-                <p class="text-slate-800">{kycSession.reviewer_notes[0]}</p>
+                <p class="text-gray-800">{kycSession.reviewer_notes[0]}</p>
               </div>
             {/if}
           </div>
@@ -438,36 +471,37 @@
         <!-- OCR Results (if available) -->
         {#if kycSession.ocr_result}
           <div
-            class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+            class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
           >
-            <h3 class="text-xl font-semibold text-black mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-6">
               Document Information
             </h3>
             <div class="grid grid-cols-1 gap-4 max-w-md mx-auto text-left">
               <div class="text-left">
-                <span class="text-black text-sm block mb-1">Name:</span>
-                <p class="text-black font-medium">
+                <span class="text-gray-900 text-sm block mb-1">Name:</span>
+                <p class="text-gray-900 font-medium">
                   {kycSession.ocr_result.extracted_name || "Not available"}
                 </p>
               </div>
               <div class="text-left">
-                <span class="text-black text-sm block mb-1">Date of Birth:</span
+                <span class="text-gray-900 text-sm block mb-1"
+                  >Date of Birth:</span
                 >
-                <p class="text-black font-medium">
+                <p class="text-gray-900 font-medium">
                   {kycSession.ocr_result.extracted_dob || "Not available"}
                 </p>
               </div>
               <div class="text-left">
-                <span class="text-black text-sm block mb-1">Country:</span>
-                <p class="text-black font-medium">
+                <span class="text-gray-900 text-sm block mb-1">Country:</span>
+                <p class="text-gray-900 font-medium">
                   {kycSession.ocr_result.extracted_country || "Not available"}
                 </p>
               </div>
               <div class="text-left">
-                <span class="text-black text-sm block mb-1"
+                <span class="text-gray-900 text-sm block mb-1"
                   >Document Number:</span
                 >
-                <p class="text-black font-medium">
+                <p class="text-gray-900 font-medium">
                   {kycSession.ocr_result.extracted_document_number ||
                     "Not available"}
                 </p>
@@ -479,7 +513,7 @@
     {:else if basicKYCStatus === "Verified"}
       <!-- KYC already verified -->
       <div
-        class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
+        class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200 mb-6 text-center w-full max-w-2xl mx-auto min-h-[180px]"
       >
         <div
           class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4"
@@ -498,10 +532,10 @@
             ></path>
           </svg>
         </div>
-        <h2 class="text-xl font-semibold text-black mb-4">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">
           KYC Verification Completed
         </h2>
-        <p class="text-black mb-6">
+        <p class="text-gray-900 mb-6">
           Your identity has been successfully verified. You can now invest in US
           Treasury Bills.
         </p>
@@ -532,7 +566,7 @@
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 ></path>
               </svg>
-              <p class="text-black font-medium">{error}</p>
+              <p class="text-gray-900 font-medium">{error}</p>
             </div>
           </div>
         {/if}
@@ -553,16 +587,16 @@
                   d="M5 13l4 4L19 7"
                 ></path>
               </svg>
-              <p class="text-black font-medium">{success}</p>
+              <p class="text-gray-900 font-medium">{success}</p>
             </div>
           </div>
         {/if}
 
         <!-- Integrated Document Upload Requirements with Upload Areas -->
         <div
-          class="bg-blue-600 rounded-xl p-8 shadow-lg border border-blue-600 mb-6 text-center w-full max-w-4xl mx-auto"
+          class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200 mb-6 text-center w-full max-w-4xl mx-auto"
         >
-          <h2 class="text-2xl font-semibold text-black mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
             Document Upload Requirements
           </h2>
 

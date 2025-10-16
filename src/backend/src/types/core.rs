@@ -74,8 +74,10 @@ pub struct DepositResponse {
 // ============= CORE IMPLEMENTATIONS =============
 
 impl User {
+    // TODO: Uncomment for KYC enforcement in production
     pub fn is_eligible_for_trading(&self) -> bool {
-        self.kyc_status == super::kyc::KYCStatus::Verified && self.is_active
+        // self.kyc_status == super::kyc::KYCStatus::Verified && self.is_active
+        self.is_active // KYC check temporarily disabled
     }
 
     pub fn total_portfolio_value(&self) -> u64 {
@@ -122,23 +124,34 @@ impl User {
     // ============= DEPOSIT HELPER METHODS =============
 
     pub fn can_make_deposit(&self, amount: u64) -> bool {
+        // TODO: Uncomment for KYC enforcement in production
         // Check if we're in testing mode
-        let is_testing_mode = Self::is_testing_mode();
+        // let is_testing_mode = Self::is_testing_mode();
 
-        ic_cdk::println!("can_make_deposit: amount={}, is_testing_mode={}, is_active={}, max_investment_limit={}", 
-                        amount, is_testing_mode, self.is_active, self.max_investment_limit);
+        ic_cdk::println!(
+            "can_make_deposit: amount={}, is_active={}, max_investment_limit={}",
+            amount,
+            self.is_active,
+            self.max_investment_limit
+        );
 
-        if is_testing_mode {
-            // Testing mode: Allow deposits without KYC
-            let result = self.is_active && amount <= 1_000_000_000;
-            ic_cdk::println!("Testing mode result: {}", result);
-            result
-        } else {
-            // Production mode: Strict KYC verification required
-            let result = self.is_eligible_for_trading() && amount <= self.max_investment_limit;
-            ic_cdk::println!("Production mode result: {}", result);
-            result
-        }
+        // KYC temporarily disabled - only check if user is active
+        let result = self.is_active && amount <= self.max_investment_limit;
+        ic_cdk::println!("Deposit check result (KYC disabled): {}", result);
+        result
+
+        // TODO: Uncomment below for KYC enforcement
+        // if is_testing_mode {
+        //     // Testing mode: Allow deposits without KYC
+        //     let result = self.is_active && amount <= 1_000_000_000;
+        //     ic_cdk::println!("Testing mode result: {}", result);
+        //     result
+        // } else {
+        //     // Production mode: Strict KYC verification required
+        //     let result = self.is_eligible_for_trading() && amount <= self.max_investment_limit;
+        //     ic_cdk::println!("Production mode result: {}", result);
+        //     result
+        // }
     }
 
     // Helper function to determine testing mode
