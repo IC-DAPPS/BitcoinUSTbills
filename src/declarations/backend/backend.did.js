@@ -71,7 +71,7 @@ export const idlFactory = ({ IDL }) => {
     'Err' : BitcoinUSTBillsError,
   });
   const Result_2 = IDL.Variant({
-    'Ok' : IDL.Nat64,
+    'Ok' : IDL.Bool,
     'Err' : BitcoinUSTBillsError,
   });
   const Result_3 = IDL.Variant({
@@ -111,10 +111,14 @@ export const idlFactory = ({ IDL }) => {
     'Err' : BitcoinUSTBillsError,
   });
   const Result_7 = IDL.Variant({
+    'Ok' : IDL.Nat64,
+    'Err' : BitcoinUSTBillsError,
+  });
+  const Result_8 = IDL.Variant({
     'Ok' : IDL.Vec(Deposit),
     'Err' : BitcoinUSTBillsError,
   });
-  const Result_8 = IDL.Variant({ 'Ok' : User, 'Err' : BitcoinUSTBillsError });
+  const Result_9 = IDL.Variant({ 'Ok' : User, 'Err' : BitcoinUSTBillsError });
   const DepositRequest = IDL.Record({
     'block_index' : IDL.Nat64,
     'ckbtc_amount' : IDL.Nat64,
@@ -140,7 +144,7 @@ export const idlFactory = ({ IDL }) => {
     'contract_address' : IDL.Text,
     'amount' : IDL.Text,
   });
-  const Result_9 = IDL.Variant({
+  const Result_10 = IDL.Variant({
     'Ok' : IDL.Text,
     'Err' : BitcoinUSTBillsError,
   });
@@ -151,13 +155,17 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
-    'approve_ousg_for_redemption' : IDL.Func([IDL.Nat64], [Result_2], []),
     'calculate_ckbtc_usd_value' : IDL.Func(
         [IDL.Nat64, IDL.Float64],
         [IDL.Float64],
         ['query'],
       ),
     'calculate_ousg_for_usd' : IDL.Func([IDL.Float64], [IDL.Nat64], ['query']),
+    'check_approval_status' : IDL.Func(
+        [IDL.Principal, IDL.Nat64],
+        [Result_2],
+        ['query'],
+      ),
     'get_authorized_principals' : IDL.Func(
         [],
         [IDL.Vec(IDL.Principal)],
@@ -173,13 +181,13 @@ export const idlFactory = ({ IDL }) => {
     'get_eth_address' : IDL.Func([], [Result_5], []),
     'get_free_kyc_status' : IDL.Func([IDL.Text], [Result_6], ['query']),
     'get_latest_block_number' : IDL.Func([], [IDL.Text], []),
-    'get_ousg_balance' : IDL.Func([], [Result_2], []),
-    'get_user_deposits' : IDL.Func([], [Result_7], ['query']),
-    'get_user_profile' : IDL.Func([], [Result_8], ['query']),
+    'get_ousg_balance' : IDL.Func([], [Result_7], []),
+    'get_user_deposits' : IDL.Func([], [Result_8], ['query']),
+    'get_user_profile' : IDL.Func([], [Result_9], ['query']),
     'is_user_registered' : IDL.Func([], [IDL.Bool], ['query']),
     'notify_deposit' : IDL.Func([DepositRequest], [DepositResponse], []),
-    'redeem_ousg_tokens' : IDL.Func([IDL.Nat64], [Result_2], []),
-    'register_user' : IDL.Func([UserRegistrationRequest], [Result_8], []),
+    'redeem_ousg_tokens' : IDL.Func([IDL.Nat64], [Result_7], []),
+    'register_user' : IDL.Func([UserRegistrationRequest], [Result_9], []),
     'test_erc20_transfer' : IDL.Func([], [TransferResponse], []),
     'transfer_erc20_tokens' : IDL.Func(
         [TransferRequest],
@@ -188,7 +196,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'upload_document_free_kyc' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text],
-        [Result_9],
+        [Result_10],
         [],
       ),
   });

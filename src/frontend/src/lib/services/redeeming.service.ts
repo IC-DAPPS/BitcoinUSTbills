@@ -4,14 +4,17 @@ import { toast } from 'svelte-sonner';
 import type { ResultSuccess } from '$lib/types/utils';
 import { fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
 import { fetchOUSGBalance } from '$lib/state/ousg-balance.svelte';
+import { Principal } from '@dfinity/principal';
+import { BACKEND_CANISTER_ID, OUSG_LEDGER_CANISTER_ID } from '$lib/constants';
 
 let toastId: string | number;
 
 export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<ResultSuccess> => {
-    const { backend } = get(authStore);
+    console.log('DEBUG: approveOUSGForRedemption called with amount:', ousgAmount.toString());
+    const { agent } = get(authStore);
 
-    if (!backend) {
-        return { success: false, err: 'Backend actor not available' };
+    if (!agent) {
+        return { success: false, err: 'Agent not available' };
     }
 
     try {
@@ -20,8 +23,26 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
             duration: 8000
         });
 
-        // First approve the tokens for redemption
-        const approvalResponse = await backend.approve_ousg_for_redemption(ousgAmount);
+        // Import OUSG ledger actor
+        const { createActor } = await import('../../../../declarations/ousg_ledger');
+        const ousgLedger = createActor(OUSG_LEDGER_CANISTER_ID, {
+            agent,
+        });
+
+        // Approve backend canister to spend user's OUSG tokens
+        const approvalResponse = await ousgLedger.icrc2_approve({
+            from_subaccount: [],
+            spender: {
+                owner: Principal.fromText(BACKEND_CANISTER_ID),
+                subaccount: []
+            },
+            amount: ousgAmount,
+            expected_allowance: [],
+            expires_at: [],
+            fee: [],
+            memo: [],
+            created_at_time: []
+        });
 
         if ('Ok' in approvalResponse) {
             toast.success('OUSG tokens approved for redemption!', {

@@ -3,7 +3,7 @@
 # Script to transfer ckBTC from the default identity to a specified recipient.
 
 # Set the recipient's Principal ID
-RECIPIENT_PRINCIPAL="rsngk-myhjy-vr7xo-rzhy5-wgqt2-73pi6-qazz3-ncpsz-suzcr-ccdx6-yae"
+RECIPIENT_PRINCIPAL="ov7go-lg6jn-idsqg-zr53z-bhz6d-vaydr-5zsp4-7et5m-kw4z2-m22mk-aae"
 
 # Check if amount is provided
 if [ -z "$1" ]; then

@@ -70,7 +70,9 @@ export type Result = { 'Ok' : Array<UserAndFreeKYCSession> } |
   { 'Err' : BitcoinUSTBillsError };
 export type Result_1 = { 'Ok' : null } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_2 = { 'Ok' : bigint } |
+export type Result_10 = { 'Ok' : string } |
+  { 'Err' : BitcoinUSTBillsError };
+export type Result_2 = { 'Ok' : boolean } |
   { 'Err' : BitcoinUSTBillsError };
 export type Result_3 = { 'Ok' : number } |
   { 'Err' : BitcoinUSTBillsError };
@@ -80,11 +82,11 @@ export type Result_5 = { 'Ok' : PublicKeyReply } |
   { 'Err' : string };
 export type Result_6 = { 'Ok' : FreeKYCSession } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_7 = { 'Ok' : Array<Deposit> } |
+export type Result_7 = { 'Ok' : bigint } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_8 = { 'Ok' : User } |
+export type Result_8 = { 'Ok' : Array<Deposit> } |
   { 'Err' : BitcoinUSTBillsError };
-export type Result_9 = { 'Ok' : string } |
+export type Result_9 = { 'Ok' : User } |
   { 'Err' : BitcoinUSTBillsError };
 export interface TransferRequest {
   'recipient' : string,
@@ -126,31 +128,94 @@ export interface UserRegistrationRequest {
   'phone_number' : [] | [string],
 }
 export interface _SERVICE {
+  /**
+   * Get pending manual reviews for admins
+   */
   'admin_get_pending_reviews' : ActorMethod<[], Result>,
+  /**
+   * Manual review functions for admins
+   */
   'admin_review_free_kyc' : ActorMethod<
     [string, boolean, [] | [string]],
     Result_1
   >,
-  'approve_ousg_for_redemption' : ActorMethod<[bigint], Result_2>,
+  /**
+   * Calculate USD value of ckBTC amount
+   */
   'calculate_ckbtc_usd_value' : ActorMethod<[bigint, number], number>,
+  /**
+   * Calculate OUSG tokens for USD amount
+   */
   'calculate_ousg_for_usd' : ActorMethod<[number], bigint>,
+  /**
+   * Check if user has approved backend for redemption
+   */
+  'check_approval_status' : ActorMethod<[Principal, bigint], Result_2>,
+  /**
+   * Gets the list of authorized principals
+   */
   'get_authorized_principals' : ActorMethod<[], Array<Principal>>,
+  /**
+   * Get current BTC price
+   */
   'get_current_btc_price' : ActorMethod<[], Result_3>,
+  /**
+   * Get deposit by ID
+   */
   'get_deposit' : ActorMethod<[bigint], Result_4>,
+  /**
+   * Get deposit statistics
+   */
   'get_deposit_stats' : ActorMethod<[], Array<[string, bigint]>>,
   'get_eth_address' : ActorMethod<[], Result_5>,
+  /**
+   * Check user's free KYC status
+   */
   'get_free_kyc_status' : ActorMethod<[string], Result_6>,
+  /**
+   * Get latest block number
+   */
   'get_latest_block_number' : ActorMethod<[], string>,
-  'get_ousg_balance' : ActorMethod<[], Result_2>,
-  'get_user_deposits' : ActorMethod<[], Result_7>,
-  'get_user_profile' : ActorMethod<[], Result_8>,
+  /**
+   * Get user's OUSG balance
+   */
+  'get_ousg_balance' : ActorMethod<[], Result_7>,
+  /**
+   * Get user's deposit history
+   */
+  'get_user_deposits' : ActorMethod<[], Result_8>,
+  /**
+   * Retrieves user profile
+   */
+  'get_user_profile' : ActorMethod<[], Result_9>,
+  /**
+   * Checks if a user is registered
+   */
   'is_user_registered' : ActorMethod<[], boolean>,
+  /**
+   * User deposits ckBTC and gets OUSG minted (similar to DoxaV3 notifyStake)
+   */
   'notify_deposit' : ActorMethod<[DepositRequest], DepositResponse>,
-  'redeem_ousg_tokens' : ActorMethod<[bigint], Result_2>,
-  'register_user' : ActorMethod<[UserRegistrationRequest], Result_8>,
+  /**
+   * Redeem OUSG tokens for ckBTC
+   */
+  'redeem_ousg_tokens' : ActorMethod<[bigint], Result_7>,
+  /**
+   * Registers a new user
+   */
+  'register_user' : ActorMethod<[UserRegistrationRequest], Result_9>,
+  /**
+   * Test ERC-20 transfer with hardcoded values
+   */
   'test_erc20_transfer' : ActorMethod<[], TransferResponse>,
+  /**
+   * Transfer ERC-20 tokens
+   */
   'transfer_erc20_tokens' : ActorMethod<[TransferRequest], TransferResponse>,
-  'upload_document_free_kyc' : ActorMethod<[string, string, string], Result_9>,
+  /**
+   * Free Document Upload and OCR Processing
+   */
+  'upload_document_free_kyc' : ActorMethod<[string, string, string], Result_10>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

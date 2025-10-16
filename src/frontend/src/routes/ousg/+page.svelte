@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { authStore } from "$lib/stores/auth.store";
-  import { userSate } from "$lib/state/user.svelte";
+  import { userSate, fetchUserProfile } from "$lib/state/user.svelte";
   import { ckbtcBalance } from "$lib/state/ckbtc-balance.svelte";
   import {
     ousgBalance,
@@ -65,6 +65,14 @@
   onMount(() => {
     fetchBTCPrice();
     subscribeToAuthChanges();
+    fetchUserProfile();
+  });
+
+  // Fetch user profile when authentication state changes
+  $effect(() => {
+    if ($authStore.isAuthenticated) {
+      fetchUserProfile();
+    }
   });
 
   const handleMint = async () => {

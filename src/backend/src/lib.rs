@@ -882,9 +882,8 @@ async fn mint_ousg_tokens(user: Principal, amount: u64) -> Result<u64> {
         Ok((TransferResult::Ok(block_index),)) => {
             let digits = block_index.0.to_u64_digits();
             if digits.is_empty() {
-                Err(BitcoinUSTBillsError::StorageError(
-                    "Invalid block index: empty digits".to_string(),
-                ))
+                // Return 0 for empty block index (minting still succeeded)
+                Ok(0)
             } else {
                 Ok(digits[0])
             }
@@ -931,7 +930,14 @@ pub async fn get_ousg_balance() -> Result<u64> {
 
     result
         .map_err(|e| BitcoinUSTBillsError::StorageError(format!("Failed to get balance: {:?}", e)))
-        .map(|(balance,)| balance.0.to_u64_digits()[0])
+        .and_then(|(balance,)| {
+            let digits = balance.0.to_u64_digits();
+            if digits.is_empty() {
+                Ok(0) // Return 0 if no digits (empty balance)
+            } else {
+                Ok(digits[0])
+            }
+        })
 }
 
 /// Get current BTC price
@@ -955,52 +961,36 @@ pub fn calculate_ousg_for_usd(usd_amount: f64) -> u64 {
     (ousg_tokens * 1_000_000.0) as u64 // Convert to OUSG units (6 decimals)
 }
 
-/// Approve OUSG tokens for redemption (user must call this first)
-#[update]
-pub async fn approve_ousg_for_redemption(ousg_amount: u64) -> Result<u64> {
-    let _caller = ic_cdk::api::msg_caller();
-
+/// Check if user has approved backend for redemption
+#[query]
+pub async fn check_approval_status(user: Principal, amount: u64) -> Result<bool> {
     let principal = Principal::from_text(OUSG_LEDGER_CANISTER_ID).map_err(|e| {
         BitcoinUSTBillsError::StorageError(format!("Invalid OUSG principal: {:?}", e))
     })?;
     let service = OusgLedgerService(principal);
 
-    // Approve the canister to spend user's OUSG tokens
-    let approve_args = ApproveArgs {
-        from_subaccount: None,
-        spender: Account {
-            owner: ic_cdk::api::id(), // Our canister
+    let allowance_args = AllowanceArgs {
+        account: Account {
+            owner: user,
             subaccount: None,
         },
-        amount: candid::Nat::from(ousg_amount),
-        expected_allowance: None,
-        expires_at: None,
-        fee: None,
-        memo: None,
-        created_at_time: Some(ic_cdk::api::time()),
+        spender: Account {
+            owner: ic_cdk::api::id(), // Backend canister
+            subaccount: None,
+        },
     };
 
-    let result = service.icrc_2_approve(approve_args).await;
-
-    match result {
-        Ok((ApproveResult::Ok(block_index),)) => {
-            let digits = block_index.0.to_u64_digits();
-            if digits.is_empty() {
-                Err(BitcoinUSTBillsError::StorageError(
-                    "Invalid block index: empty digits".to_string(),
-                ))
+    match service.icrc_2_allowance(allowance_args).await {
+        Ok((allowance,)) => {
+            let allowance_amount = allowance.allowance.0.to_u64_digits();
+            let current_allowance = if allowance_amount.is_empty() {
+                0
             } else {
-                Ok(digits[0])
-            }
+                allowance_amount[0]
+            };
+            Ok(current_allowance >= amount)
         }
-        Ok((ApproveResult::Err(e),)) => Err(BitcoinUSTBillsError::StorageError(format!(
-            "Approval failed: {:?}",
-            e
-        ))),
-        Err(e) => Err(BitcoinUSTBillsError::StorageError(format!(
-            "Approval call failed: {:?}",
-            e
-        ))),
+        Err(_) => Ok(false),
     }
 }
 
@@ -1008,6 +998,7 @@ pub async fn approve_ousg_for_redemption(ousg_amount: u64) -> Result<u64> {
 #[update]
 pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
     let caller = ic_cdk::api::msg_caller();
+    ic_cdk::println!("DEBUG: redeem_ousg_tokens called with caller: {:?}, amount: {}", caller, ousg_amount);
 
     // Check if user is registered and eligible
     let user = match UserStorage::get(&caller) {
@@ -1029,6 +1020,23 @@ pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
             "Minimum redeem amount is 1 OUSG token".to_string(),
         ));
     }
+
+    // Check if user has approved backend for this amount
+    let is_approved = match check_approval_status(caller, ousg_amount).await {
+        Ok(approved) => approved,
+        Err(e) => {
+            ic_cdk::println!("DEBUG: Failed to check approval status: {:?}", e);
+            return Err(e);
+        }
+    };
+
+    if !is_approved {
+        return Err(BitcoinUSTBillsError::ValidationError(
+            "User has not approved backend for redemption. Please approve first.".to_string(),
+        ));
+    }
+
+    ic_cdk::println!("DEBUG: User approval verified, proceeding with redemption");
 
     // Get current BTC price
     let btc_price = match get_btc_price().await {
@@ -1053,6 +1061,8 @@ pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
     // Burn OUSG tokens from user
     match burn_ousg_tokens(caller, ousg_amount).await {
         Ok(_) => {
+            ic_cdk::println!("DEBUG: OUSG tokens burned successfully");
+            
             // Update user balance
             let mut updated_user = user;
             updated_user.total_invested = updated_user.total_invested.saturating_sub(ousg_amount);
@@ -1065,7 +1075,10 @@ pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
 
             // Transfer ckBTC to user
             match transfer_ckbtc_to_user(caller, ckbtc_amount).await {
-                Ok(_) => Ok(ckbtc_amount),
+                Ok(_) => {
+                    ic_cdk::println!("DEBUG: ckBTC transfer completed successfully");
+                    Ok(ckbtc_amount)
+                },
                 Err(e) => Err(BitcoinUSTBillsError::StorageError(format!(
                     "Failed to transfer ckBTC to user: {:?}",
                     e
@@ -1176,9 +1189,8 @@ async fn burn_ousg_tokens(user: Principal, amount: u64) -> Result<u64> {
         Ok((TransferFromResult::Ok(block_index),)) => {
             let digits = block_index.0.to_u64_digits();
             if digits.is_empty() {
-                Err(BitcoinUSTBillsError::StorageError(
-                    "Invalid block index: empty digits".to_string(),
-                ))
+                // Return 0 for empty block index (burn still succeeded)
+                Ok(0)
             } else {
                 Ok(digits[0])
             }
