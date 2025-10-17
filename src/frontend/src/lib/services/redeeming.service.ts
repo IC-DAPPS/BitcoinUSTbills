@@ -44,7 +44,10 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
             created_at_time: []
         });
 
+        console.log('DEBUG: Approval response:', approvalResponse);
+
         if ('Ok' in approvalResponse) {
+            console.log('DEBUG: Approval successful');
             toast.success('OUSG tokens approved for redemption!', {
                 id: toastId,
                 duration: 2000
@@ -52,6 +55,7 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
             return { success: true };
         } else {
             const errorMessage = `Approval failed: ${approvalResponse.Err || 'Unknown error'}`;
+            console.error('DEBUG: Approval failed:', approvalResponse.Err);
             toast.error(errorMessage, {
                 id: toastId,
                 duration: 4000
@@ -79,6 +83,8 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
     }
 
     try {
+        console.log('DEBUG: redeemOUSG called with amount:', ousgAmount.toString());
+
         toastId = toast.loading('Redeeming OUSG tokens...', {
             id: toastId,
             duration: 8000
@@ -87,8 +93,12 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
         // Call the backend redeem function
         const response = await backend.redeem_ousg_tokens(ousgAmount);
 
+        console.log('DEBUG: Backend redemption response:', response);
+
         if ('Ok' in response) {
             const ckbtcAmount = response.Ok;
+            console.log('DEBUG: Received ckBTC amount:', ckbtcAmount.toString());
+
             toast.success(`OUSG tokens redeemed successfully! Received ${Number(ckbtcAmount) / 100_000_000} ckBTC`, {
                 id: toastId,
                 duration: 4000
@@ -101,6 +111,8 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
             return { success: true };
         } else {
             const errorMessage = `Redeeming failed: ${response.Err || 'Unknown error'}`;
+            console.error('DEBUG: Redemption error:', response.Err);
+
             toast.error(errorMessage, {
                 id: toastId,
                 duration: 4000

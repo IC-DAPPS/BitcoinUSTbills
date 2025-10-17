@@ -1070,6 +1070,12 @@ pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
     let usd_value = (ousg_amount as f64) / 1_000_000.0 * 5000.0; // Convert OUSG units to USD
     let ckbtc_amount = convert_usd_to_ckbtc(usd_value, btc_price);
 
+    ic_cdk::println!(
+        "DEBUG: Calculated ckBTC amount: {} for USD value: {}",
+        ckbtc_amount,
+        usd_value
+    );
+
     // Check if we have enough ckBTC in reserve
     // TODO: Implement ckBTC reserve balance check
     // For now, we'll assume we have enough
@@ -1105,10 +1111,30 @@ pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
     }
 }
 
+/// Convert USD value to ckBTC amount based on BTC price
+fn convert_usd_to_ckbtc(usd_value: f64, btc_price: f64) -> u64 {
+    // Convert USD to BTC, then to satoshis
+    let btc_amount = usd_value / btc_price;
+    let satoshis = btc_amount * 100_000_000.0; // 1 BTC = 100M satoshis
+    satoshis as u64
+}
+
 /// Transfer ckBTC to user account
 async fn transfer_ckbtc_to_user(user: Principal, amount: u64) -> Result<u64> {
-    // Create transfer to user account
-    let _transfer_args = TransferArg {
+    ic_cdk::println!(
+        "DEBUG: transfer_ckbtc_to_user called with user: {:?}, amount: {}",
+        user,
+        amount
+    );
+
+    // Get ckBTC ledger service
+    let principal = Principal::from_text(CKBTC_LEDGER_CANISTER_ID).map_err(|e| {
+        BitcoinUSTBillsError::StorageError(format!("Invalid ckBTC principal: {:?}", e))
+    })?;
+    let service = OusgLedgerService(principal);
+
+    // Create transfer args
+    let transfer_args = TransferArg {
         from_subaccount: None,
         to: Account {
             owner: user,
@@ -1116,22 +1142,37 @@ async fn transfer_ckbtc_to_user(user: Principal, amount: u64) -> Result<u64> {
         },
         amount: candid::Nat::from(amount),
         fee: None,
-        memo: Some(vec![2, 1, 0, 3].into()), // Mark as redemption transfer
+        memo: Some(serde_bytes::ByteBuf::from(vec![2, 1, 0, 3])), // Mark as redemption transfer
         created_at_time: Some(ic_cdk::api::time()),
     };
 
-    // Execute transfer via ckBTC ledger
-    let _principal = Principal::from_text(CKBTC_LEDGER_CANISTER_ID).map_err(|e| {
-        BitcoinUSTBillsError::StorageError(format!("Invalid ckBTC principal: {:?}", e))
-    })?;
+    ic_cdk::println!("DEBUG: Initiating ckBTC transfer to user...");
 
-    // Use the ckBTC ledger service (we need to implement this similar to OUSG)
-    // For now, let's simulate the transfer and assume it works
-    // In production, this would call the ckBTC ledger canister
+    // Execute transfer
+    let result = service.icrc_1_transfer(transfer_args).await;
 
-    // TODO: Implement actual ckBTC transfer using ckBTC ledger canister
-    // This is a placeholder that returns success
-    Ok(amount)
+    match result {
+        Ok((TransferResult::Ok(block_index),)) => {
+            let digits = block_index.0.to_u64_digits();
+            let block_num = if digits.is_empty() { 0 } else { digits[0] };
+            ic_cdk::println!("DEBUG: ckBTC transfer successful at block: {}", block_num);
+            Ok(amount)
+        }
+        Ok((TransferResult::Err(e),)) => {
+            ic_cdk::println!("DEBUG: ckBTC transfer failed: {:?}", e);
+            Err(BitcoinUSTBillsError::StorageError(format!(
+                "ckBTC transfer failed: {:?}",
+                e
+            )))
+        }
+        Err(e) => {
+            ic_cdk::println!("DEBUG: ckBTC transfer call failed: {:?}", e);
+            Err(BitcoinUSTBillsError::StorageError(format!(
+                "ckBTC transfer call failed: {:?}",
+                e
+            )))
+        }
+    }
 }
 
 /// Burn OUSG tokens from user account

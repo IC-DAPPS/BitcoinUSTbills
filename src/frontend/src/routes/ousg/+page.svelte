@@ -25,6 +25,11 @@
   let isApproving = $state(false);
   let isRedeeming = $state(false);
   let approvalPending = $state(false);
+
+  // Debug approvalPending state changes
+  $effect(() => {
+    console.log("DEBUG: approvalPending state changed to:", approvalPending);
+  });
   let btcPrice = $state(100000); // Default BTC price
   let ckBtcAmount = $state(0.5); // Default value
   let expectedOusg = $state(0);
@@ -140,6 +145,8 @@
   };
 
   const handleApprove = async () => {
+    console.log("DEBUG: handleApprove called");
+
     if (!$authStore.isAuthenticated) {
       toast.error("Please log in to approve BBILL tokens");
       return;
@@ -152,6 +159,8 @@
     // }
 
     const amount = parseFloat(ousgAmount);
+    console.log("DEBUG: Amount:", amount);
+
     if (!amount || amount <= 0) {
       toast.error("Please enter a valid BBILL amount");
       return;
@@ -163,25 +172,44 @@
     }
 
     const ousgAmountBigInt = BigInt(Math.floor(amount * 1_000_000));
+    console.log("DEBUG: Amount in units:", ousgAmountBigInt.toString());
 
     if (ousgBalance.balance < ousgAmountBigInt) {
       toast.error("Insufficient BBILL balance");
       return;
     }
 
+    console.log("DEBUG: All validations passed, starting approval...");
+
+    // Immediate visual feedback
     isApproving = true;
+    console.log("DEBUG: isApproving set to true");
 
     try {
       const result = await approveOUSGForRedemption(ousgAmountBigInt);
+      console.log("DEBUG: Approval result:", result);
+
       if (result.success) {
         approvalPending = true;
-        toast.success("BBILL tokens approved! You can now redeem them.");
+        console.log("DEBUG: approvalPending set to true");
+        toast.success(
+          "🎉 BBILL tokens approved! Click '2. Redeem BBILL Now!' to get your ckBTC back!",
+          {
+            duration: 8000,
+            description:
+              "Your tokens are ready for redemption. The redeem button should now be green and pulsing!",
+          }
+        );
+      } else {
+        console.error("DEBUG: Approval failed:", result.err);
+        toast.error(`Approval failed: ${result.err || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Approval error:", error);
       toast.error("Failed to approve BBILL tokens");
     } finally {
       isApproving = false;
+      console.log("DEBUG: Approval process completed");
     }
   };
 
@@ -267,8 +295,9 @@
   );
 
   // TODO: Add back KYC check: userSate.profile.kyc_status !== "Verified" ||
-  const redeemDisabled = $derived(
-    !approvalPending ||
+  const redeemDisabled = $derived(() => {
+    const disabled =
+      !approvalPending ||
       !$authStore.isAuthenticated ||
       !userSate.profile ||
       !ousgAmount ||
@@ -276,8 +305,19 @@
       parseFloat(ousgAmount) < 1 ||
       ousgBalance.balance <
         BigInt(Math.floor((parseFloat(ousgAmount) || 0) * 1_000_000)) ||
-      isRedeeming
-  );
+      isRedeeming;
+
+    console.log("DEBUG: redeemDisabled calculation:", {
+      approvalPending,
+      isAuthenticated: $authStore.isAuthenticated,
+      hasProfile: !!userSate.profile,
+      ousgAmount,
+      isRedeeming,
+      disabled,
+    });
+
+    return disabled;
+  });
 </script>
 
 <div class="min-h-screen bg-gray-50">
@@ -444,12 +484,34 @@
 
           {#if approvalPending}
             <div
-              class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg"
+              class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg animate-pulse"
             >
-              <p class="text-gray-900 text-sm">
-                ✅ BBILL tokens approved for redemption. You can now redeem
-                them.
-              </p>
+              <div class="flex items-center">
+                <div class="flex-shrink-0">
+                  <svg
+                    class="h-5 w-5 text-green-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-green-800">
+                    ✅ Approval Successful!
+                  </h3>
+                  <div class="mt-2 text-sm text-green-700">
+                    <p>
+                      Your BBILL tokens are approved for redemption. You can now
+                      click the "2. Redeem" button to get your ckBTC back!
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           {/if}
 
@@ -458,15 +520,19 @@
               type="button"
               onclick={handleApprove}
               disabled={approveDisabled}
-              class="flex-1 px-6 py-3 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="flex-1 px-6 py-3 font-medium rounded-lg transition-all duration-300 {isApproving
+                ? 'bg-blue-500 text-white animate-pulse'
+                : approvalPending
+                  ? 'bg-green-600 text-white shadow-lg'
+                  : 'bg-gray-900 text-white hover:bg-gray-800'} disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {#if isApproving}
                 <span
                   class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"
                 ></span>
-                Approving...
+                🔄 Approving...
               {:else if approvalPending}
-                Approved ✓
+                ✅ Approved ✓
               {:else if !$authStore.isAuthenticated}
                 Connect to Approve
               {:else if !userSate.profile}
@@ -480,7 +546,9 @@
               type="button"
               onclick={handleRedeem}
               disabled={redeemDisabled}
-              class="flex-1 px-6 py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="flex-1 px-6 py-3 font-medium rounded-lg transition-all duration-300 {approvalPending
+                ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg transform hover:scale-105 animate-pulse'
+                : 'bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed'}"
             >
               {#if isRedeeming}
                 <span
@@ -490,7 +558,7 @@
               {:else if !approvalPending}
                 2. Redeem
               {:else}
-                2. Redeem BBILL
+                🚀 2. Redeem BBILL Now!
               {/if}
             </button>
           </div>
