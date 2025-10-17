@@ -123,22 +123,73 @@
       Math.floor(ckbtcBalance.number * 100_000_000)
     );
     if (ckbtcBalanceBigInt < ckbtcAmountBigInt) {
-      toast.error("Insufficient ckBTC balance");
+      toast.error("❌ Insufficient ckBTC balance", {
+        description: `You only have ${ckbtcBalance.number.toFixed(8)} ckBTC available.`,
+      });
       return;
     }
 
     isMinting = true;
 
+    // Show processing toast
+    const processingToast = toast.loading("🔄 Processing minting...", {
+      description: "Transferring ckBTC and minting BBILL tokens (2-3 seconds)",
+    });
+
     try {
       // Use automatic minting - no need for manual block index!
       const result = await mintOUSGAutomatic(ckbtcAmountBigInt);
+
+      // Dismiss processing toast
+      toast.dismiss(processingToast);
+
       if (result.success) {
+        // Calculate minted BBILL
+        const usdValue = (Number(ckbtcAmountBigInt) / 100_000_000) * btcPrice;
+        const bbillMinted = usdValue / 5000;
+        const formattedBBILL = bbillMinted.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 6,
+        });
+        const formattedCkBTC = amount.toLocaleString("en-US", {
+          minimumFractionDigits: 4,
+          maximumFractionDigits: 8,
+        });
+
+        toast.success(`🎉 Minting successful!`, {
+          duration: 10000,
+          description: `Sent: ${formattedCkBTC} ckBTC\nMinted: ${formattedBBILL} BBILL tokens\n\nYour balances will update in a moment.`,
+        });
+
+        // Wait 2 seconds for minting to be processed
+        console.log("Waiting 2 seconds for minting to settle...");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // Refresh balances
+        console.log("Refreshing balances...");
+        await Promise.all([ousgBalance.refresh(), ckbtcBalance.refresh()]);
+
+        // Reset form
         ckbtcAmount = "";
-        toast.success("BBILL tokens minted successfully!");
+
+        toast.success("✅ Balances updated!", {
+          duration: 3000,
+        });
+      } else {
+        toast.error(`❌ Minting failed`, {
+          description:
+            result.err || "Unknown error. Please try again or contact support.",
+        });
       }
     } catch (error) {
       console.error("Minting error:", error);
-      toast.error("Failed to mint BBILL tokens");
+      toast.dismiss(processingToast);
+      toast.error("❌ Failed to mint BBILL tokens", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Please try again or contact support.",
+      });
     } finally {
       isMinting = false;
     }
@@ -185,28 +236,54 @@
     isApproving = true;
     console.log("DEBUG: isApproving set to true");
 
+    // Show processing toast
+    const processingToast = toast.loading("🔄 Processing approval...", {
+      description:
+        "Please wait while we approve your BBILL tokens (2-3 seconds)",
+    });
+
     try {
       const result = await approveOUSGForRedemption(ousgAmountBigInt);
       console.log("DEBUG: Approval result:", result);
 
+      // Dismiss processing toast
+      toast.dismiss(processingToast);
+
       if (result.success) {
         approvalPending = true;
         console.log("DEBUG: approvalPending set to true");
-        toast.success(
-          "🎉 BBILL tokens approved! Click '2. Redeem BBILL Now!' to get your ckBTC back!",
-          {
-            duration: 8000,
-            description:
-              "Your tokens are ready for redemption. The redeem button should now be green and pulsing!",
-          }
-        );
+
+        // Format the amount nicely
+        const formattedAmount = amount.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 6,
+        });
+        const formattedUnits = ousgAmountBigInt.toLocaleString("en-US");
+
+        toast.success(`✅ BBILL tokens approved successfully!`, {
+          duration: 10000,
+          description: `Approved Amount: ${formattedAmount} BBILL tokens (${formattedUnits} units)\n\nYou can now click the "2. Redeem BBILL Now!" button to get your ckBTC back.`,
+        });
+
+        // Wait 3 seconds for approval to be processed
+        console.log("DEBUG: Waiting 3 seconds for approval to settle...");
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        console.log("DEBUG: Approval settled");
       } else {
         console.error("DEBUG: Approval failed:", result.err);
-        toast.error(`Approval failed: ${result.err || "Unknown error"}`);
+        toast.error(`❌ Approval failed`, {
+          description: result.err || "Unknown error. Please try again.",
+        });
       }
     } catch (error) {
       console.error("Approval error:", error);
-      toast.error("Failed to approve BBILL tokens");
+      toast.dismiss(processingToast);
+      toast.error("❌ Failed to approve BBILL tokens", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Please try again or contact support.",
+      });
     } finally {
       isApproving = false;
       console.log("DEBUG: Approval process completed");
@@ -215,7 +292,9 @@
 
   const handleRedeem = async () => {
     if (!approvalPending) {
-      toast.error("Please approve BBILL tokens first");
+      toast.error("⚠️ Please approve BBILL tokens first", {
+        description: "Click the '1. Approve' button before redeeming.",
+      });
       return;
     }
 
@@ -239,22 +318,78 @@
     const ousgAmountBigInt = BigInt(Math.floor(amount * 1_000_000));
 
     if (ousgBalance.balance < ousgAmountBigInt) {
-      toast.error("Insufficient BBILL balance");
+      toast.error("❌ Insufficient BBILL balance", {
+        description: `You only have ${(Number(ousgBalance.balance) / 1_000_000).toFixed(2)} BBILL tokens available.`,
+      });
       return;
     }
 
     isRedeeming = true;
 
+    // Show processing toast
+    const processingToast = toast.loading("🔄 Processing redemption...", {
+      description: "Burning BBILL tokens and transferring ckBTC (2-3 seconds)",
+    });
+
     try {
       const result = await redeemOUSG(ousgAmountBigInt);
+
+      // Dismiss processing toast
+      toast.dismiss(processingToast);
+
       if (result.success) {
+        // Calculate expected ckBTC received
+        const usdValue = (Number(ousgAmountBigInt) / 1_000_000) * 5000;
+        const ckbtcReceived = (usdValue / btcPrice) * 100_000_000;
+        const formattedCkBTC = (ckbtcReceived / 100_000_000).toLocaleString(
+          "en-US",
+          {
+            minimumFractionDigits: 4,
+            maximumFractionDigits: 8,
+          }
+        );
+        const formattedSatoshis =
+          Math.floor(ckbtcReceived).toLocaleString("en-US");
+        const formattedBBILL = amount.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 6,
+        });
+
+        toast.success(`🎉 Redemption successful!`, {
+          duration: 12000,
+          description: `Redeemed: ${formattedBBILL} BBILL tokens\nReceived: ${formattedCkBTC} ckBTC (${formattedSatoshis} satoshis)\n\nYour balances will update in a moment.`,
+        });
+
+        // Wait 2 seconds for redemption to be processed
+        console.log("Waiting 2 seconds for redemption to settle...");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // Refresh balances
+        console.log("Refreshing balances...");
+        await Promise.all([ousgBalance.refresh(), ckbtcBalance.refresh()]);
+
+        // Reset form
         ousgAmount = "";
         approvalPending = false;
-        toast.success("BBILL tokens redeemed successfully!");
+
+        toast.success("✅ Balances updated!", {
+          duration: 3000,
+        });
+      } else {
+        toast.error(`❌ Redemption failed`, {
+          description:
+            result.err || "Unknown error. Please try again or contact support.",
+        });
       }
     } catch (error) {
       console.error("Redeeming error:", error);
-      toast.error("Failed to redeem BBILL tokens");
+      toast.dismiss(processingToast);
+      toast.error("❌ Failed to redeem BBILL tokens", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Please try again or contact support.",
+      });
     } finally {
       isRedeeming = false;
     }

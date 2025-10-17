@@ -11,22 +11,16 @@ let toastId: string | number;
 
 export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<ResultSuccess> => {
     console.log('DEBUG: approveOUSGForRedemption called with amount:', ousgAmount.toString());
-    const { agent } = get(authStore);
+    const { ousgLedger, isAuthenticated } = get(authStore);
 
-    if (!agent) {
-        return { success: false, err: 'Agent not available' };
+    if (!isAuthenticated || !ousgLedger) {
+        return { success: false, err: 'Please connect your wallet first' };
     }
 
     try {
-        toastId = toast.loading('Approving OUSG tokens for redemption...', {
+        toastId = toast.loading('Approving BBILL tokens for redemption...', {
             id: toastId,
             duration: 8000
-        });
-
-        // Import OUSG ledger actor
-        const { createActor } = await import('../../../../declarations/ousg_ledger');
-        const ousgLedger = createActor(OUSG_LEDGER_CANISTER_ID, {
-            agent,
         });
 
         // Approve backend canister to spend user's OUSG tokens
@@ -48,13 +42,13 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
 
         if ('Ok' in approvalResponse) {
             console.log('DEBUG: Approval successful');
-            toast.success('OUSG tokens approved for redemption!', {
+            toast.success('BBILL tokens approved for redemption!', {
                 id: toastId,
                 duration: 2000
             });
             return { success: true };
         } else {
-            const errorMessage = `Approval failed: ${approvalResponse.Err || 'Unknown error'}`;
+            const errorMessage = `Approval failed: ${JSON.stringify(approvalResponse.Err) || 'Unknown error'}`;
             console.error('DEBUG: Approval failed:', approvalResponse.Err);
             toast.error(errorMessage, {
                 id: toastId,
@@ -63,8 +57,8 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
             return { success: false, err: errorMessage };
         }
     } catch (error) {
-        console.error('Error approving OUSG:', error);
-        const errorMessage = 'Failed to approve OUSG tokens';
+        console.error('Error approving BBILL:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to approve BBILL tokens';
 
         toast.error(errorMessage, {
             id: toastId,
@@ -76,16 +70,16 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
 };
 
 export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => {
-    const { backend } = get(authStore);
+    const { backend, isAuthenticated } = get(authStore);
 
-    if (!backend) {
-        return { success: false, err: 'Backend actor not available' };
+    if (!isAuthenticated || !backend) {
+        return { success: false, err: 'Please connect your wallet first' };
     }
 
     try {
         console.log('DEBUG: redeemOUSG called with amount:', ousgAmount.toString());
 
-        toastId = toast.loading('Redeeming OUSG tokens...', {
+        toastId = toast.loading('Redeeming BBILL tokens...', {
             id: toastId,
             duration: 8000
         });
@@ -99,7 +93,7 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
             const ckbtcAmount = response.Ok;
             console.log('DEBUG: Received ckBTC amount:', ckbtcAmount.toString());
 
-            toast.success(`OUSG tokens redeemed successfully! Received ${Number(ckbtcAmount) / 100_000_000} ckBTC`, {
+            toast.success(`BBILL tokens redeemed successfully! Received ${Number(ckbtcAmount) / 100_000_000} ckBTC`, {
                 id: toastId,
                 duration: 4000
             });
@@ -110,7 +104,7 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
 
             return { success: true };
         } else {
-            const errorMessage = `Redeeming failed: ${response.Err || 'Unknown error'}`;
+            const errorMessage = `Redeeming failed: ${JSON.stringify(response.Err) || 'Unknown error'}`;
             console.error('DEBUG: Redemption error:', response.Err);
 
             toast.error(errorMessage, {
@@ -121,8 +115,8 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
             return { success: false, err: errorMessage };
         }
     } catch (error) {
-        console.error('Error redeeming OUSG:', error);
-        const errorMessage = 'Failed to redeem OUSG tokens';
+        console.error('Error redeeming BBILL:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to redeem BBILL tokens';
 
         toast.error(errorMessage, {
             id: toastId,
