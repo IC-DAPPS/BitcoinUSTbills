@@ -1,7 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { authStore } from "$lib/stores/auth.store";
-  import { userSate, fetchUserProfile } from "$lib/state/user.svelte";
+  import {
+    userSate,
+    fetchUserProfile,
+    checkUserRegistrationStatus,
+    checkTotalUsers,
+  } from "$lib/state/user.svelte";
   import { ckbtcBalance } from "$lib/state/ckbtc-balance.svelte";
   import {
     ousgBalance,
@@ -62,16 +67,30 @@
     }
   };
 
-  onMount(() => {
+  onMount(async () => {
     fetchBTCPrice();
     subscribeToAuthChanges();
-    fetchUserProfile();
+
+    // Debug: Check total users and registration status
+    const totalUsers = await checkTotalUsers();
+    console.log("Total users in backend:", totalUsers);
+
+    const isRegistered = await checkUserRegistrationStatus();
+    console.log("Registration check result:", isRegistered);
+
+    // Then fetch user profile
+    await fetchUserProfile();
   });
 
   // Fetch user profile when authentication state changes
-  $effect(() => {
+  $effect(async () => {
     if ($authStore.isAuthenticated) {
-      fetchUserProfile();
+      console.log(
+        "Auth state changed - checking registration and fetching profile"
+      );
+      const isRegistered = await checkUserRegistrationStatus();
+      console.log("Registration status in effect:", isRegistered);
+      await fetchUserProfile();
     }
   });
 

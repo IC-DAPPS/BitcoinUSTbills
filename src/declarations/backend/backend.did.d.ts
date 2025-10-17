@@ -152,6 +152,10 @@ export interface _SERVICE {
    */
   'check_approval_status' : ActorMethod<[Principal, bigint], Result_2>,
   /**
+   * Debug function to get all users (for debugging only)
+   */
+  'get_all_users' : ActorMethod<[], Array<User>>,
+  /**
    * Gets the list of authorized principals
    */
   'get_authorized_principals' : ActorMethod<[], Array<Principal>>,
@@ -180,6 +184,10 @@ export interface _SERVICE {
    * Get user's OUSG balance
    */
   'get_ousg_balance' : ActorMethod<[], Result_7>,
+  /**
+   * Debug function to check total registered users
+   */
+  'get_total_users' : ActorMethod<[], bigint>,
   /**
    * Get user's deposit history
    */

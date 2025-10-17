@@ -134,6 +134,18 @@ pub fn get_user_profile() -> Result<User> {
     UserStorage::get(&principal)
 }
 
+/// Debug function to check total registered users
+#[query]
+pub fn get_total_users() -> u64 {
+    UserStorage::count()
+}
+
+/// Debug function to get all users (for debugging only)
+#[query]
+pub fn get_all_users() -> Vec<User> {
+    UserStorage::get_all()
+}
+
 // get_user_holdings removed - TokenHolding functionality not implemented
 // get_trading_metrics removed - Trading functionality not implemented
 
@@ -998,7 +1010,11 @@ pub async fn check_approval_status(user: Principal, amount: u64) -> Result<bool>
 #[update]
 pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
     let caller = ic_cdk::api::msg_caller();
-    ic_cdk::println!("DEBUG: redeem_ousg_tokens called with caller: {:?}, amount: {}", caller, ousg_amount);
+    ic_cdk::println!(
+        "DEBUG: redeem_ousg_tokens called with caller: {:?}, amount: {}",
+        caller,
+        ousg_amount
+    );
 
     // Check if user is registered and eligible
     let user = match UserStorage::get(&caller) {
@@ -1062,7 +1078,7 @@ pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
     match burn_ousg_tokens(caller, ousg_amount).await {
         Ok(_) => {
             ic_cdk::println!("DEBUG: OUSG tokens burned successfully");
-            
+
             // Update user balance
             let mut updated_user = user;
             updated_user.total_invested = updated_user.total_invested.saturating_sub(ousg_amount);
@@ -1078,7 +1094,7 @@ pub async fn redeem_ousg_tokens(ousg_amount: u64) -> Result<u64> {
                 Ok(_) => {
                     ic_cdk::println!("DEBUG: ckBTC transfer completed successfully");
                     Ok(ckbtc_amount)
-                },
+                }
                 Err(e) => Err(BitcoinUSTBillsError::StorageError(format!(
                     "Failed to transfer ckBTC to user: {:?}",
                     e

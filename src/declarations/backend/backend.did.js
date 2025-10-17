@@ -166,6 +166,7 @@ export const idlFactory = ({ IDL }) => {
         [Result_2],
         ['query'],
       ),
+    'get_all_users' : IDL.Func([], [IDL.Vec(User)], ['query']),
     'get_authorized_principals' : IDL.Func(
         [],
         [IDL.Vec(IDL.Principal)],
@@ -182,6 +183,7 @@ export const idlFactory = ({ IDL }) => {
     'get_free_kyc_status' : IDL.Func([IDL.Text], [Result_6], ['query']),
     'get_latest_block_number' : IDL.Func([], [IDL.Text], []),
     'get_ousg_balance' : IDL.Func([], [Result_7], []),
+    'get_total_users' : IDL.Func([], [IDL.Nat64], ['query']),
     'get_user_deposits' : IDL.Func([], [Result_8], ['query']),
     'get_user_profile' : IDL.Func([], [Result_9], ['query']),
     'is_user_registered' : IDL.Func([], [IDL.Bool], ['query']),
