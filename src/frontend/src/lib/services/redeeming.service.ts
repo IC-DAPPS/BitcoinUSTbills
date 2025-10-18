@@ -23,6 +23,15 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
             duration: 8000
         });
 
+        // Get the OUSG ledger fee first
+        const feeResponse = await ousgLedger.icrc1_fee();
+        const ledgerFee = feeResponse; // This is a bigint
+        console.log('DEBUG: OUSG ledger fee:', ledgerFee.toString());
+
+        // Approve amount + fee (transfer_from needs approval for both)
+        const approvalAmount = ousgAmount + ledgerFee;
+        console.log('DEBUG: Approving amount + fee:', approvalAmount.toString(), '(', ousgAmount.toString(), '+', ledgerFee.toString(), ')');
+
         // Approve backend canister to spend user's OUSG tokens
         const approvalResponse = await ousgLedger.icrc2_approve({
             from_subaccount: [],
@@ -30,10 +39,10 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
                 owner: Principal.fromText(BACKEND_CANISTER_ID),
                 subaccount: []
             },
-            amount: ousgAmount,
+            amount: approvalAmount, // Approve amount + fee
             expected_allowance: [],
             expires_at: [],
-            fee: [],
+            fee: [], // Approval also has a fee, but it's separate
             memo: [],
             created_at_time: []
         });

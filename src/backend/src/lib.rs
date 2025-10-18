@@ -1228,6 +1228,33 @@ async fn burn_ousg_tokens(user: Principal, amount: u64) -> Result<u64> {
         created_at_time: Some(ic_cdk::api::time()),
     };
 
+    // Get the ledger fee first
+    let fee_result = service.icrc_1_fee().await;
+    let ledger_fee = match fee_result {
+        Ok((fee,)) => {
+            let digits = fee.0.to_u64_digits();
+            if digits.is_empty() {
+                10000
+            } else {
+                digits[0]
+            } // Default to 10000 if empty
+        }
+        Err(_) => 10000, // Default fee
+    };
+
+    ic_cdk::println!("DEBUG: OUSG ledger fee: {}", ledger_fee);
+
+    // The approval must cover amount + fee for transfer_from to work
+    // So we need to check if the user approved enough
+    let required_allowance = amount + ledger_fee;
+
+    ic_cdk::println!(
+        "DEBUG: Required allowance: {} (amount: {} + fee: {})",
+        required_allowance,
+        amount,
+        ledger_fee
+    );
+
     // This will require the user to have approved the transfer beforehand
     // For now, we'll use icrc2_transfer_from which requires approval
     let result = service
@@ -1236,7 +1263,7 @@ async fn burn_ousg_tokens(user: Principal, amount: u64) -> Result<u64> {
             from: user_account,
             to: burn_account.clone(),
             amount: candid::Nat::from(amount),
-            fee: None,
+            fee: Some(candid::Nat::from(ledger_fee)), // Explicitly set the fee
             memo: Some(serde_bytes::ByteBuf::from(vec![0, 1, 2, 3])),
             created_at_time: Some(ic_cdk::api::time()),
         })

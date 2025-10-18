@@ -25,10 +25,12 @@
   let isApproving = $state(false);
   let isRedeeming = $state(false);
   let approvalPending = $state(false);
+  let approvedAmount = $state(0n); // Store the approved amount in BigInt
 
   // Debug approvalPending state changes
   $effect(() => {
     console.log("DEBUG: approvalPending state changed to:", approvalPending);
+    console.log("DEBUG: approvedAmount:", approvedAmount.toString());
   });
   let btcPrice = $state(100000); // Default BTC price
   let ckBtcAmount = $state(0.5); // Default value
@@ -251,7 +253,12 @@
 
       if (result.success) {
         approvalPending = true;
+        approvedAmount = ousgAmountBigInt; // Store the approved amount
         console.log("DEBUG: approvalPending set to true");
+        console.log(
+          "DEBUG: Stored approved amount:",
+          approvedAmount.toString()
+        );
 
         // Format the amount nicely
         const formattedAmount = amount.toLocaleString("en-US", {
@@ -309,15 +316,20 @@
     //   return;
     // }
 
-    const amount = parseFloat(ousgAmount);
-    if (!amount || amount <= 0) {
-      toast.error("Please enter a valid BBILL amount");
+    // Use the approved amount instead of user input
+    if (approvedAmount <= 0n) {
+      toast.error("❌ No approved amount found", {
+        description: "Please approve tokens first before redeeming.",
+      });
       return;
     }
 
-    const ousgAmountBigInt = BigInt(Math.floor(amount * 1_000_000));
+    console.log(
+      "DEBUG: Redeeming with approved amount:",
+      approvedAmount.toString()
+    );
 
-    if (ousgBalance.balance < ousgAmountBigInt) {
+    if (ousgBalance.balance < approvedAmount) {
       toast.error("❌ Insufficient BBILL balance", {
         description: `You only have ${(Number(ousgBalance.balance) / 1_000_000).toFixed(2)} BBILL tokens available.`,
       });
@@ -332,14 +344,14 @@
     });
 
     try {
-      const result = await redeemOUSG(ousgAmountBigInt);
+      const result = await redeemOUSG(approvedAmount);
 
       // Dismiss processing toast
       toast.dismiss(processingToast);
 
       if (result.success) {
-        // Calculate expected ckBTC received
-        const usdValue = (Number(ousgAmountBigInt) / 1_000_000) * 5000;
+        // Calculate expected ckBTC received using the approved amount
+        const usdValue = (Number(approvedAmount) / 1_000_000) * 5000;
         const ckbtcReceived = (usdValue / btcPrice) * 100_000_000;
         const formattedCkBTC = (ckbtcReceived / 100_000_000).toLocaleString(
           "en-US",
@@ -350,7 +362,9 @@
         );
         const formattedSatoshis =
           Math.floor(ckbtcReceived).toLocaleString("en-US");
-        const formattedBBILL = amount.toLocaleString("en-US", {
+        const formattedBBILL = (
+          Number(approvedAmount) / 1_000_000
+        ).toLocaleString("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 6,
         });
@@ -371,6 +385,7 @@
         // Reset form
         ousgAmount = "";
         approvalPending = false;
+        approvedAmount = 0n; // Reset approved amount
 
         toast.success("✅ Balances updated!", {
           duration: 3000,
