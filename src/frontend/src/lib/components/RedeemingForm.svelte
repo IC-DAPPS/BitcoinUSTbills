@@ -45,7 +45,52 @@
     }
   });
 
+  const handleApprove = async () => {
+    if (!$authStore.isAuthenticated) {
+      toast.error("Please log in to approve OUSG tokens");
+      return;
+    }
+
+    if (!userSate.profile || userSate.profile.kyc_status !== "Verified") {
+      toast.error("KYC verification is required to approve OUSG tokens");
+      return;
+    }
+
+    const amount = parseFloat(ousgAmount);
+    if (!amount || amount <= 0) {
+      toast.error("Please enter a valid OUSG amount");
+      return;
+    }
+
+    const ousgAmountBigInt = BigInt(Math.floor(amount * 1_000_000)); // Convert to units
+
+    if (ousgBalance.balance < ousgAmountBigInt) {
+      toast.error("Insufficient OUSG balance");
+      return;
+    }
+
+    isApproving = true;
+
+    try {
+      const result = await approveOUSGForRedemption(ousgAmountBigInt);
+      if (result.success) {
+        approvalPending = true;
+        toast.success("OUSG tokens approved! You can now redeem them.");
+      }
+    } catch (error) {
+      console.error("Approval error:", error);
+      toast.error("Failed to approve OUSG tokens");
+    } finally {
+      isApproving = false;
+    }
+  };
+
   const handleRedeem = async () => {
+    if (!approvalPending) {
+      toast.error("Please approve OUSG tokens first");
+      return;
+    }
+
     if (!$authStore.isAuthenticated) {
       toast.error("Please log in to redeem OUSG tokens");
       return;
@@ -76,6 +121,7 @@
       if (result.success) {
         ousgAmount = "";
         expectedCkBTC = 0n;
+        approvalPending = false; // Reset approval status
       }
     } catch (error) {
       console.error("Redeeming error:", error);
@@ -91,7 +137,7 @@
     }
   };
 
-  const isDisabled = $derived(
+  const isApproveDisabled = $derived(
     !$authStore.isAuthenticated ||
       !userSate.profile ||
       userSate.profile.kyc_status !== "Verified" ||
@@ -100,14 +146,38 @@
       parseFloat(ousgAmount) < 1 ||
       ousgBalance.balance <
         BigInt(Math.floor((parseFloat(ousgAmount) || 0) * 1_000_000)) ||
-      isRedeeming
+      isApproving ||
+      approvalPending
   );
 
-  const buttonText = $derived(() => {
+  const isRedeemDisabled = $derived(
+    !$authStore.isAuthenticated ||
+      !userSate.profile ||
+      userSate.profile.kyc_status !== "Verified" ||
+      !ousgAmount ||
+      parseFloat(ousgAmount) <= 0 ||
+      parseFloat(ousgAmount) < 1 ||
+      ousgBalance.balance <
+        BigInt(Math.floor((parseFloat(ousgAmount) || 0) * 1_000_000)) ||
+      isRedeeming ||
+      !approvalPending
+  );
+
+  const approveButtonText = $derived(() => {
+    if (!$authStore.isAuthenticated) return "Connect to approve";
+    if (!userSate.profile || userSate.profile.kyc_status !== "Verified")
+      return "KYC required";
+    if (isApproving) return "Approving...";
+    if (approvalPending) return "Already Approved";
+    return "Approve OUSG";
+  });
+
+  const redeemButtonText = $derived(() => {
     if (!$authStore.isAuthenticated) return "Connect to redeem";
     if (!userSate.profile || userSate.profile.kyc_status !== "Verified")
       return "KYC required";
     if (isRedeeming) return "Redeeming...";
+    if (!approvalPending) return "Approve First";
     return "Redeem OUSG";
   });
 </script>
@@ -181,11 +251,20 @@
       </div>
     {/if}
 
-    <Button onclick={handleRedeem} disabled={isDisabled} class="w-full">
+    <!-- Approve Button -->
+    <Button onclick={handleApprove} disabled={isApproveDisabled} class="w-full mb-3">
+      {#if isApproving}
+        <LoadingSpinner />
+      {/if}
+      {approveButtonText}
+    </Button>
+
+    <!-- Redeem Button -->
+    <Button onclick={handleRedeem} disabled={isRedeemDisabled} class="w-full">
       {#if isRedeeming}
         <LoadingSpinner />
       {/if}
-      {buttonText}
+      {redeemButtonText}
     </Button>
   </div>
 </div>

@@ -8,6 +8,44 @@ import { goto } from "$app/navigation";
 
 export const userSate: UserSate = $state({});
 
+// Debug function to check if user is registered
+export const checkUserRegistrationStatus = async () => {
+    try {
+        const { isAuthenticated, backend } = get(authStore);
+
+        if (!isAuthenticated || !backend) {
+            console.log('Not authenticated or backend not available');
+            return false;
+        }
+
+        const isRegistered = await backend.is_user_registered();
+        console.log('User registration status:', isRegistered);
+        return isRegistered;
+    } catch (error) {
+        console.error('Error checking registration status:', error);
+        return false;
+    }
+};
+
+// Debug function to check total users in backend
+export const checkTotalUsers = async () => {
+    try {
+        const { isAuthenticated, backend } = get(authStore);
+
+        if (!isAuthenticated || !backend) {
+            console.log('Not authenticated or backend not available');
+            return 0;
+        }
+
+        const totalUsers = await backend.get_total_users();
+        console.log('Total users in backend:', totalUsers);
+        return totalUsers;
+    } catch (error) {
+        console.error('Error checking total users:', error);
+        return 0;
+    }
+};
+
 export const fetchUserProfile = async () => {
     try {
         const { isAuthenticated, backend } = get(authStore);
@@ -18,13 +56,21 @@ export const fetchUserProfile = async () => {
 
         if ('Ok' in response) {
             userSate.profile = transformUserToProfile(response.Ok);
+            console.log('User profile loaded successfully:', userSate.profile);
         } else {
             const err = response.Err;
             console.error('Error fetching user profile:', err);
+
+            // Clear profile if user not found
+            if (err && typeof err === 'object' && 'UserNotFound' in err) {
+                console.log('User not found in backend - user needs to register');
+                userSate.profile = null;
+            }
         }
 
     } catch (error) {
         console.error('Error fetching user profile:', error);
+        userSate.profile = null;
     }
 };
 

@@ -4,33 +4,61 @@ import { toast } from 'svelte-sonner';
 import type { ResultSuccess } from '$lib/types/utils';
 import { fetchCkbtcBalance } from '$lib/state/ckbtc-balance.svelte';
 import { fetchOUSGBalance } from '$lib/state/ousg-balance.svelte';
+import { Principal } from '@dfinity/principal';
+import { BACKEND_CANISTER_ID, OUSG_LEDGER_CANISTER_ID } from '$lib/constants';
 
 let toastId: string | number;
 
 export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<ResultSuccess> => {
-    const { backend } = get(authStore);
+    console.log('DEBUG: approveOUSGForRedemption called with amount:', ousgAmount.toString());
+    const { ousgLedger, isAuthenticated } = get(authStore);
 
-    if (!backend) {
-        return { success: false, err: 'Backend actor not available' };
+    if (!isAuthenticated || !ousgLedger) {
+        return { success: false, err: 'Please connect your wallet first' };
     }
 
     try {
-        toastId = toast.loading('Approving OUSG tokens for redemption...', {
+        toastId = toast.loading('Approving BBILL tokens for redemption...', {
             id: toastId,
             duration: 8000
         });
 
-        // First approve the tokens for redemption
-        const approvalResponse = await backend.approve_ousg_for_redemption(ousgAmount);
+        // Get the OUSG ledger fee first
+        const feeResponse = await ousgLedger.icrc1_fee();
+        const ledgerFee = feeResponse; // This is a bigint
+        console.log('DEBUG: OUSG ledger fee:', ledgerFee.toString());
+
+        // Approve amount + fee (transfer_from needs approval for both)
+        const approvalAmount = ousgAmount + ledgerFee;
+        console.log('DEBUG: Approving amount + fee:', approvalAmount.toString(), '(', ousgAmount.toString(), '+', ledgerFee.toString(), ')');
+
+        // Approve backend canister to spend user's OUSG tokens
+        const approvalResponse = await ousgLedger.icrc2_approve({
+            from_subaccount: [],
+            spender: {
+                owner: Principal.fromText(BACKEND_CANISTER_ID),
+                subaccount: []
+            },
+            amount: approvalAmount, // Approve amount + fee
+            expected_allowance: [],
+            expires_at: [],
+            fee: [], // Approval also has a fee, but it's separate
+            memo: [],
+            created_at_time: []
+        });
+
+        console.log('DEBUG: Approval response:', approvalResponse);
 
         if ('Ok' in approvalResponse) {
-            toast.success('OUSG tokens approved for redemption!', {
+            console.log('DEBUG: Approval successful');
+            toast.success('BBILL tokens approved for redemption!', {
                 id: toastId,
                 duration: 2000
             });
             return { success: true };
         } else {
-            const errorMessage = `Approval failed: ${approvalResponse.Err || 'Unknown error'}`;
+            const errorMessage = `Approval failed: ${JSON.stringify(approvalResponse.Err) || 'Unknown error'}`;
+            console.error('DEBUG: Approval failed:', approvalResponse.Err);
             toast.error(errorMessage, {
                 id: toastId,
                 duration: 4000
@@ -38,8 +66,8 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
             return { success: false, err: errorMessage };
         }
     } catch (error) {
-        console.error('Error approving OUSG:', error);
-        const errorMessage = 'Failed to approve OUSG tokens';
+        console.error('Error approving BBILL:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to approve BBILL tokens';
 
         toast.error(errorMessage, {
             id: toastId,
@@ -51,14 +79,16 @@ export const approveOUSGForRedemption = async (ousgAmount: bigint): Promise<Resu
 };
 
 export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => {
-    const { backend } = get(authStore);
+    const { backend, isAuthenticated } = get(authStore);
 
-    if (!backend) {
-        return { success: false, err: 'Backend actor not available' };
+    if (!isAuthenticated || !backend) {
+        return { success: false, err: 'Please connect your wallet first' };
     }
 
     try {
-        toastId = toast.loading('Redeeming OUSG tokens...', {
+        console.log('DEBUG: redeemOUSG called with amount:', ousgAmount.toString());
+
+        toastId = toast.loading('Redeeming BBILL tokens...', {
             id: toastId,
             duration: 8000
         });
@@ -66,9 +96,13 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
         // Call the backend redeem function
         const response = await backend.redeem_ousg_tokens(ousgAmount);
 
+        console.log('DEBUG: Backend redemption response:', response);
+
         if ('Ok' in response) {
             const ckbtcAmount = response.Ok;
-            toast.success(`OUSG tokens redeemed successfully! Received ${Number(ckbtcAmount) / 100_000_000} ckBTC`, {
+            console.log('DEBUG: Received ckBTC amount:', ckbtcAmount.toString());
+
+            toast.success(`BBILL tokens redeemed successfully! Received ${Number(ckbtcAmount) / 100_000_000} ckBTC`, {
                 id: toastId,
                 duration: 4000
             });
@@ -79,7 +113,9 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
 
             return { success: true };
         } else {
-            const errorMessage = `Redeeming failed: ${response.Err || 'Unknown error'}`;
+            const errorMessage = `Redeeming failed: ${JSON.stringify(response.Err) || 'Unknown error'}`;
+            console.error('DEBUG: Redemption error:', response.Err);
+
             toast.error(errorMessage, {
                 id: toastId,
                 duration: 4000
@@ -88,8 +124,8 @@ export const redeemOUSG = async (ousgAmount: bigint): Promise<ResultSuccess> => 
             return { success: false, err: errorMessage };
         }
     } catch (error) {
-        console.error('Error redeeming OUSG:', error);
-        const errorMessage = 'Failed to redeem OUSG tokens';
+        console.error('Error redeeming BBILL:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to redeem BBILL tokens';
 
         toast.error(errorMessage, {
             id: toastId,
