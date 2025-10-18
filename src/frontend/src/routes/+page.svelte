@@ -2,9 +2,13 @@
   import { onMount } from "svelte";
   import { authStore } from "$lib/stores/auth.store";
   import { userSate } from "$lib/state/user.svelte";
-  import { ckbtcBalance } from "$lib/state/ckbtc-balance.svelte";
+  import {
+    ckbtcBalance,
+    fetchCkbtcBalance,
+  } from "$lib/state/ckbtc-balance.svelte";
   import {
     ousgBalance,
+    fetchOUSGBalance,
     subscribeToAuthChanges,
   } from "$lib/state/ousg-balance.svelte";
   import { mintOUSGAutomatic } from "$lib/services/minting.service";
@@ -139,7 +143,7 @@
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         // Refresh balances
-        await Promise.all([ousgBalance.refresh(), ckbtcBalance.refresh()]);
+        await Promise.all([fetchOUSGBalance(), fetchCkbtcBalance()]);
 
         // Reset form
         ckbtcAmount = "";
@@ -324,7 +328,7 @@
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         // Refresh balances
-        await Promise.all([ousgBalance.refresh(), ckbtcBalance.refresh()]);
+        await Promise.all([fetchOUSGBalance(), fetchCkbtcBalance()]);
 
         // Reset form
         ousgAmount = "";
