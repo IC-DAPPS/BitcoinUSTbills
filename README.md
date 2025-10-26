@@ -8,6 +8,7 @@ A comprehensive Web3 platform for tokenizing and trading US Treasury Bills on th
 
 ---
 
+
 ## 🌟 Why BitcoinUSTbills on ICP is Revolutionary
 
 ### **Traditional T-Bill Platforms vs BitcoinUSTbills**
