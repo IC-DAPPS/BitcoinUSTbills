@@ -343,6 +343,209 @@ pub async fn distribute_platform_fees() {
 
 ---
 
+## 🧭 Operational Note: Manual Replenishment/Top-up
+
+- **What**: Replenishing the canister-controlled Ethereum address (e.g., OUSD) is done **manually** by the ops team.
+- **When**: After previously purchased funds (e.g., $5,000) are fully distributed/minted and the balance is low.
+- **How**: Manually buy and transfer additional tokens to the **same canister-controlled Ethereum address**. No code/config changes needed.
+- **Effect**: The backend continues the same minting flow; it reads the updated token balance and mints equivalent ICRC supply to user accounts as usual.
+- **Precision**: Keep ICRC token decimals aligned with the source Ethereum token decimals to avoid rounding/valuation mismatches.
+
+---
+
+## 💰 OUSG Token Minting & Balance Validation System
+
+### **Overview**
+Our platform mints ICRC-1 tokens (OUSG) on Internet Computer that are **1:1 backed** by real OUSG tokens held on Ethereum. This ensures every IC token has backing, maintaining trust and financial integrity.
+
+### **Key Concepts**
+
+#### **1. Fractional Minting Advantage**
+Unlike traditional platforms like Ondo Finance (minimum ~$5,000 investment), our platform supports **fractional minting**:
+- **Minimum investment**: $0.01 USD (vs Ondo's $5,000+)
+- **Precision**: 18 decimals (same as Ethereum ERC-20 standard)
+- **Example**: User can mint 0.00001 OUSG (worth ~$0.001) if desired
+
+**Why This Matters:**
+- Makes US Treasury Bills accessible to everyone
+- True fractional ownership from $1, not $5,000
+- Democratizes access to traditional finance
+
+#### **2. 1:1 Backing Guarantee**
+Every ICRC-1 OUSG token minted is backed by exactly 1 OUSG token on Ethereum:
+
+```
+Ethereum Balance: 44.20 OUSG
+IC Total Supply:  44.20 OUSG
+✅ Perfect 1:1 match = Fully backed
+```
+
+**Validation Check (Before Every Mint):**
+```
+if (IC_total_supply + requested_amount) <= Ethereum_balance {
+    ✅ Safe to mint
+} else {
+    ❌ Reject: "Insufficient OUSG reserve"
+}
+```
+
+#### **3. Real-Time Minting Flow**
+
+```
+1. User deposits ckBTC
+   ↓
+2. System calculates USD value of deposit
+   ↓
+3. System fetches current OUSG price (~$113.13)
+   ↓
+4. Calculate OUSG tokens to mint: USD_value ÷ OUSG_price
+   ↓
+5. ✅ VALIDATE: Check Ethereum balance + IC supply
+   ↓
+6. If validated → Mint ICRC-1 tokens immediately (real-time)
+   ↓
+7. Update IC total supply
+```
+
+**Example Calculation:**
+- User deposits: $100 USD worth of ckBTC
+- OUSG price: $113.13 per token
+- Tokens to mint: $100 ÷ $113.13 = **0.884 OUSG**
+- System checks: Does Ethereum have at least 0.884 OUSG available?
+- If yes → Mint 0.884 OUSG ICRC-1 tokens to user
+
+#### **4. Balance Validation Examples**
+
+**Scenario 1: Normal Minting**
+```
+Initial State:
+- Ethereum balance: 44.20 OUSG
+- IC total supply: 0 OUSG
+
+User Request: 10 OUSG
+Validation: 0 + 10 <= 44.20? ✅ YES
+Result: Mint 10 OUSG, IC supply = 10 OUSG
+```
+
+**Scenario 2: Insufficient Reserve**
+```
+Current State:
+- Ethereum balance: 44.20 OUSG
+- IC total supply: 42 OUSG
+- Available: 2.20 OUSG
+
+User Request: 5 OUSG
+Validation: 42 + 5 <= 44.20? ❌ NO (47 > 44.20)
+Result: Reject with error: "Only 2.20 OUSG available, 5.00 requested"
+```
+
+**Scenario 3: Fractional Precision (18 Decimals)**
+```
+Ethereum: 44.20 OUSG (44200000000000000000 units)
+IC Supply: 44.19 OUSG (44190000000000000000 units)
+Available: 0.01 OUSG (10000000000000000 units)
+
+User Request: 0.01 OUSG
+Validation: 44190000000000000000 + 10000000000000000 <= 44200000000000000000? ✅ YES
+Result: Mint 0.01 OUSG (exact match)
+```
+
+#### **5. Replenishment Thresholds & Alerts**
+
+The system monitors OUSG reserve usage and alerts when replenishment is needed:
+
+| Threshold | Usage Level | Action | Status |
+|-----------|-------------|--------|--------|
+| **90%** | 39.78 OUSG used (out of 44.20) | ⚠️ Warning alert to admin | Continue minting |
+| **95%** | 41.99 OUSG used | 🔴 Critical alert | Continue minting |
+| **99%** | 43.76 OUSG used | 🚫 Block new mints | Require replenishment |
+| **100%** | 44.20 OUSG used | ❌ All mints blocked | Manual top-up required |
+
+**Why Thresholds Matter:**
+- **90%**: Gives admin time to prepare replenishment
+- **95%**: Urgent action needed
+- **99%**: Prevents over-minting (safety buffer)
+
+#### **6. Rounding Buffer**
+
+To handle precision differences, a small buffer is used:
+- **Buffer size**: 0.000000001 OUSG (1 billionth of a token)
+- **Purpose**: Prevents false rejections due to rounding errors
+- **Impact**: Minimal (~$0.000001 in value)
+
+**Example with Buffer:**
+```
+Ethereum: 44.200000000000000001 OUSG (rounding artifact)
+IC: 44.200000000000000000 OUSG
+Buffer: 0.000000001 OUSG
+
+Check: IC + requested + buffer <= Ethereum? ✅ YES
+(Prevents rejection due to tiny rounding differences)
+```
+
+#### **7. OUSG Token Details**
+
+- **Ethereum Contract**: `0x1B19C19393e2d034D8Ff31ff34c81252FcBbee92`
+- **Standard**: ERC-20
+- **Decimals**: 18 (1 token = 10^18 units)
+- **Current Price**: ~$113.13 USD (fluctuates)
+- **Etherscan**: https://etherscan.io/token/0x1B19C19393e2d034D8Ff31ff34c81252FcBbee92
+
+**Balance Check:**
+- Function: `balanceOf(address)` 
+- Returns: Balance in 18 decimal precision
+- Example: `44200000000000000000` = 44.20 OUSG tokens
+
+#### **8. Comparison: BitcoinUSTbills vs Ondo Finance**
+
+| Feature | Ondo Finance | **BitcoinUSTbills** |
+|---------|--------------|---------------------|
+| **Minimum Investment** | ~$5,000 USD | ✅ **$0.01 USD** |
+| **Fractional Tokens** | ❌ No (whole tokens only) | ✅ **Yes (18 decimals)** |
+| **Minting Speed** | Manual processing | ✅ **Real-time** |
+| **Accessibility** | High-net-worth individuals | ✅ **Everyone** |
+| **Backing** | 1:1 with OUSG | ✅ **1:1 with OUSG** |
+| **Decentralization** | Partial | ✅ **Fully on-chain** |
+
+### **Technical Implementation**
+
+#### **Balance Validation Code Flow**
+```rust
+// Before minting in notify_deposit()
+
+1. Get Ethereum balance: get_ousg_ethereum_balance(address)
+2. Get IC supply: get_ic_ousg_total_supply()
+3. Calculate requested: deposit.calculate_ousg_to_mint()
+4. Validate: (IC_supply + requested + buffer) <= Ethereum_balance
+5. Check threshold: usage_ratio = (IC_supply + requested) / Ethereum_balance
+6. If threshold exceeded: Block or alert
+7. If validated: Proceed with minting
+```
+
+#### **Key Functions**
+- `get_ousg_ethereum_balance()` - Fetches balance via EVM RPC `balanceOf` call
+- `get_ic_ousg_total_supply()` - Gets current ICRC-1 ledger total supply
+- `can_mint_ousg()` - Validates if minting is allowed
+- `notify_admin()` - Sends alerts at threshold levels
+
+### **Benefits for Users**
+
+1. ✅ **True Fractional Access**: Start with $1, not $5,000
+2. ✅ **Always Backed**: Every token guaranteed 1:1 with Ethereum OUSG
+3. ✅ **Real-Time**: Instant minting, no waiting
+4. ✅ **Transparent**: All validations happen on-chain
+5. ✅ **Global Access**: No geographic restrictions
+
+### **Benefits for Platform**
+
+1. ✅ **Trust**: Users know tokens are always backed
+2. ✅ **Compliance**: Maintains 1:1 backing ratio
+3. ✅ **Automated Alerts**: Know when to replenish
+4. ✅ **Prevents Over-Minting**: Validation blocks unbacked tokens
+5. ✅ **Competitive Advantage**: Fractional access vs competitors
+
+---
+
 ## 🧪 Testing & Quality Assurance
 
 ### **Comprehensive Test Coverage**
